@@ -1,0 +1,237 @@
+// Configurações gerais do jogo. Mude os números para alterar a "sensação" do controle.
+
+const WIDTH = 960;
+const HEIGHT = 540;
+const TILE = 32;
+const FONT = '"Trebuchet MS", Verdana, sans-serif';
+const PLAYER_NAME = 'Brunucho';
+const GAME_TITLE = `SUPER ${PLAYER_NAME.toUpperCase()}`;
+const GAME_SUBTITLE = 'A Lenda da Aura Infinita';
+
+// ---- Pontuação ----
+const SCORE = {
+  coin: 100,
+  enemy: 200,          // multiplicado pelo combo (pisar em vários sem tocar o chão)
+  power67: 670,
+  aura: 1000,
+  checkpoint: 500,
+  death: -500,
+  levelClear: 1000,
+  noDeath: 2000,       // bônus: passar a fase sem morrer
+  allCoins: 1500,      // bônus: pegar todas as moedas da fase
+  parTime: 90,         // segundos: quanto mais rápido que isso, mais bônus
+  timeBonus: 25,       // pontos por segundo abaixo do parTime
+};
+
+// ---- Dificuldade ----
+const DIFFICULTY = {
+  facil:   { name: 'Fácil',   lives: 7, enemySpeed: 0.8 },
+  normal:  { name: 'Normal',  lives: 5, enemySpeed: 1 },
+  dificil: { name: 'Difícil', lives: 3, enemySpeed: 1.35 },
+};
+const DIFFICULTY_KEYS = Object.keys(DIFFICULTY);
+const COINS_PER_LIFE = 100;
+
+// ---- Opções do jogador (tela de Opções) ----
+const Settings = {
+  defaults: { music: 0.5, sfx: 0.8, voices: true, shake: true, difficulty: 'normal', allLevels: false },
+  all() { return { ...this.defaults, ...Storage.get('pp_settings', {}) }; },
+  get(key) { return this.all()[key]; },
+  set(key, value) {
+    Storage.set('pp_settings', { ...this.all(), [key]: value });
+    if (typeof Sfx !== 'undefined') Sfx.applyVolumes();
+  },
+};
+function difficulty() { return DIFFICULTY[Settings.get('difficulty')] || DIFFICULTY.normal; }
+
+// ---- Progresso salvo: fases liberadas, estrelas e "Continuar" ----
+const Progress = {
+  data() { return { unlocked: 1, stars: {}, save: null, ...Storage.get('pp_progress', {}) }; },
+  write(d) { Storage.set('pp_progress', d); },
+  isUnlocked(i) { return Settings.get('allLevels') || i < this.data().unlocked; },
+  // chamado ao terminar uma fase
+  completeLevel(i, { noDeath, allCoins }) {
+    const d = this.data();
+    d.unlocked = Math.max(d.unlocked, Math.min(i + 2, LEVELS.length));
+    const s = d.stars[i] || { done: false, noDeath: false, allCoins: false };
+    d.stars[i] = { done: true, noDeath: s.noDeath || noDeath, allCoins: s.allCoins || allCoins };
+    this.write(d);
+  },
+  starCount(i) { const s = this.data().stars[i]; return s ? (s.done ? 1 : 0) + (s.noDeath ? 1 : 0) + (s.allCoins ? 1 : 0) : 0; },
+  saveRun(level, stats) { const d = this.data(); d.save = { level, stats }; this.write(d); },
+  clearRun() { const d = this.data(); d.save = null; this.write(d); },
+  reset() { Storage.set('pp_progress', {}); Storage.set('pp_achievements', {}); Storage.set('pp_counters', {}); Storage.set('pp_ranking', []); },
+};
+
+// ---- Inimigos famosos (letra no mapa → tipo) ----
+// behavior: 'walker' anda e vira na beirada · 'caicai' se joga e rola · 'jumper' pula · 'shooter' fica parado e atira
+const FAMOUS = {
+  N: { key: 'neymar',  name: 'Neymar',          behavior: 'caicai',  speed: 70, lines: ['CAI-CAI!', 'AIIII!', 'FOI PÊNALTI!', 'ME DERRUBARAM!'] },
+  V: { key: 'galvao',  name: 'Galvão Bueno',    behavior: 'shooter', speed: 0,  lines: ['HAJA CORAÇÃO!', 'É TETRAAA!', 'BEM, AMIGOS!', 'OLHA O GOL!'] },
+  J: { key: 'caze',    name: 'Casimiro',        behavior: 'jumper',  speed: 50, lines: ['VAMO!', 'MEU DEUS!', 'QUE ISSO?!', 'SENSACIONAL!'] },
+  D: { key: 'ednaldo', name: 'Ednaldo Pereira', behavior: 'walker',  speed: 45, lines: ['Vale nada, vale tudo!', 'Ednaldo Pereira!'] },
+};
+
+// Ranking dos 5 melhores (salvo no navegador)
+const Ranking = {
+  list() { return Storage.get('pp_ranking', []); },
+  add(entry) {
+    const list = [...this.list(), { ...entry, date: new Date().toLocaleDateString('pt-BR') }]
+      .sort((a, b) => b.score - a.score).slice(0, 5);
+    Storage.set('pp_ranking', list);
+    return list.findIndex((e) => e.score === entry.score && e.time === entry.time); // posição (-1 = ficou fora)
+  },
+};
+
+function formatScore(n) { return String(Math.max(0, Math.round(n))).padStart(7, '0'); }
+
+// Roupas do Brunucho (troca no menu com a tecla C). Mude as cores à vontade.
+const HAIR = { hair: 0xc9a25e, hairDark: 0x8e6a35, hairLight: 0xe6c88a }; // loiro escuro
+const OUTFITS = {
+  praia: {
+    name: 'Praia',
+    colors: { ...HAIR, skin: 0xf3c9a4, skinDark: 0xdcaa82,
+      shirt: 0x22222a, shirtDark: 0x111116, shorts: 0xf27a8a, shortsDark: 0xd65a6d },
+    longSleeves: true, sunglasses: true, shoes: 'chinelo',
+  },
+  diesel: {
+    name: 'Diesel',
+    colors: { ...HAIR, skin: 0xffdcc4, skinDark: 0xf0bfa0,
+      shirt: 0x1e3f8f, shirtDark: 0x152d68, shorts: 0x6a98e0, shortsDark: 0x4f7cc4 },
+    chestBadge: true, drawstring: true, shoes: 'tenis',
+  },
+};
+const OUTFIT_KEYS = Object.keys(OUTFITS);
+function currentOutfit() {
+  const key = Storage.get('pp_outfit', OUTFIT_KEYS[0]);
+  return OUTFITS[key] ? key : OUTFIT_KEYS[0];
+}
+function playerTexture() { return `player_${currentOutfit()}`; }
+
+const PHYS = {
+  gravity: 1400,
+  maxSpeed: 260,      // velocidade máxima andando
+  groundAccel: 2000,  // aceleração no chão
+  airAccel: 1300,     // aceleração no ar
+  groundDecel: 2400,  // freio ao soltar a tecla (chão)
+  airDecel: 600,      // freio ao soltar a tecla (ar)
+  jump: 560,          // força do pulo
+  jumpCut: 0.45,      // soltar o botão cedo = pulo mais baixo
+  coyote: 0.1,        // segundos em que ainda dá pra pular depois de sair da borda
+  jumpBuffer: 0.12,   // aperto do pulo "lembrado" antes de tocar o chão
+  stomp: 380,         // quique ao pisar num inimigo
+  enemySpeed: 60,
+};
+
+// Índices dos blocos no tileset gerado em textures.js
+const TILES = {
+  DIRT: 0, GRASS: 1, BRICK: 2, ONEWAY: 3, SAND: 4, SAND_TOP: 5, ROCK: 6,
+  CALCADAO: 7, SIDEWALK: 8, CONCRETE: 9, COBBLE: 10,
+};
+const TILE_COUNT = 11;
+
+// Tipo de chão de cada tema: [bloco de cima, bloco de baixo]
+const GROUNDS = {
+  grama:    [TILES.GRASS, TILES.DIRT],
+  areia:    [TILES.SAND_TOP, TILES.SAND],
+  calcadao: [TILES.CALCADAO, TILES.SAND],    // calçadão de Copacabana
+  calcada:  [TILES.SIDEWALK, TILES.CONCRETE], // calçada de cidade
+  pedra:    [TILES.COBBLE, TILES.DIRT],       // paralelepípedo do Pelourinho
+};
+
+const THEMES = {
+  dia:        { skyTop: 0x4fa3e0, skyBottom: 0xbfe6ff, hillFar: 0x9fd8a4, hillNear: 0x5cb85c, clouds: 0.9, enemy: 'caramelo' },
+  entardecer: { skyTop: 0x3a2a6b, skyBottom: 0xf28c5a, hillFar: 0x8a5a8c, hillNear: 0x5b3b6b, clouds: 0.5, enemy: 'capivara' },
+  noite:      { skyTop: 0x0b1030, skyBottom: 0x2d3a78, hillFar: 0x2b3466, hillNear: 0x1a2048, clouds: 0.25, enemy: 'tungtung' },
+  // Praia: chão de areia, mar com ilhas no fundo, Tralalero Tralala e ouriços.
+  praia:      { skyTop: 0x3d8fd6, skyBottom: 0xcdeeff, hillFar: 0x2f6b3a, clouds: 0.9, sea: true,
+                ground: 'areia', enemy: 'tralalero', spike: 'urchin' },
+
+  // ---- Cenários do Brasil. "layers" = camadas do fundo (factor: quanto acompanham a câmera) ----
+  escola: { skyTop: 0x5fb4ef, skyBottom: 0xdff3ff, clouds: 0.9, ground: 'calcada', enemy: 'tungtung', spike: 'cone',
+    layers: [
+      { key: 'hills', y: HEIGHT - 290, factor: 0.12, tint: 0xa8d8b0 },
+      { key: 'rua', y: HEIGHT - 295, factor: 0.35 },
+    ] },
+  sp: { skyTop: 0x6f7885, skyBottom: 0xe3b98f, clouds: 0.6, ground: 'calcada', enemy: 'caramelo', spike: 'cone', rain: true,
+    layers: [
+      { key: 'sp_far', y: HEIGHT - 390, factor: 0.12 },
+      { key: 'sp_near', y: HEIGHT - 375, factor: 0.3 },
+    ] },
+  rio: { skyTop: 0x2f86d6, skyBottom: 0xd6f0ff, clouds: 0.8, ground: 'calcadao', enemy: 'capivara', spike: 'urchin',
+    layers: [
+      { key: 'rio_mountains', y: HEIGHT - 330, factor: 0.12 },
+      { key: 'sea', y: HEIGHT - 200, factor: 0.4, wave: true },
+    ] },
+  // Brasília: chefão final (Lula & Flávio)
+  brasilia: { skyTop: 0x2b1a4a, skyBottom: 0xff9a5a, clouds: 0.5, ground: 'calcada', enemy: 'tungtung', spike: 'cone', music: 'noite',
+    layers: [
+      { key: 'hills', y: HEIGHT - 280, factor: 0.1, tint: 0x6a4a6a, scaleY: 0.6 },
+      { key: 'brasilia', y: HEIGHT - 375, factor: 0.25 },
+    ] },
+  bahia: { skyTop: 0x2a9fe0, skyBottom: 0xffe2a8, clouds: 0.7, ground: 'pedra', enemy: 'tralalero', spike: 'urchin',
+    layers: [
+      { key: 'ba_city', y: HEIGHT - 360, factor: 0.12 },
+      { key: 'pelourinho', y: HEIGHT - 275, factor: 0.35 },
+    ] },
+};
+
+// localStorage pode falhar (aba anônima etc.), então tudo fica protegido.
+const Storage = {
+  get(key, fallback) {
+    try {
+      const v = localStorage.getItem(key);
+      return v === null ? fallback : JSON.parse(v);
+    } catch (e) { return fallback; }
+  },
+  set(key, value) {
+    try { localStorage.setItem(key, JSON.stringify(value)); } catch (e) { /* ignora */ }
+  },
+};
+
+function textStyle(size, color = '#ffffff') {
+  return { fontFamily: FONT, fontSize: `${size}px`, color, stroke: '#1b1b2a', strokeThickness: Math.max(3, size / 6) };
+}
+
+function formatTime(seconds) {
+  const m = Math.floor(seconds / 60);
+  const s = (seconds % 60).toFixed(1).padStart(4, '0');
+  return m > 0 ? `${m}:${s}` : `${s}s`;
+}
+
+// Céu em degradê + nuvens + morros com parallax. Usado no menu e nas fases.
+function createBackdrop(scene, theme) {
+  const g = scene.add.graphics().setScrollFactor(0).setDepth(-10);
+  g.fillGradientStyle(theme.skyTop, theme.skyTop, theme.skyBottom, theme.skyBottom, 1);
+  g.fillRect(0, 0, WIDTH, HEIGHT);
+  let layers = theme.layers;
+  if (!layers && theme.sea) {
+    // Ilhas no horizonte + mar com ondas que se mexem sozinhas
+    layers = [
+      { key: 'hills', y: HEIGHT - 290, factor: 0.15, tint: theme.hillFar, scaleY: 0.6 },
+      { key: 'sea', y: HEIGHT - 200, factor: 0.4, wave: true },
+    ];
+  } else if (!layers) {
+    layers = [
+      { key: 'hills', y: HEIGHT - 270, factor: 0.25, tint: theme.hillFar },
+      { key: 'hills2', y: HEIGHT - 200, factor: 0.45, tint: theme.hillNear },
+    ];
+  }
+  layers = [{ key: 'clouds', y: 30, factor: 0.1, drift: 0.006, alpha: theme.clouds }, ...layers];
+
+  const sprites = layers.map((l, i) => {
+    const h = scene.textures.get(l.key).getSourceImage().height;
+    const s = scene.add.tileSprite(0, l.y, WIDTH, h, l.key).setOrigin(0).setScrollFactor(0).setDepth(-9 + i);
+    if (l.tint) s.setTint(l.tint);
+    if (l.alpha !== undefined) s.setAlpha(l.alpha);
+    if (l.scaleY) s.setScale(1, l.scaleY);
+    return { s, l };
+  });
+  return {
+    update(scrollX, time) {
+      for (const { s, l } of sprites) {
+        s.tilePositionX = scrollX * l.factor + (l.drift || 0) * time + (l.wave ? Math.sin(time * 0.0015) * 12 : 0);
+      }
+    },
+  };
+}
