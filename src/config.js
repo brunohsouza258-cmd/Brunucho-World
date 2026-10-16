@@ -60,7 +60,7 @@ const Progress = {
   starCount(i) { const s = this.data().stars[i]; return s ? (s.done ? 1 : 0) + (s.noDeath ? 1 : 0) + (s.allCoins ? 1 : 0) : 0; },
   saveRun(level, stats) { const d = this.data(); d.save = { level, stats }; this.write(d); },
   clearRun() { const d = this.data(); d.save = null; this.write(d); },
-  reset() { Storage.set('pp_progress', {}); Storage.set('pp_achievements', {}); Storage.set('pp_counters', {}); Storage.set('pp_ranking', []); },
+  reset() { Storage.set('pp_progress', {}); Storage.set('pp_achievements', {}); Storage.set('pp_counters', {}); Storage.set('pp_ranking', []); Storage.set('pp_brainrot', []); },
 };
 
 // ---- Inimigos famosos (letra no mapa → tipo) ----
@@ -70,6 +70,16 @@ const FAMOUS = {
   V: { key: 'galvao',  name: 'Galvão Bueno',    behavior: 'shooter', speed: 0,  lines: ['HAJA CORAÇÃO!', 'É TETRAAA!', 'BEM, AMIGOS!', 'OLHA O GOL!'] },
   J: { key: 'caze',    name: 'Casimiro',        behavior: 'jumper',  speed: 50, lines: ['VAMO!', 'MEU DEUS!', 'QUE ISSO?!', 'SENSACIONAL!'] },
   D: { key: 'ednaldo', name: 'Ednaldo Pereira', behavior: 'walker',  speed: 45, lines: ['Vale nada, vale tudo!', 'Ednaldo Pereira!'] },
+};
+
+// ---- Memes brainrot (letra minúscula no mapa → tipo) ----
+// behavior: 'bomber' voa e solta bomba · 'hopper' anda pulando · 'walker' anda · 'dancer' gira e avança
+const MEMES = {
+  b: { key: 'bombardiro', name: 'Bombardiro Crocodilo',  behavior: 'bomber', speed: 85, lines: ['BOMBARDIRO CROCODILO!', 'Bombas a caminho!'] },
+  p: { key: 'patapim',    name: 'Brr Brr Patapim',       behavior: 'hopper', speed: 110, lines: ['Brr brr patapim!', 'Patapim!'] },
+  c: { key: 'bananini',   name: 'Chimpanzini Bananini',  behavior: 'walker', speed: 115, lines: ['Chimpanzini bananini!', 'Bananini!'] },
+  l: { key: 'lirili',     name: 'Lirilì Larilà',         behavior: 'walker', speed: 35, hp: 2, lines: ['Lirilì larilà!', 'Sou duro de moggar!'] },
+  r: { key: 'ballerina',  name: 'Ballerina Cappuccina',  behavior: 'dancer', speed: 0, lines: ['Ballerina Cappuccina!', 'Mi mi mi!'] },
 };
 
 // Ranking dos 5 melhores (salvo no navegador)
@@ -140,15 +150,15 @@ const GROUNDS = {
 };
 
 const THEMES = {
-  dia:        { skyTop: 0x4fa3e0, skyBottom: 0xbfe6ff, hillFar: 0x9fd8a4, hillNear: 0x5cb85c, clouds: 0.9, enemy: 'caramelo' },
-  entardecer: { skyTop: 0x3a2a6b, skyBottom: 0xf28c5a, hillFar: 0x8a5a8c, hillNear: 0x5b3b6b, clouds: 0.5, enemy: 'capivara' },
-  noite:      { skyTop: 0x0b1030, skyBottom: 0x2d3a78, hillFar: 0x2b3466, hillNear: 0x1a2048, clouds: 0.25, enemy: 'tungtung' },
+  dia:        { sky: 'sun', skyTop: 0x4fa3e0, skyBottom: 0xbfe6ff, hillFar: 0x9fd8a4, hillNear: 0x5cb85c, clouds: 0.9, enemy: 'caramelo' },
+  entardecer: { sky: 'sunset', skyTop: 0x3a2a6b, skyBottom: 0xf28c5a, hillFar: 0x8a5a8c, hillNear: 0x5b3b6b, clouds: 0.5, enemy: 'capivara' },
+  noite:      { sky: 'moon', skyTop: 0x0b1030, skyBottom: 0x2d3a78, hillFar: 0x2b3466, hillNear: 0x1a2048, clouds: 0.25, enemy: 'tungtung' },
   // Praia: chão de areia, mar com ilhas no fundo, Tralalero Tralala e ouriços.
-  praia:      { skyTop: 0x3d8fd6, skyBottom: 0xcdeeff, hillFar: 0x2f6b3a, clouds: 0.9, sea: true,
+  praia:      { sky: 'sun', skyTop: 0x3d8fd6, skyBottom: 0xcdeeff, hillFar: 0x2f6b3a, clouds: 0.9, sea: true,
                 ground: 'areia', enemy: 'tralalero', spike: 'urchin' },
 
   // ---- Cenários do Brasil. "layers" = camadas do fundo (factor: quanto acompanham a câmera) ----
-  escola: { skyTop: 0x5fb4ef, skyBottom: 0xdff3ff, clouds: 0.9, ground: 'calcada', enemy: 'tungtung', spike: 'cone',
+  escola: { sky: 'sun', skyTop: 0x5fb4ef, skyBottom: 0xdff3ff, clouds: 0.9, ground: 'calcada', enemy: 'tungtung', spike: 'cone',
     layers: [
       { key: 'hills', y: HEIGHT - 290, factor: 0.12, tint: 0xa8d8b0 },
       { key: 'rua', y: HEIGHT - 295, factor: 0.35 },
@@ -158,23 +168,37 @@ const THEMES = {
       { key: 'sp_far', y: HEIGHT - 390, factor: 0.12 },
       { key: 'sp_near', y: HEIGHT - 375, factor: 0.3 },
     ] },
-  rio: { skyTop: 0x2f86d6, skyBottom: 0xd6f0ff, clouds: 0.8, ground: 'calcadao', enemy: 'capivara', spike: 'urchin',
+  rio: { sky: 'sun', skyTop: 0x2f86d6, skyBottom: 0xd6f0ff, clouds: 0.8, ground: 'calcadao', enemy: 'capivara', spike: 'urchin',
     layers: [
       { key: 'rio_mountains', y: HEIGHT - 330, factor: 0.12 },
       { key: 'sea', y: HEIGHT - 200, factor: 0.4, wave: true },
     ] },
   // Brasília: chefão final (Lula & Flávio)
-  brasilia: { skyTop: 0x2b1a4a, skyBottom: 0xff9a5a, clouds: 0.5, ground: 'calcada', enemy: 'tungtung', spike: 'cone', music: 'noite',
+  brasilia: { sky: 'sunset', skyTop: 0x2b1a4a, skyBottom: 0xff9a5a, clouds: 0.5, ground: 'calcada', enemy: 'tungtung', spike: 'cone', music: 'noite',
     layers: [
       { key: 'hills', y: HEIGHT - 280, factor: 0.1, tint: 0x6a4a6a, scaleY: 0.6 },
       { key: 'brasilia', y: HEIGHT - 375, factor: 0.25 },
     ] },
-  bahia: { skyTop: 0x2a9fe0, skyBottom: 0xffe2a8, clouds: 0.7, ground: 'pedra', enemy: 'tralalero', spike: 'urchin',
+  bahia: { sky: 'sun', skyTop: 0x2a9fe0, skyBottom: 0xffe2a8, clouds: 0.7, ground: 'pedra', enemy: 'tralalero', spike: 'urchin',
     layers: [
       { key: 'ba_city', y: HEIGHT - 360, factor: 0.12 },
       { key: 'pelourinho', y: HEIGHT - 275, factor: 0.35 },
     ] },
 };
+
+// Decorações que aparecem sozinhas no chão de cada cenário (desenhos em scenery.js)
+const DECOR_SETS = {
+  dia:        ['dec_flor', 'dec_flor', 'dec_arbusto', 'dec_pedrinha', 'dec_arvore'],
+  entardecer: ['dec_flor', 'dec_arbusto', 'dec_pedrinha', 'dec_arvore'],
+  noite:      ['dec_cogumelo', 'dec_cogumelo', 'dec_pedrinha', 'dec_arbusto'],
+  praia:      ['dec_concha', 'dec_castelo', 'dec_guardasol', 'dec_concha'],
+  rio:        ['dec_guardasol', 'dec_concha', 'dec_castelo', 'dec_concha'],
+  bahia:      ['dec_flor', 'dec_barraca', 'dec_arbusto', 'dec_flor'],
+  sp:         ['dec_lixeira', 'dec_hidrante', 'dec_placa', 'dec_lixeira'],
+  escola:     ['dec_lixeira', 'dec_arbusto', 'dec_flor', 'dec_placa'],
+  brasilia:   ['dec_ipe', 'dec_arbusto', 'dec_lixeira', 'dec_flor'],
+};
+const BIG_DECOR = new Set(['dec_arvore', 'dec_guardasol', 'dec_barraca', 'dec_ipe', 'dec_placa']);
 
 // localStorage pode falhar (aba anônima etc.), então tudo fica protegido.
 const Storage = {
@@ -204,6 +228,24 @@ function createBackdrop(scene, theme) {
   const g = scene.add.graphics().setScrollFactor(0).setDepth(-10);
   g.fillGradientStyle(theme.skyTop, theme.skyTop, theme.skyBottom, theme.skyBottom, 1);
   g.fillRect(0, 0, WIDTH, HEIGHT);
+  // sol, pôr do sol ou lua com estrelas
+  const sky = scene.add.graphics().setScrollFactor(0).setDepth(-9.5);
+  if (theme.sky === 'sun') {
+    sky.fillStyle(0xfff3a0, 0.25); sky.fillCircle(690, 110, 58);
+    sky.fillStyle(0xfff3a0, 0.5); sky.fillCircle(690, 110, 44);
+    sky.fillStyle(0xffe066, 1); sky.fillCircle(690, 110, 34);
+  } else if (theme.sky === 'sunset') {
+    sky.fillStyle(0xffb36b, 0.3); sky.fillCircle(760, 300, 110);
+    sky.fillStyle(0xff8a3d, 1); sky.fillCircle(760, 300, 70);
+  } else if (theme.sky === 'moon') {
+    for (let i = 0; i < 70; i++) {
+      sky.fillStyle(0xffffff, 0.3 + ((i * 37) % 7) / 10);
+      sky.fillRect((i * 137) % WIDTH, (i * 59) % 260, 2, 2);
+    }
+    sky.fillStyle(0xf4f1ea, 0.2); sky.fillCircle(690, 96, 40);
+    sky.fillStyle(0xf4f1ea, 1); sky.fillCircle(690, 96, 28);
+    sky.fillStyle(0xd9d4c7, 1); sky.fillCircle(682, 90, 6); sky.fillCircle(698, 106, 4);
+  }
   let layers = theme.layers;
   if (!layers && theme.sea) {
     // Ilhas no horizonte + mar com ondas que se mexem sozinhas

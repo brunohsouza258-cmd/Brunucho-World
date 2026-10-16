@@ -249,6 +249,86 @@ function generateScenery(scene) {
     rect(ctx, '#2e7d32', 40, 200, 156, 3); rect(ctx, '#2e7d32', 272, 200, 158, 3);
   });
 
+  // ================= DECORAÇÕES (colocadas sozinhas no chão de cada cenário) =================
+  canvasTex('dec_flor', 20, 16, (ctx) => {
+    rect(ctx, '#3f9a4a', 4, 8, 2, 8); rect(ctx, '#3f9a4a', 13, 6, 2, 10);
+    const flower = (x, y, c) => { ctx.fillStyle = c; [[-2, 0], [2, 0], [0, -2], [0, 2]].forEach(([dx, dy]) => { ctx.beginPath(); ctx.arc(x + dx, y + dy, 2, 0, 7); ctx.fill(); }); rect(ctx, '#ffd23f', x - 1, y - 1, 2, 2); };
+    flower(5, 6, '#ff6b8a'); flower(14, 4, '#ffffff');
+  });
+  canvasTex('dec_arbusto', 44, 26, (ctx) => {
+    ctx.fillStyle = '#2f7d3a'; [[10, 16, 10], [22, 12, 12], [34, 16, 10]].forEach(([x, y, r]) => { ctx.beginPath(); ctx.arc(x, y, r, 0, 7); ctx.fill(); });
+    rect(ctx, '#2f7d3a', 2, 16, 40, 10);
+    ctx.fillStyle = '#4caf50'; [[12, 13, 5], [24, 9, 6], [34, 14, 4]].forEach(([x, y, r]) => { ctx.beginPath(); ctx.arc(x, y, r, 0, 7); ctx.fill(); });
+  });
+  canvasTex('dec_arvore', 70, 110, (ctx) => {
+    rect(ctx, '#7a5230', 30, 60, 10, 50); rect(ctx, '#5e3e22', 36, 60, 4, 50);
+    ctx.fillStyle = '#2f7d3a'; [[35, 40, 28], [18, 52, 18], [52, 52, 18]].forEach(([x, y, r]) => { ctx.beginPath(); ctx.arc(x, y, r, 0, 7); ctx.fill(); });
+    ctx.fillStyle = '#4caf50'; [[30, 32, 14], [46, 44, 10], [20, 48, 9]].forEach(([x, y, r]) => { ctx.beginPath(); ctx.arc(x, y, r, 0, 7); ctx.fill(); });
+  });
+  canvasTex('dec_pedrinha', 26, 14, (ctx) => {
+    ctx.fillStyle = '#7a7068'; ctx.beginPath(); ctx.ellipse(13, 10, 12, 6, 0, 0, 7); ctx.fill();
+    ctx.fillStyle = '#9a9088'; ctx.beginPath(); ctx.ellipse(10, 8, 6, 3, 0, 0, 7); ctx.fill();
+  });
+  canvasTex('dec_guardasol', 64, 76, (ctx) => {
+    rect(ctx, '#e8e8e8', 31, 14, 3, 62);
+    const cols = ['#e53935', '#ffffff', '#e53935', '#ffffff', '#e53935', '#ffffff'];
+    cols.forEach((c, i) => { ctx.fillStyle = c; ctx.beginPath(); ctx.moveTo(32, 4); ctx.arc(32, 26, 30, Math.PI + i * Math.PI / 6, Math.PI + (i + 1) * Math.PI / 6); ctx.closePath(); ctx.fill(); });
+    rect(ctx, '#2b6cd4', 6, 62, 22, 4); rect(ctx, '#2b6cd4', 8, 66, 2, 10); rect(ctx, '#2b6cd4', 24, 66, 2, 10); // cadeira de praia
+    rect(ctx, '#ffd23f', 6, 54, 4, 8);
+  });
+  canvasTex('dec_castelo', 40, 30, (ctx) => {
+    ctx.fillStyle = '#e8c47e';
+    rect(ctx, '#e8c47e', 4, 12, 32, 18); rect(ctx, '#e8c47e', 2, 6, 10, 24); rect(ctx, '#e8c47e', 28, 6, 10, 24); rect(ctx, '#e8c47e', 15, 2, 10, 14);
+    rect(ctx, '#d4ab62', 17, 20, 6, 10); rect(ctx, '#e53935', 19, 0, 2, 4); rect(ctx, '#e53935', 21, 0, 4, 2);
+    [2, 6, 10, 28, 32, 36].forEach((x) => rect(ctx, '#d4ab62', x, 6, 2, 2));
+  });
+  canvasTex('dec_concha', 18, 12, (ctx) => {
+    ctx.fillStyle = '#ffb3c6'; ctx.beginPath(); ctx.arc(9, 12, 9, Math.PI, 0); ctx.fill();
+    ctx.strokeStyle = '#e88aa3'; ctx.lineWidth = 1; [3, 6, 9, 12, 15].forEach((x) => { ctx.beginPath(); ctx.moveTo(9, 12); ctx.lineTo(x, 4); ctx.stroke(); });
+  });
+  canvasTex('dec_lixeira', 22, 32, (ctx) => {
+    rect(ctx, '#2e7d32', 3, 6, 16, 26); rect(ctx, '#1b5e20', 1, 3, 20, 5);
+    rect(ctx, '#4caf50', 6, 10, 2, 18); rect(ctx, '#4caf50', 14, 10, 2, 18);
+    rect(ctx, '#ffffff', 7, 16, 8, 6); rect(ctx, '#2e7d32', 9, 18, 4, 2);
+  });
+  canvasTex('dec_hidrante', 20, 28, (ctx) => {
+    rect(ctx, '#d62828', 5, 6, 10, 22); rect(ctx, '#b71c1c', 3, 24, 14, 4); rect(ctx, '#d62828', 1, 12, 18, 5);
+    ctx.fillStyle = '#d62828'; ctx.beginPath(); ctx.arc(10, 6, 5, Math.PI, 0); ctx.fill();
+    rect(ctx, '#ffd23f', 8, 0, 4, 2);
+  });
+  canvasTex('dec_placa', 40, 60, (ctx) => {
+    rect(ctx, '#9aa0a8', 18, 20, 4, 40);
+    rect(ctx, '#1f7a3a', 0, 0, 40, 22); rect(ctx, '#ffffff', 2, 2, 36, 18); rect(ctx, '#1f7a3a', 3, 3, 34, 16);
+    ctx.font = 'bold 9px Verdana'; ctx.fillStyle = '#ffffff'; ctx.textAlign = 'center'; ctx.fillText('AURA →', 20, 15);
+  });
+  canvasTex('dec_barraca', 80, 80, (ctx) => {
+    // barraca de acarajé
+    rect(ctx, '#8a5a2b', 10, 46, 60, 34); rect(ctx, '#ffffff', 10, 46, 60, 6);
+    rect(ctx, '#d62828', 30, 56, 20, 14); rect(ctx, '#ffd23f', 33, 59, 14, 8);
+    ctx.font = 'bold 9px Verdana'; ctx.fillStyle = '#ffffff'; ctx.textAlign = 'center'; ctx.fillText('ACARAJÉ', 40, 76);
+    rect(ctx, '#e8e8e8', 38, 10, 4, 36);
+    ['#ffd23f', '#2e9d4a', '#ffd23f', '#2e9d4a', '#ffd23f', '#2e9d4a'].forEach((c, i) => { ctx.fillStyle = c; ctx.beginPath(); ctx.moveTo(40, 2); ctx.arc(40, 30, 36, Math.PI + i * Math.PI / 6, Math.PI + (i + 1) * Math.PI / 6); ctx.closePath(); ctx.fill(); });
+    // fitinhas do Bonfim
+    ['#e53935', '#ffd23f', '#2b6cd4', '#2e9d4a', '#ff8ab3'].forEach((c, i) => rect(ctx, c, 14 + i * 11, 30, 2, 12));
+  });
+  canvasTex('dec_ipe', 80, 120, (ctx) => {
+    // ipê-amarelo de Brasília
+    rect(ctx, '#6b4a2a', 36, 60, 8, 60);
+    ctx.strokeStyle = '#6b4a2a'; ctx.lineWidth = 4;
+    [[40, 70, 20, 40], [40, 66, 62, 38], [40, 60, 40, 28]].forEach(([a, b, c, d]) => { ctx.beginPath(); ctx.moveTo(a, b); ctx.lineTo(c, d); ctx.stroke(); });
+    ctx.fillStyle = '#f5c518'; [[40, 32, 26], [18, 44, 18], [62, 42, 18]].forEach(([x, y, r]) => { ctx.beginPath(); ctx.arc(x, y, r, 0, 7); ctx.fill(); });
+    ctx.fillStyle = '#ffe066'; [[34, 24, 10], [56, 38, 8], [20, 40, 7]].forEach(([x, y, r]) => { ctx.beginPath(); ctx.arc(x, y, r, 0, 7); ctx.fill(); });
+  });
+  canvasTex('dec_cogumelo', 22, 22, (ctx) => {
+    rect(ctx, '#f5e6d0', 8, 10, 6, 12);
+    ctx.fillStyle = '#7ff6ff'; ctx.beginPath(); ctx.arc(11, 11, 11, Math.PI, 0); ctx.fill();
+    ctx.fillStyle = '#ffffff'; [[6, 6], [14, 4], [17, 8]].forEach(([x, y]) => { ctx.beginPath(); ctx.arc(x, y, 1.6, 0, 7); ctx.fill(); });
+  });
+  // Sombras/realces nas bordas dos blocos
+  canvasTex('edgeL', 32, 32, (ctx) => { const gr = ctx.createLinearGradient(0, 0, 6, 0); gr.addColorStop(0, 'rgba(0,0,0,0.35)'); gr.addColorStop(1, 'rgba(0,0,0,0)'); ctx.fillStyle = gr; ctx.fillRect(0, 0, 6, 32); });
+  canvasTex('edgeR', 32, 32, (ctx) => { const gr = ctx.createLinearGradient(32, 0, 26, 0); gr.addColorStop(0, 'rgba(0,0,0,0.35)'); gr.addColorStop(1, 'rgba(0,0,0,0)'); ctx.fillStyle = gr; ctx.fillRect(26, 0, 6, 32); });
+  canvasTex('edgeB', 32, 32, (ctx) => { const gr = ctx.createLinearGradient(0, 32, 0, 24); gr.addColorStop(0, 'rgba(0,0,0,0.4)'); gr.addColorStop(1, 'rgba(0,0,0,0)'); ctx.fillStyle = gr; ctx.fillRect(0, 24, 32, 8); });
+
   // Poste de luz (decoração "L")
   canvasTex('poste', 34, 140, (ctx) => {
     rect(ctx, '#6b6f76', 6, 10, 5, 130);

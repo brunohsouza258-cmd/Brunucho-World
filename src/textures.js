@@ -195,6 +195,84 @@ function generateTextures(scene) {
     g.fillStyle(0xff6b6b); g.fillRect(4, 4, 18, 2);
     g.fillStyle(0xdfe4ee); g.fillRect(2, 20, 8, 5); g.fillRect(16, 20, 8, 5);
   });
+  // ================= MAIS MEMES (brainrot) — olhando para a esquerda =================
+  // Bombardiro Crocodilo: crocodilo-avião
+  const bombardiro = (key, propUp) => make(key, 44, 26, (g) => {
+    g.fillStyle(0x8a94a6); g.fillRect(14, 2, 18, 5);                       // asa de cima
+    g.fillStyle(0x6a748a); g.fillRect(14, 6, 18, 2);
+    g.fillStyle(0x4f8a3c); g.fillEllipse(24, 14, 30, 13);                  // corpo
+    g.fillStyle(0x6fae52); g.fillEllipse(22, 12, 24, 6);
+    g.fillStyle(0x4f8a3c); g.fillRoundedRect(0, 11, 16, 7, 3);             // focinho comprido
+    g.fillStyle(0xffffff); [2, 6, 10].forEach((x) => g.fillTriangle(x, 18, x + 2, 21, x + 4, 18)); // dentes
+    g.fillStyle(0xffd23f); g.fillCircle(16, 9, 3); g.fillStyle(0x1b1b2a); g.fillRect(15, 8, 2, 3);  // olho
+    g.fillStyle(0x4f8a3c); g.fillTriangle(36, 12, 44, 6, 42, 16);           // rabo
+    g.fillStyle(0x8a94a6); g.fillRect(22, 18, 14, 4);                      // asa de baixo
+    g.fillStyle(0x333333); g.fillRect(28, 21, 3, 5);                       // bomba pendurada
+    g.fillStyle(0x9aa0a8); g.fillRect(41, propUp ? 2 : 14, 2, 10);         // hélice
+  });
+  bombardiro('bombardiro', true);
+  bombardiro('bombardiro_2', false);
+  make('bomba', 14, 16, (g) => {
+    g.fillStyle(0x2b2b33); g.fillCircle(7, 9, 7);
+    g.fillStyle(0x55555f); g.fillCircle(5, 7, 2);
+    g.fillStyle(0x8a6a3a); g.fillRect(6, 0, 2, 3);
+    g.fillStyle(0xffb000); g.fillRect(5, 0, 4, 1);
+  });
+  // Brr Brr Patapim: tronco de árvore com cara de macaco e pezões
+  make('patapim', 30, 36, (g) => {
+    g.fillStyle(0x3f8a3c); g.fillCircle(9, 6, 6); g.fillCircle(20, 5, 7); g.fillCircle(15, 3, 5);   // folhas
+    g.fillStyle(0x8a5a2b); g.fillRoundedRect(5, 8, 20, 20, 5);              // tronco
+    g.fillStyle(0x6e4521); g.fillRect(8, 22, 14, 2);
+    g.fillStyle(0xd9a77a); g.fillEllipse(13, 16, 14, 10);                   // cara
+    g.fillStyle(0x1b1b2a); g.fillRect(8, 13, 2, 3); g.fillRect(15, 13, 2, 3);
+    g.fillStyle(0x7a4a2c); g.fillEllipse(11, 19, 7, 4);                     // nariz grandão
+    g.fillStyle(0x3f8a3c); g.fillRect(9, 23, 10, 3);                        // bigode de folha
+    g.fillStyle(0xd9a77a); g.fillRoundedRect(1, 29, 12, 7, 3); g.fillRoundedRect(16, 29, 12, 7, 3); // pezões
+    g.fillStyle(0xb8835a); [2, 5, 8, 17, 20, 23].forEach((x) => g.fillRect(x, 29, 2, 2));
+  });
+  // Chimpanzini Bananini: macaco dentro de uma banana
+  make('bananini', 26, 34, (g) => {
+    g.fillStyle(0xe8c22a); g.fillRoundedRect(4, 12, 18, 20, 8);             // banana
+    g.fillStyle(0xffe066); g.fillRect(7, 14, 4, 15);
+    g.fillStyle(0x6b4a1a); g.fillRect(11, 31, 4, 3);
+    g.fillStyle(0xe8c22a); g.fillTriangle(4, 14, 0, 6, 9, 13); g.fillTriangle(22, 14, 26, 6, 17, 13);  // casca aberta
+    g.fillStyle(0x6b4a2c); g.fillCircle(13, 9, 8);                           // cabeça do macaco
+    g.fillStyle(0xd9a77a); g.fillEllipse(12, 11, 10, 8);
+    g.fillStyle(0x6b4a2c); g.fillCircle(4, 8, 3); g.fillCircle(22, 8, 3);    // orelhas
+    g.fillStyle(0x1b1b2a); g.fillRect(8, 8, 2, 2); g.fillRect(14, 8, 2, 2); g.fillRect(10, 13, 4, 1);
+  });
+  // Lirilì Larilà: elefante-cacto de sandália (aguenta 2 pisões)
+  make('lirili', 36, 30, (g) => {
+    g.fillStyle(0x3f9a4a); g.fillRoundedRect(8, 6, 26, 18, 8);              // corpo de cacto
+    g.fillStyle(0x5cbf66); g.fillRect(12, 9, 3, 12); g.fillRect(20, 8, 3, 13); g.fillRect(28, 9, 3, 12);
+    g.fillStyle(0xfff3c0); [[10, 7], [18, 6], [26, 7], [32, 12], [14, 22], [24, 22]].forEach(([x, y]) => g.fillRect(x, y, 1, 3)); // espinhos
+    g.fillStyle(0x3f9a4a); g.fillRoundedRect(0, 8, 12, 12, 5);              // cabeça
+    g.fillStyle(0x3f9a4a); g.fillRect(0, 16, 4, 9);                         // tromba
+    g.fillStyle(0x5cbf66); g.fillEllipse(10, 10, 7, 10);                    // orelha
+    g.fillStyle(0x1b1b2a); g.fillRect(4, 11, 2, 2);
+    g.fillStyle(0x3f9a4a); [10, 16, 24, 30].forEach((x) => g.fillRect(x, 23, 4, 4));   // patas
+    g.fillStyle(0x8a5a2b); [9, 15, 23, 29].forEach((x) => g.fillRect(x, 27, 6, 3));    // sandálias
+  });
+  make('lirili_hit', 36, 30, (g) => {
+    g.fillStyle(0xffffff, 0.9); g.fillRoundedRect(8, 6, 26, 18, 8); g.fillRoundedRect(0, 8, 12, 12, 5);
+  });
+  // Ballerina Cappuccina: cabeça de xícara de cappuccino e saia de bailarina
+  make('ballerina', 26, 38, (g) => {
+    g.fillStyle(0xffffff); g.fillRoundedRect(4, 2, 18, 14, 4);              // xícara
+    g.fillStyle(0xc89a6a); g.fillEllipse(13, 3, 16, 5);                     // espuma
+    g.fillStyle(0xf5e6d0); g.fillCircle(10, 3, 2); g.fillCircle(15, 2, 2);
+    g.fillStyle(0xffffff); g.fillRect(21, 6, 4, 2); g.fillRect(23, 6, 2, 6); g.fillRect(21, 10, 4, 2); // alça
+    g.fillStyle(0x1b1b2a); g.fillRect(8, 8, 2, 2); g.fillRect(14, 8, 2, 2);
+    g.fillStyle(0xff8a9a); g.fillRect(9, 12, 6, 1);
+    g.fillStyle(0xf2c6a0); g.fillRect(11, 16, 4, 4);                         // pescoço
+    g.fillStyle(0xff8ab3); g.fillRoundedRect(8, 19, 10, 6, 2);               // collant
+    g.fillStyle(0xffc2d9); g.fillEllipse(13, 26, 26, 7);                     // saia de tule
+    g.fillStyle(0xff8ab3); g.fillEllipse(13, 25, 20, 4);
+    g.fillStyle(0xf2c6a0); g.fillRect(10, 28, 2, 8); g.fillRect(14, 28, 2, 6); // pernas (uma na ponta)
+    g.fillStyle(0xff8ab3); g.fillRect(9, 35, 4, 3); g.fillRect(14, 33, 4, 2);
+    g.fillStyle(0xf2c6a0); g.fillRect(2, 18, 6, 2); g.fillRect(18, 16, 6, 2); // braços abertos
+  });
+
   // ================= ELEMENTOS DE FASE =================
   // Plataforma que se move (prancha com hélices nas pontas)
   make('plataforma', 96, 18, (g) => {

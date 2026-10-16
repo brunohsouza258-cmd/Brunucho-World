@@ -133,6 +133,22 @@ class GameScene extends Phaser.Scene {
           this.tweens.add({ targets: e, angle: { from: -5, to: 5 }, duration: 300, yoyo: true, repeat: -1 });
           break;
         }
+        case 'b': case 'p': case 'c': case 'l': case 'r': { // memes brainrot
+          const m = MEMES[o.ch];
+          const e = this.spawnEnemy(m.key, cx, bottom, m);
+          e.famous = m;   // reaproveita as falas
+          e.hp = m.hp || 1;
+          e.timer = Phaser.Math.FloatBetween(1, 2.5);
+          e.talkTimer = Phaser.Math.FloatBetween(1, 5);
+          if (m.behavior === 'bomber') {
+            e.body.setAllowGravity(false);
+            e.startX = cx; e.range = 6 * TILE;
+            e.play('bombardiro_fly');
+          } else if (m.behavior === 'walker') {
+            this.tweens.add({ targets: e, angle: { from: -4, to: 4 }, duration: 260, yoyo: true, repeat: -1 });
+          }
+          break;
+        }
         case 'N': case 'V': case 'J': case 'D': { // famosos
           const f = FAMOUS[o.ch];
           const e = this.spawnEnemy(f.key, cx, bottom, f);
@@ -188,6 +204,9 @@ class GameScene extends Phaser.Scene {
     this.player.body.setSize(20, 28);
     this.player.body.setMaxVelocity(500, 900);
     this.player.setCollideWorldBounds(true);
+    this.decorate(level, def.theme);
+    // sombrinha embaixo do Brunucho
+    this.shadow = this.add.ellipse(0, 0, 24, 7, 0x000000, 0.28).setDepth(4);
     this.playerGfx = this.add.sprite(0, 0, playerTexture()).setOrigin(0.5, 1).setDepth(5);
     this.playerBase = playerTexture();
     // Plaquinha com o nome em cima do personagem (some depois de alguns segundos)
@@ -214,7 +233,10 @@ class GameScene extends Phaser.Scene {
       shot.destroy();
       this.die('inimigo');
     }, null, this);
-    this.physics.add.collider(this.shots, this.layer, (shot) => shot.destroy());
+    this.physics.add.collider(this.shots, this.layer, (shot) => {
+      if (shot.isBomb) this.explode(shot.x, shot.y);
+      shot.destroy();
+    });
     this.physics.add.overlap(this.player, this.checkpoints, this.reachCheckpoint, null, this);
     if (this.goal) this.physics.add.overlap(this.player, this.goal, this.reachGoal, null, this);
 
@@ -270,10 +292,55 @@ class GameScene extends Phaser.Scene {
     }
   }
 
+  // ---------------------------------------------------------------- Decoração automática
+
+  decorate(level, themeKey) {
+    const set = DECOR_SETS[themeKey] || DECOR_SETS.dia;
+    const { tiles, width: W, height: H } = level;
+    const solid = (x, y) => x >= 0 && x < W && y >= 0 && y < H && tiles[y][x] !== -1 && tiles[y][x] !== TILES.ONEWAY;
+    const empty = (x, y) => x >= 0 && x < W && y >= 0 && y < H && tiles[y][x] === -1;
+    const used = new Set(level.objects.map((o) => `${o.x},${o.y}`));
+    const keepClear = level.objects.filter((o) => 'PKGSB'.includes(o.ch)).map((o) => o.x);
+    // número "aleatório" fixo por posição (a fase fica sempre igual)
+    const rnd = (x, y, k) => {
+      let h = Math.imul(x * 374761393 + y * 668265263 + (this.levelIndex + 1) * 2246822519 + k * 3266489917, 1);
+      h = Math.imul(h ^ (h >>> 13), 1274126177);
+      return ((h ^ (h >>> 16)) >>> 0) / 4294967296;
+    };
+    let lastBig = -99;
+    for (let y = 1; y < H; y++) {
+      for (let x = 0; x < W; x++) {
+        if (!solid(x, y)) continue;
+        // sombra nas laterais e embaixo dos blocos
+        if (empty(x - 1, y)) this.add.image(x * TILE, y * TILE, 'edgeL').setOrigin(0).setDepth(0.5);
+        if (empty(x + 1, y)) this.add.image(x * TILE, y * TILE, 'edgeR').setOrigin(0).setDepth(0.5);
+        if (y + 1 < H && empty(x, y + 1)) this.add.image(x * TILE, y * TILE, 'edgeB').setOrigin(0).setDepth(0.5);
+        // decoração em cima do chão
+        if (!empty(x, y - 1) || used.has(`${x},${y - 1}`) || used.has(`${x},${y - 2}`)) continue;
+        if (keepClear.some((cx) => Math.abs(cx - x) <= 2)) continue;
+        if (rnd(x, y, 1) > 0.24) continue;
+        let key = set[Math.floor(rnd(x, y, 2) * set.length)];
+        if (BIG_DECOR.has(key)) {
+          const roomy = solid(x - 1, y) && solid(x + 1, y) && empty(x - 1, y - 1) && empty(x + 1, y - 1);
+          if (!roomy || x - lastBig < 6) key = set.find((k) => !BIG_DECOR.has(k));
+          else lastBig = x;
+        }
+        const jitter = (rnd(x, y, 3) - 0.5) * 12;
+        this.add.image(x * TILE + TILE / 2 + jitter, y * TILE + 1, key).setOrigin(0.5, 1).setDepth(-1)
+          .setFlipX(rnd(x, y, 4) < 0.5);
+      }
+    }
+  }
+
   // ---------------------------------------------------------------- HUD
 
   createHud(def) {
     const fixed = (obj) => obj.setScrollFactor(0).setDepth(100);
+    // painéis escurinhos atrás do HUD (fica mais fácil de ler em qualquer cenário)
+    const panel = this.add.graphics().setScrollFactor(0).setDepth(99);
+    panel.fillStyle(0x0b0b14, 0.35);
+    panel.fillRoundedRect(6, 6, 222, 96, 12);
+    panel.fillRoundedRect(WIDTH - 166, 6, 160, 66, 12);
     fixed(this.add.image(30, 30, 'coin'));
     this.coinText = fixed(this.add.text(48, 18, '', textStyle(22)));
     this.timeText = fixed(this.add.text(WIDTH - 16, 16, '', textStyle(22)).setOrigin(1, 0));
@@ -510,6 +577,18 @@ class GameScene extends Phaser.Scene {
       .setFlipX(this.facing < 0)
       .setAngle(b.blocked.down ? 0 : Phaser.Math.Clamp(b.velocity.x * 0.02, -6, 6));
     this.nameTag.setPosition(this.playerGfx.x, this.playerGfx.y - 40).setVisible(this.playerGfx.visible);
+    // sombra no chão logo abaixo (fica menor quanto mais alto ele está)
+    let groundY = null;
+    for (let y = b.bottom; y < b.bottom + 8 * TILE && y < this.mapH; y += 8) {
+      const t = this.layer.getTileAtWorldXY(b.center.x, y);
+      if (t && t.collides) { groundY = t.pixelY; break; }
+    }
+    if (groundY !== null && this.playerGfx.visible) {
+      const k = Phaser.Math.Clamp(1 - (groundY - b.bottom) / (6 * TILE), 0.3, 1);
+      this.shadow.setVisible(true).setPosition(b.center.x, groundY).setScale(k).setAlpha(k);
+    } else {
+      this.shadow.setVisible(false);
+    }
     this.auraGlow.setPosition(this.playerGfx.x, this.playerGfx.y - 18).setVisible(this.hasAura && this.playerGfx.visible);
   }
 
@@ -558,6 +637,57 @@ class GameScene extends Phaser.Scene {
         return;
       }
 
+      if (e.behavior === 'bomber') {
+        // Bombardiro: voa reto e solta bomba quando passa por cima do Brunucho
+        if (e.x > e.startX + e.range || b.blocked.right) e.dir = -1;
+        else if (e.x < e.startX - e.range || b.blocked.left) e.dir = 1;
+        e.setVelocity(e.dir * e.speed, 0);
+        e.setFlipX(e.dir > 0);
+        e.timer -= dt;
+        if (e.timer <= 0 && Math.abs(dx) < 40 && pb.center.y > b.center.y && !this.dead) {
+          e.timer = 2;
+          this.dropBomb(e);
+        }
+        return;
+      }
+      if (e.behavior === 'hopper') {
+        // Patapim: anda dando pulinhos (e não pula em buraco)
+        if (b.blocked.down) {
+          e.setVelocityX(0);
+          if (b.blocked.left) e.dir = 1;
+          if (b.blocked.right) e.dir = -1;
+          e.timer -= dt;
+          if (e.timer <= 0) {
+            const landX = b.center.x + e.dir * 2 * TILE;
+            if (!this.layer.getTileAtWorldXY(landX, b.bottom + 4)) e.dir *= -1;
+            e.timer = Phaser.Math.FloatBetween(0.5, 1.1);
+            e.setVelocity(e.dir * e.speed, -430);
+          }
+        }
+        e.setFlipX(e.dir > 0);
+        return;
+      }
+      if (e.behavior === 'dancer') {
+        // Ballerina: fica dançando e, quando você chega perto, gira e avança
+        e.timer -= dt;
+        if (e.state === 'dash') {
+          e.angle += 1080 * dt * e.dir;
+          e.setVelocityX(e.dir * 260);
+          if (b.blocked.left || b.blocked.right || this.atLedge(e) || e.timer <= 0) {
+            e.state = 'walk'; e.setAngle(0); e.setVelocityX(0); e.timer = 2.2;
+          }
+          return;
+        }
+        e.setVelocityX(0);
+        e.dir = dx > 0 ? 1 : -1;
+        e.setFlipX(e.dir > 0);
+        e.setAngle(Math.sin(this.time.now * 0.008) * 8);
+        if (near && e.timer <= 0) {
+          e.state = 'dash'; e.timer = 0.7;
+          this.speech(e, 'Mi mi mi!');
+        }
+        return;
+      }
       if (e.behavior === 'flyer') {
         // Pombo: vai e volta voando em ondinha
         if (e.x > e.startX + e.range || b.blocked.right) e.dir = -1;
@@ -613,6 +743,23 @@ class GameScene extends Phaser.Scene {
     return !this.layer.getTileAtWorldXY(aheadX, b.bottom + 4);
   }
 
+  // Bombardiro solta uma bomba
+  dropBomb(e) {
+    const bomb = this.shots.create(e.x, e.y + 14, 'bomba');
+    bomb.body.setAllowGravity(true);
+    bomb.setVelocity(e.dir * 40, 0);
+    bomb.isBomb = true;
+    Sfx.tone(900, 0.3, { type: 'sine', to: 200, vol: 0.05 });
+  }
+
+  explode(x, y) {
+    this.fxHit.explode(18, x, y);
+    this.shake(150, 0.008);
+    Sfx.tone(120, 0.3, { type: 'sawtooth', to: 40, vol: 0.15 });
+    const pb = this.player.body;
+    if (Phaser.Math.Distance.Between(x, y, pb.center.x, pb.center.y) < 48) this.die('inimigo');
+  }
+
   // Galvão chuta uma bola em direção ao jogador
   shoot(e) {
     const ball = this.shots.create(e.x + e.dir * 16, e.y - 4, 'gol_ball');
@@ -660,6 +807,19 @@ class GameScene extends Phaser.Scene {
       this.defeatEnemy(enemy, true);
     } else if (pb.velocity.y > 0 && pb.bottom <= eb.top + 12) {
       // Caindo e vindo de cima = pisou no inimigo
+      if (enemy.hp > 1) {
+        // inimigo duro (Lirilì): perde uma vida, pisca e o Brunucho quica
+        if (this.time.now < (enemy.hurtUntil || 0)) return;
+        enemy.hp--;
+        enemy.hurtUntil = this.time.now + 400;
+        enemy.setTexture(`${enemy.texture.key}_hit`);
+        this.time.delayedCall(120, () => enemy.active && enemy.setTexture(enemy.famous.key));
+        player.setVelocityY(-PHYS.stomp);
+        this.squash = 0.3;
+        this.speech(enemy, 'Ai! Mais uma!');
+        Sfx.stomp();
+        return;
+      }
       this.defeatEnemy(enemy, false);
       const held = this.keys.SPACE.isDown || this.keys.UP.isDown || this.keys.W.isDown || this.touch.jump;
       player.setVelocityY(held ? -PHYS.jump : -PHYS.stomp); // segurando pulo = quique mais alto
@@ -699,6 +859,12 @@ class GameScene extends Phaser.Scene {
     if (f === 'ednaldo') Achievements.unlock('ednaldo');
     if (f === 'neymar' && (enemy.state === 'roll' || enemy.state === 'fallen')) Achievements.unlock('neymar');
     if (f === 'caze' && !enemy.body.blocked.down) Achievements.unlock('caze');
+    if (enemy.famous && Object.values(MEMES).some((m) => m.key === f)) {
+      const seen = new Set(Storage.get('pp_brainrot', []));
+      seen.add(f);
+      Storage.set('pp_brainrot', [...seen]);
+      if (seen.size >= Object.keys(MEMES).length) Achievements.unlock('brainrot');
+    }
   }
 
   bounceSpring(player, spring) {
@@ -845,6 +1011,25 @@ class GameScene extends Phaser.Scene {
     this.coyote = 0;
     this.jumpBuffer = 0;
     this.squash = -0.3;
+    // Renasce protegido: 2 segundos invencível (piscando)...
+    this.invuln = 2;
+    // ...e quem estiver em cima do ponto de renascer é empurrado pra longe
+    this.enemies.children.iterate((e) => {
+      if (!e || e.dead || !e.body) return;
+      const dx = e.x - sp.x;
+      if (Math.abs(dx) < 4 * TILE && Math.abs(e.y - sp.y) < 3 * TILE) {
+        e.dir = dx >= 0 ? 1 : -1;
+        if (e.state === 'roll' || e.state === 'fallen') { e.state = 'walk'; e.setAngle(0); }
+        // só empurra se o lugar novo tiver chão embaixo e estiver livre
+        for (const dist of [4, 5, 6, 3]) {
+          const tx = sp.x + e.dir * dist * TILE;
+          const free = !this.layer.getTileAtWorldXY(tx, e.y);
+          const floor = e.behavior === 'flyer' || !!this.layer.getTileAtWorldXY(tx, e.body.bottom + 6);
+          if (free && floor) { e.x = tx; e.body.reset(tx, e.y); break; }
+        }
+      }
+    });
+    if (this.shots) this.shots.clear(true, true);
     // Mostra o nome de novo por um instante ao renascer
     this.tweens.killTweensOf(this.nameTag);
     this.nameTag.setAlpha(1);

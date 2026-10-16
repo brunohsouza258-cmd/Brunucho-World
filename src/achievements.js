@@ -26,6 +26,7 @@ const ACHIEVEMENTS = [
   { id: 'neymar',      icon: '⚽', name: 'Foi Pênalti?',          desc: 'Moggar o Neymar enquanto ele rola' },
   { id: 'caze',        icon: '🎧', name: 'VAMO!',                 desc: 'Moggar o Casimiro no ar' },
   { id: 'ednaldo',     icon: '🎤', name: 'Vale Tudo',             desc: 'Moggar o Ednaldo Pereira' },
+  { id: 'brainrot',    icon: '🐊', name: 'Brainrot Completo',     desc: 'Moggar os 5 memes brainrot (Bombardiro, Patapim, Bananini, Lirilì, Ballerina)' },
   // --- poderes ---
   { id: 'sixseven',    icon: '6️⃣', name: 'SIX SEVEN!',            desc: 'Pegar o poder 67' },
   { id: 'sixseven10',  icon: '7️⃣', name: '67 Lover',              desc: 'Pegar o poder 67 dez vezes', counter: 'p67', goal: 10 },

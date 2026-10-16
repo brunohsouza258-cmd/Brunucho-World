@@ -49,7 +49,7 @@ música da intro, de vitória e de game over. As notas ficam em `SONGS` e dá pr
 
 ### Conquistas
 
-**38 conquistas**, como *Fugiu da Chinelada*, *Mogador Serial*, *Haja Coração!*, *Foi Pênalti?*, *Sigma do Combo*,
+**39 conquistas**, como *Fugiu da Chinelada*, *Mogador Serial*, *Haja Coração!*, *Foi Pênalti?*, *Sigma do Combo*,
 *Atropelamento 67*, *A Andreia Te Achou* e *Modo Andreia* (zerar no Difícil). Aparece um aviso na tela quando desbloqueia
 e dá pra ver todas no menu. A lista fica em `src/achievements.js`.
 
@@ -92,6 +92,18 @@ Depois: créditos rolando, o aviso de que é tudo brincadeira e o ranking. A ló
 
 As falas e a velocidade ficam em `FAMOUS`, no `config.js`.
 
+### Memes brainrot
+
+| Meme | O que faz |
+|---|---|
+| Bombardiro Crocodilo | crocodilo-avião que voa e **solta bombas** quando passa em cima de você |
+| Brr Brr Patapim | árvore de pezão que anda **pulando** |
+| Chimpanzini Bananini | macaco-banana que **corre rápido** |
+| Lirilì Larilà | elefante-cacto de sandália: **aguenta 2 pisões** |
+| Ballerina Cappuccina | bailarina-cappuccino que **gira e avança** quando você chega perto |
+
+Ficam em `MEMES`, no `config.js` (no mapa são letras minúsculas: `b p c l r`).
+
 ### Poderes
 
 - **67**: modo *six seven* por **6,7 segundos**: invencível, mais rápido, pula mais alto e derruba inimigo só de encostar.
@@ -105,6 +117,9 @@ As falas e a velocidade ficam em `FAMOUS`, no `config.js`.
 - **Plataformas que se movem** (por cima do mar no Rio e na Praia, e no abismo do Pico Final): suba e ela te leva.
 - **Trampolim**: joga o Brunucho lá no alto.
 - **Pombo** 🐦: voa em zigue-zague pelas cidades. Pise nele também!
+- **Decoração automática**: cada cenário ganha enfeites no chão (flores, árvores, guarda-sóis, castelos de areia,
+  barraca de acarajé, ipês, hidrantes...). A lista fica em `DECOR_SETS`, no `config.js`.
+- Ao **renascer**, o Brunucho fica 2 segundos invencível e os inimigos em cima do checkpoint são empurrados.
 
 ### Pontuação
 
@@ -162,6 +177,8 @@ R  pedra            Y  coqueiro (enfeite)
 6  poder 67         A  aura
 H  coxinha          T  tênis de mola    M  ímã de aura
 O  plataforma móvel Z  trampolim        F  pombo voador
+b  Bombardiro       p  Patapim          c  Bananini
+l  Lirilì Larilà    r  Ballerina Cappuccina
 L  poste de luz     S  Escola Zacarias (enfeite)
 N  Neymar           V  Galvão Bueno
 J  Casimiro         D  Ednaldo Pereira
