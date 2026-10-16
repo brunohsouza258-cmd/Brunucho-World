@@ -104,7 +104,7 @@ const BossMixin = {
       s.inv -= dt;
       s.setAlpha(s.inv > 0 && Math.floor(this.time.now / 70) % 2 ? 0.35 : 1);
       s.setFlipX(dx < 0);
-      if (!b.fighting || this.dead) { s.setVelocityX(0); s.anims.stop(); s.setTexture(s.cfg.key); continue; }
+      if (!b.fighting || this.dead || this.stareTime > 0) { s.setVelocityX(0); s.anims.stop(); s.setTexture(s.cfg.key); continue; }
 
       s.timer -= dt;
       if (s.state === 'intro') { s.state = 'walk'; s.timer = Phaser.Math.FloatBetween(1, 2); }
@@ -180,6 +180,7 @@ const BossMixin = {
     if (s.dead || s.inv > 0 || this.dead || !this.boss.fighting) return;
     const pb = this.player.body;
     const stomp = pb.velocity.y > 0 && pb.bottom <= s.body.top + 22;
+    if (!stomp && this.stareTime > 0 && this.powerTime <= 0) return; // congelado: não machuca
     if (stomp || this.powerTime > 0) {
       this.hurtBoss(s);
       this.player.setVelocityY(-PHYS.jump * 1.05);

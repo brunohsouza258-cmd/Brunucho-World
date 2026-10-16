@@ -34,6 +34,11 @@ class GameScene extends Phaser.Scene {
     this.airJumps = 0;
     this.magnetTime = 0;        // Ímã de Aura
     this.mogsIn67 = 0;
+    this.stareTime = 0;         // Olhar de Mil Jardas (tempo parado)
+    this.hasWings = false;      // Anjo Caído: planar
+    this.haloAvailable = false; // Anjo Caído: salva de uma queda
+    this.lastSafe = null;       // último chão firme (pra auréola te levar de volta)
+    this.glideTime = 0;
     this.boss = null;
     this.bossSpawn = null;
     this.levelDeaths = 0;
@@ -173,9 +178,10 @@ class GameScene extends Phaser.Scene {
           if (p.kind === 'aura') this.tweens.add({ targets: p, scale: 1.15, alpha: 0.8, duration: 400, yoyo: true, repeat: -1 });
           break;
         }
-        case 'H': case 'T': case 'M': { // coxinha (+1 vida), tênis (pulo duplo), ímã (puxa moedas)
-          const kind = { H: 'coxinha', T: 'tenis', M: 'ima' }[o.ch];
-          const p = this.powerups.create(cx, cy, kind);
+        case 'H': case 'T': case 'M': case 'Q': case 'W': { // coxinha, tênis, ímã, olhar de mil jardas, anjo caído
+          const kind = { H: 'coxinha', T: 'tenis', M: 'ima', Q: 'olhar', W: 'anjo' }[o.ch];
+          const tex = { olhar: 'pw_olhar', anjo: 'pw_anjo' }[kind] || kind;
+          const p = this.powerups.create(cx, cy, tex);
           p.kind = kind;
           this.tweens.add({ targets: p, y: cy - 6, duration: 600, yoyo: true, repeat: -1, ease: 'Sine.inOut' });
           break;
@@ -209,6 +215,15 @@ class GameScene extends Phaser.Scene {
     this.shadow = this.add.ellipse(0, 0, 24, 7, 0x000000, 0.28).setDepth(4);
     this.playerGfx = this.add.sprite(0, 0, playerTexture()).setOrigin(0.5, 1).setDepth(5);
     this.playerBase = playerTexture();
+    // Habilidades: asas e auréola (Anjo Caído), cara de "olhar vazio" (Olhar de Mil Jardas)
+    this.wings = this.add.sprite(0, 0, 'asas').setDepth(4.8).setVisible(false);
+    this.haloImg = this.add.image(0, 0, 'aureola').setDepth(6).setVisible(false);
+    this.stareFace = this.add.image(0, 0, 'olhar_face').setOrigin(0, 0).setDepth(5.5).setVisible(false);
+    this.fxFeather = this.add.particles(0, 0, 'pena', {
+      lifespan: 900, speed: { min: 20, max: 80 }, gravityY: 60, rotate: { min: 0, max: 360 }, alpha: { start: 1, end: 0 }, emitting: false,
+    }).setDepth(6);
+    // sombreado suave nos cantos da tela
+    if (this.cameras.main.postFX) this.cameras.main.postFX.addVignette(0.5, 0.5, 0.92, 0.28);
     // Plaquinha com o nome em cima do personagem (some depois de alguns segundos)
     this.nameTag = this.add.text(0, 0, PLAYER_NAME, textStyle(14, '#ffd23f')).setOrigin(0.5, 1).setDepth(6);
     this.tweens.add({ targets: this.nameTag, alpha: 0, delay: 3500, duration: 800 });
@@ -372,6 +387,8 @@ class GameScene extends Phaser.Scene {
     if (this.hasAura) status.push('✦ escudo de aura');
     if (this.hasDoubleJump) status.push('👟 pulo duplo');
     if (this.magnetTime > 0) status.push(`🧲 ímã ${this.magnetTime.toFixed(0)}s`);
+    if (this.stareTime > 0) status.push(`👁️ ${this.stareTime.toFixed(0)}s`);
+    if (this.hasWings) status.push(this.haloAvailable ? '😇 asas + auréola' : '🪽 asas');
     this.auraText.setText(status.join('   '));
     this.powerText.setText(this.powerTime > 0 && !this.finished ? `SIX SEVEN! ${this.powerTime.toFixed(1)}s` : '');
   }
@@ -505,6 +522,18 @@ class GameScene extends Phaser.Scene {
 
     if (onGround) this.combo = 0;
 
+    // Anjo Caído: segurando pular enquanto cai, plana devagar
+    if (this.hasWings && !onGround && jumpHeld && b.velocity.y > 70) {
+      p.setVelocityY(70);
+      this.glideTime += dt;
+      if (Math.random() < 0.15) this.fxFeather.emitParticleAt(b.center.x + Phaser.Math.Between(-14, 14), b.center.y);
+      if (this.glideTime > 3) Achievements.unlock('planador');
+    } else if (onGround) {
+      this.glideTime = 0;
+    }
+    // guarda o último chão firme (pra auréola te levar de volta se cair num buraco)
+    if (b.blocked.down) this.lastSafe = { x: b.center.x, y: b.bottom };
+
     // Aterrissagem
     if (onGround && !this.wasOnGround) {
       this.squash = -0.25;
@@ -532,6 +561,11 @@ class GameScene extends Phaser.Scene {
         this.floatText(g.x, g.y - 50, 'acabou o 67...', '#ffd9a0', 16);
         Music.play(this.levelSong);
       }
+    }
+    // Olhar de Mil Jardas: conta o tempo parado
+    if (this.stareTime > 0) {
+      this.stareTime -= dt;
+      if (this.stareTime <= 0) this.endStare();
     }
     // Ímã de Aura: puxa as moedas por perto
     if (this.magnetTime > 0) {
@@ -590,6 +624,15 @@ class GameScene extends Phaser.Scene {
       this.shadow.setVisible(false);
     }
     this.auraGlow.setPosition(this.playerGfx.x, this.playerGfx.y - 18).setVisible(this.hasAura && this.playerGfx.visible);
+    const gx = this.playerGfx.x, gy = this.playerGfx.y, vis = this.playerGfx.visible;
+    // asas: batem quando está no ar
+    this.wings.setVisible(this.hasWings && vis).setPosition(gx, gy - 20);
+    if (this.hasWings && vis && !b.blocked.down) { if (!this.wings.anims.isPlaying) this.wings.play('asas_flap'); }
+    else { this.wings.anims.stop(); this.wings.setTexture('asas_2'); }
+    this.haloImg.setVisible(this.haloAvailable && vis).setPosition(gx, gy - 41 + Math.sin(time * 0.005) * 2);
+    // cara de olhar vazio por cima do rosto
+    this.stareFace.setVisible(this.stareTime > 0 && vis).setFlipX(this.facing < 0)
+      .setPosition(this.facing < 0 ? gx - 13 : gx + 1, gy - 28);
   }
 
   spawnEnemy(key, cx, bottom, cfg) {
@@ -610,6 +653,14 @@ class GameScene extends Phaser.Scene {
     this.enemies.children.iterate((e) => {
       if (!e || e.dead) return;
       const b = e.body;
+      // Olhar de Mil Jardas: todo mundo parado
+      if (this.stareTime > 0) {
+        e.setVelocityX(0);
+        if (!b.allowGravity) e.setVelocityY(0);
+        if (e.anims && e.anims.isPlaying) e.anims.pause();
+        return;
+      }
+      if (e.anims && e.anims.isPaused) e.anims.resume();
       const dx = pb.center.x - b.center.x;
       const near = Math.abs(dx) < 300 && Math.abs(pb.center.y - b.center.y) < 120 && !this.dead;
 
@@ -825,6 +876,8 @@ class GameScene extends Phaser.Scene {
       player.setVelocityY(held ? -PHYS.jump : -PHYS.stomp); // segurando pulo = quique mais alto
       this.jumping = held;
       this.squash = 0.3;
+    } else if (this.stareTime > 0) {
+      // congelado pelo olhar: não machuca
     } else {
       this.die('inimigo');
     }
@@ -879,6 +932,44 @@ class GameScene extends Phaser.Scene {
     Sfx.tone(180, 0.25, { type: 'triangle', to: 720, vol: 0.12 });
   }
 
+  // ---- Olhar de Mil Jardas ----
+  startStare() {
+    this.stareTime = 8;
+    this.shots.clear(true, true);
+    if (this.bossShots) this.bossShots.clear(true, true);
+    const cam = this.cameras.main;
+    if (cam.postFX && !this.stareFx) { this.stareFx = cam.postFX.addColorMatrix(); this.stareFx.grayscale(0.9); }
+    cam.flash(250, 255, 255, 255);
+    if (Sfx.musicGain) Sfx.musicGain.gain.value = Settings.get('music') * 0.25;   // música abafada
+    Sfx.tone(110, 1.2, { type: 'sine', to: 55, vol: 0.2 });
+    Sfx.say('olhar de mil jardas', { rate: 0.8, pitch: 0.7 });
+    const t = this.add.text(WIDTH / 2, HEIGHT / 2 - 40, 'OLHAR DE MIL JARDAS', { ...textStyle(48, '#e8e8e8'), strokeThickness: 8 })
+      .setOrigin(0.5).setScrollFactor(0).setDepth(130).setAlpha(0);
+    this.tweens.add({ targets: t, alpha: 1, duration: 500, hold: 900, yoyo: true, onComplete: () => t.destroy() });
+    Achievements.unlock('olhar');
+  }
+
+  endStare() {
+    if (this.stareTime <= 0 && !this.stareFx) return;
+    this.stareTime = 0;
+    if (this.stareFx) { this.cameras.main.postFX.remove(this.stareFx); this.stareFx = null; }
+    Sfx.applyVolumes();
+  }
+
+  // ---- Anjo Caído: a auréola te tira do buraco ----
+  angelRescue() {
+    this.haloAvailable = false;
+    const sp = this.lastSafe;
+    this.player.body.reset(sp.x, sp.y - 16);
+    this.player.setVelocityY(-380);
+    this.invuln = 1.5;
+    this.fxFeather.explode(30, sp.x, sp.y - 20);
+    this.floatText(sp.x, sp.y - 70, 'O ANJO CAÍDO TE SALVOU!', '#fff3b0', 22);
+    this.cameras.main.flash(300, 255, 255, 220);
+    Sfx.aura();
+    Achievements.unlock('anjo');
+  }
+
   gainLife(x, y, label = '+1 VIDA!') {
     this.stats.lives++;
     this.floatText(x, y - 30, label, '#ff9aae', 22);
@@ -919,6 +1010,16 @@ class GameScene extends Phaser.Scene {
       Sfx.aura();
       this.fxAura.explode(30, p.x, p.y);
       this.floatText(p.x, p.y - 20, '+1000 AURA', '#7ff6ff', 24);
+    } else if (p.kind === 'olhar') {
+      this.startStare();
+    } else if (p.kind === 'anjo') {
+      this.hasWings = true;
+      this.haloAvailable = true;
+      this.fxFeather.explode(20, p.x, p.y);
+      Sfx.aura();
+      Sfx.say('anjo caído', { rate: 1, pitch: 0.9 });
+      this.floatText(p.x, p.y - 20, 'ANJO CAÍDO! segure pular no ar para planar', '#ffffff', 18);
+      Achievements.unlock('anjo_pegou');
     } else if (p.kind === 'coxinha') {
       this.gainLife(p.x, p.y, 'COXINHA! +1 VIDA');
       Achievements.unlock('coxinha');
@@ -969,7 +1070,14 @@ class GameScene extends Phaser.Scene {
       if (this.powerTime > 0 || this.invuln > 0) return;
       if (this.hasAura) { this.breakAura(); return; }
     }
+    if (cause === 'queda' && this.haloAvailable && this.lastSafe) {
+      this.angelRescue();
+      return;
+    }
     this.dead = true;
+    this.hasWings = false;
+    this.haloAvailable = false;
+    this.endStare();
     this.stats.deaths++;
     this.levelDeaths++;
     this.stats.lives--;

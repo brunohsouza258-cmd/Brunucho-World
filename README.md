@@ -49,7 +49,7 @@ música da intro, de vitória e de game over. As notas ficam em `SONGS` e dá pr
 
 ### Conquistas
 
-**39 conquistas**, como *Fugiu da Chinelada*, *Mogador Serial*, *Haja Coração!*, *Foi Pênalti?*, *Sigma do Combo*,
+**43 conquistas**, como *Fugiu da Chinelada*, *Mogador Serial*, *Haja Coração!*, *Foi Pênalti?*, *Sigma do Combo*,
 *Atropelamento 67*, *A Andreia Te Achou* e *Modo Andreia* (zerar no Difícil). Aparece um aviso na tela quando desbloqueia
 e dá pra ver todas no menu. A lista fica em `src/achievements.js`.
 
@@ -111,6 +111,9 @@ Ficam em `MEMES`, no `config.js` (no mapa são letras minúsculas: `b p c l r`).
 - **Coxinha** 🍗: +1 vida.
 - **Tênis de Mola** 👟: **pulo duplo** até o fim da fase (aperte pular de novo no ar).
 - **Ímã de Aura** 🧲: puxa as moedas por perto durante 12 segundos.
+- **Olhar de Mil Jardas** 👁️: o tempo para por 8 segundos. Tudo fica cinza, inimigos e tiros congelam (até o chefão!)
+  e encostar neles não machuca.
+- **Anjo Caído** 😇: asas até o fim da fase (**segure pular no ar para planar**) e uma auréola que **te salva de uma queda**.
 
 ### Elementos das fases
 
@@ -176,6 +179,7 @@ P  início           K  checkpoint   G  bandeira final
 R  pedra            Y  coqueiro (enfeite)
 6  poder 67         A  aura
 H  coxinha          T  tênis de mola    M  ímã de aura
+Q  olhar de mil jardas                 W  anjo caído
 O  plataforma móvel Z  trampolim        F  pombo voador
 b  Bombardiro       p  Patapim          c  Bananini
 l  Lirilì Larilà    r  Ballerina Cappuccina

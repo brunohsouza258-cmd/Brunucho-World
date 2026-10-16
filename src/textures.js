@@ -5,52 +5,89 @@ function generateTextures(scene) {
   const g = scene.add.graphics();
   const make = (key, w, h, draw) => { g.clear(); draw(g); g.generateTexture(key, w, h); };
 
-  // --- Tileset: 4 blocos lado a lado (terra, grama, tijolo, plataforma de madeira) ---
+  // --- Tileset: todos os blocos lado a lado (terra, grama, tijolo, madeira, areia, pedra, cidades) ---
   make('tiles', TILE * TILE_COUNT, TILE, (g) => {
+    // números "aleatórios" fixos para os detalhes (a textura sai sempre igual)
+    let seed = 7;
+    const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+    const speckle = (ox, y0, y1, colors, n, size = 2) => {
+      for (let i = 0; i < n; i++) {
+        g.fillStyle(colors[Math.floor(rnd() * colors.length)]);
+        g.fillRect(ox + Math.floor(rnd() * (TILE - size)), y0 + Math.floor(rnd() * (y1 - y0 - size)), size, size);
+      }
+    };
     const dirt = (ox) => {
       g.fillStyle(0x8b5a2b); g.fillRect(ox, 0, TILE, TILE);
-      g.fillStyle(0x6e4521);
-      [[4, 6], [20, 4], [12, 16], [26, 22], [6, 26], [18, 28]].forEach(([x, y]) => g.fillRect(ox + x, y, 4, 3));
+      g.fillStyle(0x7d4f25); g.fillRect(ox, 20, TILE, 12);                        // mais escuro embaixo
+      speckle(ox, 0, TILE, [0x7a4d24, 0x9c6a36, 0x6e4521], 34);
+      // pedrinhas
+      [[6, 8], [21, 15], [12, 25]].forEach(([x, y]) => {
+        g.fillStyle(0x9e8c74); g.fillRect(ox + x, y, 4, 3);
+        g.fillStyle(0xc8b496); g.fillRect(ox + x, y, 2, 1);
+        g.fillStyle(0x5e3e22); g.fillRect(ox + x, y + 3, 4, 1);
+      });
     };
     // 0: terra
     dirt(0);
-    // 1: grama
+    // 1: grama (borda ondulada, tufos e brilho em cima)
     dirt(TILE);
-    g.fillStyle(0x4caf50); g.fillRect(TILE, 0, TILE, 9);
-    g.fillStyle(0x388e3c); g.fillRect(TILE, 9, TILE, 3);
-    g.fillStyle(0x7ed957); g.fillRect(TILE, 0, TILE, 3);
-    // 2: tijolo
+    for (let x = 0; x < TILE; x++) {
+      const h = 9 + Math.round(2 * Math.sin((x / TILE) * Math.PI * 4) + Math.sin((x / TILE) * Math.PI * 6));
+      g.fillStyle(0x2f7d3a); g.fillRect(TILE + x, h, 1, 2);                      // sombra embaixo da grama
+      g.fillStyle(0x4caf50); g.fillRect(TILE + x, 0, 1, h);
+    }
+    g.fillStyle(0x7ed957); g.fillRect(TILE, 0, TILE, 2);
+    g.fillStyle(0x66c95a); speckle(TILE, 2, 8, [0x66c95a, 0x3f9a46], 10, 1);
+    g.fillStyle(0x9be86a); [3, 9, 15, 22, 28].forEach((x) => g.fillRect(TILE + x, 2, 1, 3)); // tufinhos
+    // 2: tijolo com relevo
     const bx = TILE * 2;
-    g.fillStyle(0x5c6370); g.fillRect(bx, 0, TILE, TILE);
-    g.fillStyle(0x8a93a6);
-    g.fillRect(bx + 1, 1, 14, 14); g.fillRect(bx + 17, 1, 14, 14);
-    g.fillRect(bx + 1, 17, 6, 14); g.fillRect(bx + 9, 17, 14, 14); g.fillRect(bx + 25, 17, 6, 14);
-    g.fillStyle(0xa9b2c3); g.fillRect(bx + 1, 1, 14, 2); g.fillRect(bx + 17, 1, 14, 2);
-    // 3: plataforma de madeira (só a parte de cima é sólida)
+    g.fillStyle(0x4a505c); g.fillRect(bx, 0, TILE, TILE);
+    const brick = (x, y, w, h) => {
+      g.fillStyle(0x7d8597); g.fillRect(bx + x, y, w, h);
+      g.fillStyle(0xa9b2c3); g.fillRect(bx + x, y, w, 1); g.fillRect(bx + x, y, 1, h);   // luz
+      g.fillStyle(0x5c6370); g.fillRect(bx + x, y + h - 1, w, 1); g.fillRect(bx + x + w - 1, y, 1, h); // sombra
+    };
+    brick(1, 1, 14, 14); brick(17, 1, 14, 14);
+    brick(0, 17, 7, 14); brick(9, 17, 14, 14); brick(25, 17, 7, 14);
+    speckle(bx, 0, TILE, [0x6c7486, 0x8e97a9], 10, 1);
+    // 3: prancha de madeira (só a parte de cima é sólida)
     const px = TILE * 3;
-    g.fillStyle(0x7a4f2a); g.fillRect(px, 0, TILE, 11);
-    g.fillStyle(0xc4935c); g.fillRect(px, 0, TILE, 8);
+    g.fillStyle(0x6b4423); g.fillRect(px, 0, TILE, 12);
+    g.fillStyle(0xc4935c); g.fillRect(px, 0, TILE, 9);
     g.fillStyle(0xe0b27a); g.fillRect(px, 0, TILE, 2);
-    g.fillStyle(0x7a4f2a); g.fillRect(px + 15, 0, 2, 8);
+    g.fillStyle(0xa87a45); g.fillRect(px + 2, 4, 10, 1); g.fillRect(px + 18, 6, 11, 1);  // veios
+    g.fillStyle(0x6b4423); g.fillRect(px + 15, 0, 2, 9);
+    g.fillStyle(0x3b2a20); g.fillRect(px + 4, 3, 2, 2); g.fillRect(px + 26, 3, 2, 2);       // pregos
     // 4: areia
     const sand = (ox) => {
       g.fillStyle(0xe8c47e); g.fillRect(ox, 0, TILE, TILE);
+      g.fillStyle(0xdcb46c); g.fillRect(ox, 22, TILE, 10);
+      speckle(ox, 0, TILE, [0xd9b46a, 0xf2d79a, 0xcfa65e], 30);
       g.fillStyle(0xd4ab62);
-      [[5, 5], [22, 3], [13, 14], [27, 19], [4, 24], [17, 27]].forEach(([x, y]) => g.fillRect(ox + x, y, 3, 2));
-      g.fillStyle(0xf5dca4);
-      [[10, 8], [24, 12], [8, 18], [20, 23]].forEach(([x, y]) => g.fillRect(ox + x, y, 2, 2));
+      for (let x = 0; x < TILE; x++) {                                             // ondinhas
+        g.fillRect(ox + x, 12 + Math.round(2 * Math.sin((x / TILE) * Math.PI * 2)), 1, 1);
+        g.fillRect(ox + x, 26 + Math.round(2 * Math.sin((x / TILE) * Math.PI * 2 + 2)), 1, 1);
+      }
     };
     sand(TILE * 4);
-    // 5: areia de cima (mais clara, com marquinha de onda)
+    // 5: areia de cima (mais clara, com brilhinhos)
     sand(TILE * 5);
-    g.fillStyle(0xfbe6b4); g.fillRect(TILE * 5, 0, TILE, 7);
+    for (let x = 0; x < TILE; x++) {
+      const h = 6 + Math.round(1.5 * Math.sin((x / TILE) * Math.PI * 4));
+      g.fillStyle(0xfbe6b4); g.fillRect(TILE * 5 + x, 0, 1, h);
+    }
     g.fillStyle(0xfff4d6); g.fillRect(TILE * 5, 0, TILE, 2);
-    // 6: pedra
+    g.fillStyle(0xffffff); [[5, 3], [19, 4], [27, 2]].forEach(([x, y]) => g.fillRect(TILE * 5 + x, y, 1, 1));
+    // 6: pedra com rachadura e musgo
     const rx = TILE * 6;
-    g.fillStyle(0x5c544c); g.fillRect(rx, 0, TILE, TILE);
+    g.fillStyle(0x4a433d); g.fillRect(rx, 0, TILE, TILE);
     g.fillStyle(0x7a7068); g.fillRoundedRect(rx + 1, 1, 30, 30, 8);
     g.fillStyle(0x938a80); g.fillRoundedRect(rx + 4, 3, 16, 9, 4);
-    g.fillStyle(0x4f6b3a); g.fillRect(rx + 22, 24, 6, 3); g.fillRect(rx + 4, 26, 4, 2); // musgo
+    g.fillStyle(0xaaa196); g.fillRect(rx + 6, 4, 8, 2);
+    g.fillStyle(0x5c544c); g.fillRoundedRect(rx + 3, 22, 26, 7, 3);
+    g.fillStyle(0x4a433d); g.fillRect(rx + 18, 10, 1, 6); g.fillRect(rx + 19, 15, 4, 1); g.fillRect(rx + 22, 15, 1, 5); // rachadura
+    g.fillStyle(0x4f8a3c); g.fillRect(rx + 22, 24, 6, 3); g.fillRect(rx + 4, 26, 5, 2); g.fillRect(rx + 25, 22, 3, 2); // musgo
+    g.fillStyle(0x6fae52); g.fillRect(rx + 23, 24, 2, 1);
     // 7 a 10: chãos das cidades (scenery.js)
     drawCityTiles(g);
   });
@@ -320,6 +357,49 @@ function generateTextures(scene) {
     g.fillStyle(0xffffff); g.fillEllipse(4, 5, 4, 5);
   });
 
+  // ================= HABILIDADES NOVAS =================
+  // Olhar de Mil Jardas: ícone de olho arregalado
+  make('pw_olhar', 30, 30, (g) => {
+    g.fillStyle(0x3a3a4a); g.fillCircle(15, 15, 15);
+    g.fillStyle(0x6a6a7e); g.fillCircle(15, 15, 13);
+    g.fillStyle(0xffffff); g.fillEllipse(15, 15, 22, 13);
+    g.fillStyle(0x9aa7b8); g.fillCircle(15, 15, 5);
+    g.fillStyle(0x1b1b2a); g.fillCircle(15, 15, 2);
+    g.fillStyle(0x6a4a6a, 0.8); g.fillEllipse(15, 23, 16, 3);          // olheira
+  });
+  // Rosto do "olhar vazio" que aparece em cima do Brunucho (olhando para a direita)
+  make('olhar_face', 12, 8, (g) => {
+    g.fillStyle(0xffffff); g.fillRect(0, 0, 4, 4); g.fillRect(6, 0, 4, 4);
+    g.fillStyle(0x1b1b2a); g.fillRect(1, 1, 1, 1); g.fillRect(7, 1, 1, 1);
+    g.fillStyle(0x7a5a8a, 0.8); g.fillRect(0, 4, 4, 2); g.fillRect(6, 4, 4, 2);  // olheiras
+    g.fillStyle(0x8a3a2a); g.fillRect(3, 7, 5, 1);                              // boca reta
+  });
+  // Anjo Caído: ícone com asas e auréola
+  make('pw_anjo', 34, 30, (g) => {
+    g.fillStyle(0xffd23f); g.fillEllipse(17, 5, 16, 6);
+    g.fillStyle(0xfff3b0); g.fillEllipse(17, 5, 10, 3);
+    g.fillStyle(0xffffff);
+    g.fillTriangle(15, 12, 0, 8, 6, 26); g.fillTriangle(19, 12, 34, 8, 28, 26);
+    g.fillStyle(0xd9e4f2); g.fillTriangle(15, 14, 4, 16, 8, 26); g.fillTriangle(19, 14, 30, 16, 26, 26);
+    g.fillStyle(0xf2c6a0); g.fillCircle(17, 18, 5);
+  });
+  // Asas (dois quadros para bater) e auréola, desenhadas atrás do Brunucho
+  const asas = (key, up) => make(key, 44, 26, (g) => {
+    g.fillStyle(0xffffff);
+    if (up) { g.fillTriangle(22, 18, 0, 0, 10, 20); g.fillTriangle(22, 18, 44, 0, 34, 20); }
+    else { g.fillTriangle(22, 14, 0, 22, 12, 26); g.fillTriangle(22, 14, 44, 22, 32, 26); }
+    g.fillStyle(0xd9e4f2);
+    if (up) { g.fillTriangle(22, 18, 6, 6, 12, 20); g.fillTriangle(22, 18, 38, 6, 32, 20); }
+    else { g.fillTriangle(22, 16, 4, 22, 13, 25); g.fillTriangle(22, 16, 40, 22, 31, 25); }
+  });
+  asas('asas', true);
+  asas('asas_2', false);
+  make('aureola', 20, 7, (g) => {
+    g.lineStyle(2, 0xffd23f); g.strokeEllipse(10, 3.5, 18, 5);
+    g.lineStyle(1, 0xfff3b0); g.strokeEllipse(10, 3, 12, 3);
+  });
+  make('pena', 8, 4, (g) => { g.fillStyle(0xffffff); g.fillEllipse(4, 2, 8, 4); });
+
   // Coração (vidas no HUD)
   make('heart', 18, 16, (g) => {
     g.fillStyle(0xff3b5c); g.fillCircle(5, 5, 5); g.fillCircle(13, 5, 5); g.fillTriangle(0, 7, 18, 7, 9, 16);
@@ -460,9 +540,12 @@ function generateTextures(scene) {
 
   // --- Moeda ---
   make('coin', 20, 20, (g) => {
-    g.fillStyle(0xe0a800); g.fillCircle(10, 10, 10);
-    g.fillStyle(0xffd23f); g.fillCircle(10, 10, 8);
-    g.fillStyle(0xfff0a0); g.fillRect(8, 4, 3, 12);
+    g.fillStyle(0xb8860b); g.fillCircle(10, 10, 10);                 // borda
+    g.fillStyle(0xffc21a); g.fillCircle(10, 10, 8.5);
+    g.fillStyle(0xffd84d); g.fillCircle(9, 9, 6.5);
+    g.fillStyle(0xe0a800); g.fillRect(9, 5, 3, 10);                   // marca no meio
+    g.fillStyle(0xfff3b0); g.fillRect(9, 5, 1, 10);
+    g.fillStyle(0xffffff); g.fillCircle(6, 6, 1.6); g.fillRect(5, 9, 1, 3);   // brilho
   });
 
   // --- Bandeira final ---
@@ -510,6 +593,40 @@ function generateTextures(scene) {
 
   g.destroy();
   generateScenery(scene);
+  outlineSprites(scene);
+}
+
+// Contorno escuro de 1 pixel em volta dos personagens, inimigos e itens (estilo pixel art).
+// Funciona porque essas texturas são desenhadas num canvas: dá pra ler e mexer nos pixels.
+const OUTLINE_PREFIXES = ['player_', 'neymar', 'galvao', 'caze', 'ednaldo', 'lula', 'flavio', 'mae', 'caramelo',
+  'capivara', 'tralalero', 'tungtung', 'slime', 'crab', 'pombo', 'bombardiro', 'patapim', 'bananini', 'lirili',
+  'ballerina', 'coin', 'coxinha', 'tenis', 'ima', 'heart', 'gol_ball', 'picanha', 'ovo', 'bomba', 'pw_olhar', 'pw_anjo',
+  'goal', 'cp_', 'mola', 'chinelo', 'plataforma'];
+
+function outlineSprites(scene) {
+  for (const key of scene.textures.getTextureKeys()) {
+    if (!OUTLINE_PREFIXES.some((p) => key.startsWith(p)) || key.endsWith('_hit')) continue;
+    const tex = scene.textures.get(key);
+    const src = tex.getSourceImage();
+    if (!src || !src.getContext) continue;
+    const ctx = src.getContext('2d');
+    const { width: w, height: h } = src;
+    const img = ctx.getImageData(0, 0, w, h);
+    const d = img.data;
+    const out = new Uint8ClampedArray(d);
+    const solid = (x, y) => x >= 0 && y >= 0 && x < w && y < h && d[(y * w + x) * 4 + 3] > 140;
+    for (let y = 0; y < h; y++) {
+      for (let x = 0; x < w; x++) {
+        const i = (y * w + x) * 4;
+        if (d[i + 3] > 40) continue;
+        if (solid(x - 1, y) || solid(x + 1, y) || solid(x, y - 1) || solid(x, y + 1)) {
+          out[i] = 22; out[i + 1] = 20; out[i + 2] = 34; out[i + 3] = 215;
+        }
+      }
+    }
+    ctx.putImageData(new ImageData(out, w, h), 0, 0);
+    if (tex.refresh) tex.refresh();
+  }
 }
 
 // Bonequinho genérico de famoso, no mesmo estilo do Brunucho (olhando para a direita).

@@ -30,6 +30,7 @@ class BootScene extends Phaser.Scene {
       });
     }
     this.anims.create({ key: 'bombardiro_fly', frames: [{ key: 'bombardiro' }, { key: 'bombardiro_2' }], frameRate: 14, repeat: -1 });
+    this.anims.create({ key: 'asas_flap', frames: [{ key: 'asas' }, { key: 'asas_2' }], frameRate: 12, repeat: -1 });
     this.anims.create({ key: 'pombo_fly', frames: [{ key: 'pombo' }, { key: 'pombo_2' }], frameRate: 8, repeat: -1 });
   }
 }
