@@ -2,6 +2,7 @@
 // As camadas de fundo têm 960px de largura e repetem lado a lado.
 
 function generateScenery(scene) {
+  if (typeof generateStateScenery === 'function') generateStateScenery(scene);
   const canvasTex = (key, w, h, draw) => {
     const tex = scene.textures.createCanvas(key, w, h);
     const ctx = tex.getContext();
@@ -324,6 +325,26 @@ function generateScenery(scene) {
     ctx.fillStyle = '#7ff6ff'; ctx.beginPath(); ctx.arc(11, 11, 11, Math.PI, 0); ctx.fill();
     ctx.fillStyle = '#ffffff'; [[6, 6], [14, 4], [17, 8]].forEach(([x, y]) => { ctx.beginPath(); ctx.arc(x, y, 1.6, 0, 7); ctx.fill(); });
   });
+  canvasTex('cacto', 32, 32, (ctx) => {
+    rect(ctx, '#3f8a3a', 13, 10, 7, 22); rect(ctx, '#3f8a3a', 5, 16, 5, 10); rect(ctx, '#3f8a3a', 5, 22, 10, 4);
+    rect(ctx, '#3f8a3a', 22, 13, 5, 10); rect(ctx, '#3f8a3a', 17, 19, 10, 4);
+    rect(ctx, '#5cb85c', 15, 12, 2, 18);
+    ctx.fillStyle = '#fff3c0'; [[12, 14], [20, 18], [12, 24], [4, 18], [27, 15], [20, 28]].forEach(([x, y]) => ctx.fillRect(x, y, 2, 1));
+    rect(ctx, '#e5677b', 14, 7, 5, 4);
+  });
+  canvasTex('dec_araucaria', 70, 130, (ctx) => {
+    rect(ctx, '#5e3e22', 32, 30, 6, 100);
+    [[35, 30, 34, 9], [35, 42, 28, 8], [35, 22, 22, 7]].forEach(([x, y, rx, ry]) => { ctx.fillStyle = '#2f5d3a'; ctx.beginPath(); ctx.ellipse(x, y, rx, ry, 0, Math.PI, 0); ctx.fill(); });
+    ctx.fillStyle = '#3f7a4a'; ctx.beginPath(); ctx.ellipse(35, 28, 26, 5, 0, Math.PI, 0); ctx.fill();
+  });
+  canvasTex('dec_mandacaru', 40, 70, (ctx) => {
+    rect(ctx, '#3f8a3a', 16, 6, 9, 64); rect(ctx, '#3f8a3a', 4, 24, 7, 22); rect(ctx, '#3f8a3a', 4, 40, 14, 6);
+    rect(ctx, '#3f8a3a', 30, 16, 7, 24); rect(ctx, '#3f8a3a', 22, 34, 14, 6);
+    rect(ctx, '#5cb85c', 19, 8, 2, 60);
+    ctx.fillStyle = '#fff3c0'; [[15, 14], [26, 22], [15, 32], [26, 44], [3, 28], [37, 20]].forEach(([x, y]) => ctx.fillRect(x, y, 2, 1));
+    rect(ctx, '#ffffff', 17, 2, 6, 5);
+  });
+
   // Sombras/realces nas bordas dos blocos
   canvasTex('edgeL', 32, 32, (ctx) => { const gr = ctx.createLinearGradient(0, 0, 6, 0); gr.addColorStop(0, 'rgba(0,0,0,0.35)'); gr.addColorStop(1, 'rgba(0,0,0,0)'); ctx.fillStyle = gr; ctx.fillRect(0, 0, 6, 32); });
   canvasTex('edgeR', 32, 32, (ctx) => { const gr = ctx.createLinearGradient(32, 0, 26, 0); gr.addColorStop(0, 'rgba(0,0,0,0.35)'); gr.addColorStop(1, 'rgba(0,0,0,0)'); ctx.fillStyle = gr; ctx.fillRect(26, 0, 6, 32); });
@@ -369,6 +390,23 @@ function drawCityTiles(g) {
   g.fillStyle(0x6f747c); g.fillRect(ox, 0, TILE, TILE);
   g.fillStyle(0x5f646b);
   [[4, 6], [20, 4], [12, 16], [26, 22], [6, 26], [18, 28]].forEach(([x, y]) => g.fillRect(ox + x, y, 3, 2));
+  // 11: terra vermelha
+  ox = TILE * TILES.CLAY;
+  g.fillStyle(0xa8502a); g.fillRect(ox, 0, TILE, TILE);
+  g.fillStyle(0x94441f); g.fillRect(ox, 20, TILE, 12);
+  g.fillStyle(0xc0663a); [[4, 6], [20, 4], [12, 16], [26, 22], [6, 26], [18, 28]].forEach(([x, y]) => g.fillRect(ox + x, y, 3, 2));
+  g.fillStyle(0x7a3a1a); [[9, 10], [24, 14], [3, 18], [15, 24]].forEach(([x, y]) => g.fillRect(ox + x, y, 2, 2));
+  // 12: terra vermelha com capim por cima
+  ox = TILE * TILES.CLAY_TOP;
+  g.fillStyle(0xa8502a); g.fillRect(ox, 0, TILE, TILE);
+  g.fillStyle(0xc0663a); [[4, 14], [20, 18], [12, 24], [26, 28]].forEach(([x, y]) => g.fillRect(ox + x, y, 3, 2));
+  for (let x = 0; x < TILE; x++) {
+    const h = 7 + Math.round(2 * Math.sin((x / TILE) * Math.PI * 4));
+    g.fillStyle(0x6a8a2a); g.fillRect(ox + x, 0, 1, h);
+    g.fillStyle(0x4a6a1a); g.fillRect(ox + x, h, 1, 1);
+  }
+  g.fillStyle(0xb8c860); g.fillRect(ox, 0, TILE, 2);
+  g.fillStyle(0xd4d070); [3, 10, 17, 24, 29].forEach((x) => g.fillRect(ox + x, 1, 1, 3));
   // 10: paralelepípedo
   ox = TILE * TILES.COBBLE;
   g.fillStyle(0x5a534a); g.fillRect(ox, 0, TILE, TILE);

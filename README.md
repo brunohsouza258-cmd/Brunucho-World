@@ -49,25 +49,30 @@ música da intro, de vitória e de game over. As notas ficam em `SONGS` e dá pr
 
 ### Conquistas
 
-**43 conquistas**, como *Fugiu da Chinelada*, *Mogador Serial*, *Haja Coração!*, *Foi Pênalti?*, *Sigma do Combo*,
+**49 conquistas**, como *Fugiu da Chinelada*, *Mogador Serial*, *Haja Coração!*, *Foi Pênalti?*, *Sigma do Combo*,
 *Atropelamento 67*, *A Andreia Te Achou* e *Modo Andreia* (zerar no Difícil). Aparece um aviso na tela quando desbloqueia
 e dá pra ver todas no menu. A lista fica em `src/achievements.js`.
 
-### Fases e inimigos (memes!)
+### Fases: uma viagem pelo Brasil (32 fases)
 
-Em **Escolher fase** (ou teclas **1 a 9**) você vai direto para uma fase já liberada.
+Em **Escolher fase** (10 por página, ◀ ▶ para trocar) ou teclas **1 a 9** você vai direto para uma fase liberada.
+Cada estado tem seu cartão-postal no fundo, chão e enfeites da região e música regional.
 
-| Fase | Cenário | Inimigo |
+| Trecho | Fases | Música |
 |---|---|---|
-| 1 · Primeiros Passos | campo, de dia | Vira-lata Caramelo |
-| 2 · Escola Zacarias | rua de bairro com a Escola Zacarias | Tung Tung Tung Sahur |
-| 3 · Vale dos Espinhos | entardecer | Capivara com laranja na cabeça |
-| 4 · São Paulo | MASP, Copan, Ed. Itália e garoa | Vira-lata Caramelo |
-| 5 · Rio de Janeiro | Cristo, Pão de Açúcar e calçadão de Copacabana | Capivara |
-| 6 · Salvador, Bahia | Elevador Lacerda e casarões do Pelourinho | Tralalero Tralala |
-| 7 · Praia do Brunucho | praia com coqueiros | Tralalero Tralala |
-| 8 · Pico Final | noite | Tung Tung Tung Sahur |
-| 9 · Brasília: Chefão Final | Congresso Nacional ao pôr do sol | **LULA & FLÁVIO** (chefão duplo) |
+| Começo | 1 Primeiros Passos · 2 Escola Zacarias | |
+| Sudeste | 3 São Paulo · 4 Rio de Janeiro · 5 Espírito Santo (Convento da Penha) · 6 Minas Gerais (Ouro Preto) | sertanejo |
+| Sul | 7 Paraná (Jardim Botânico, araucárias) · 8 Santa Catarina (Ponte Hercílio Luz) · 9 Rio Grande do Sul (Gasômetro) · 10 Vale dos Espinhos | vanerão |
+| Centro-Oeste | 11 Mato Grosso do Sul (Pantanal) · 12 Mato Grosso (Chapada dos Guimarães) · 13 Goiás (Chapada dos Veadeiros) | sertanejo |
+| Norte | 14 Rondônia (Três Caixas d'Água) · 15 Acre · 16 Amazonas (Teatro Amazonas) · 17 Roraima (Monte Roraima) · 18 Amapá (Marco Zero) · 19 Pará (Ver-o-Peso) · 20 Tocantins (Jalapão) | carimbó |
+| Nordeste | 21 Maranhão (Lençóis) · 22 Piauí (Pedra Furada) · 23 Ceará · 24 Rio Grande do Norte · 25 Paraíba · 26 Pernambuco (Olinda) · 27 Alagoas · 28 Sergipe · 29 Bahia | forró |
+| Final | 30 Praia do Brunucho · 31 Pico Final · 32 **Brasília: Chefão Final** | |
+
+As fases dos estados foram montadas por um gerador com pedaços testados, e um verificador conferiu que dá pra
+chegar do começo ao checkpoint e à bandeira em todas. Os fundos dos estados ficam em `src/estados.js`.
+
+Conquistas por região: *Sudeste Completo*, *Bah, Tchê!*, *Pantaneiro*, *Desbravador da Amazônia*, *Arretado!*
+e **Turista Nacional** (todos os 26 estados + DF).
 
 ### Chefão final: Lula & Flávio
 
@@ -157,7 +162,8 @@ index.html          carrega tudo
 src/config.js       nome do jogador (PLAYER_NAME), física do personagem (velocidade, pulo...), cores dos cenários
 src/levels.js       mapas das fases em texto  ← o lugar mais fácil para mexer!
 src/textures.js     desenhos (gerados por código)
-src/scenery.js      cenários do Brasil (Rio, SP, Bahia, Escola Zacarias)
+src/scenery.js      cenários (Rio, SP, Bahia, Escola Zacarias) e enfeites
+src/estados.js      cartões-postais e temas dos estados
 src/audio.js        efeitos sonoros e vozes (gerados por código)
 src/gamepad.js      suporte a controle de videogame
 src/phaser-fix.js   correção de teclas repetidas no Phaser

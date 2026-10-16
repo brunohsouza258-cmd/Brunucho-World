@@ -82,6 +82,35 @@ const SONGS = {
              D5 D5 . D5 F#5 . D5 . A5 - G5 - F#5 - E5 - | B4 . D#5 . F#5 . B5 . A5 . F#5 . D#5 . B4 .`,
     drums: { k: 'x...x..xx...x...', s: '....x.......x..x', h: 'xxxxxxxxxxxxxxxx' },
   },
+  // ---- Ritmos regionais (fases dos estados) ----
+  // Forró (Nordeste): zabumba, triângulo e sanfona
+  forro: {
+    bpm: 124, lead: 'sawtooth', leadVol: 0.045, bass: 'baiao', chords: ['G2', 'A2', 'D2', 'G2'],
+    melody: `G4 . B4 . D5 . F5 - E5 . D5 . B4 . G4 . | A4 . C5 . E5 . G5 - F5 . E5 . C5 . A4 .
+             D5 . F5 . A5 . G5 - F5 . E5 . D5 . C5 . | B4 . D5 . G5 . F5 . D5 . B4 . G4 - - .`,
+    drums: { k: 'x..x....x..x....', s: '....x.......x...', h: 'x.xxx.xxx.xxx.xx' },
+  },
+  // Vanerão (Sul): gaita ligeira
+  gaucho: {
+    bpm: 132, lead: 'sawtooth', leadVol: 0.045, bass: 'pump', chords: ['D2', 'A2', 'D2', 'A2'],
+    melody: `D5 . F#5 . A5 . F#5 . D5 . F#5 . A5 . D6 . | C#6 . A5 . E5 . A5 . C#6 . B5 . A5 . G5 .
+             F#5 . A5 . D6 . A5 . F#5 . E5 . D5 . F#5 . | E5 . G5 . C#6 . B5 . A5 - - . . . . .`,
+    drums: { k: 'x...x...x...x...', s: '..x...x...x...x.', h: '' },
+  },
+  // Carimbó (Norte): curimbó e maracá
+  carimbo: {
+    bpm: 112, lead: 'triangle', leadVol: 0.1, bass: 'bossa', chords: ['A2', 'C3', 'F2', 'E2'],
+    melody: `A4 . C5 . E5 - D5 . C5 . A4 . G4 - A4 . | C5 . E5 . G5 - F5 . E5 . C5 . D5 - E5 .
+             F5 . E5 . D5 - C5 . D5 . E5 . G5 - E5 . | D5 . C5 . B4 - A4 . G4 . A4 - - - . .`,
+    drums: { k: 'x..x..x.x..x..x.', s: '', h: 'x.x.x.x.x.x.x.x.', a: 'a...b...a...b...' },
+  },
+  // Sertanejo (Centro-Oeste e Minas): viola caipira
+  sertanejo: {
+    bpm: 96, lead: 'triangle', leadVol: 0.1, bass: 'long', chords: ['E2', 'A2', 'B1', 'E2'],
+    melody: `E5 - G#5 - B5 - G#5 - E5 - F#5 - G#5 - - - | A5 - G#5 - F#5 - E5 - C#5 - E5 - F#5 - - -
+             B4 - D#5 - F#5 - B5 - A5 - G#5 - F#5 - - - | G#5 - F#5 - E5 - - - B4 - E5 - - - - -`,
+    drums: { k: 'x.......x.......', s: '....x.......x...', h: '..x...x...x...x.' },
+  },
   vitoria: {
     bpm: 120, lead: 'square', leadVol: 0.08, bass: 'octave', chords: ['C3', 'F2', 'C3', 'G2'],
     melody: `C5 . C5 . C5 . G5 - - - . . E5 . G5 . | C6 - - - - - . . A5 . G5 . F5 . G5 .
@@ -192,6 +221,7 @@ const Music = {
       long: { 0: 1, 8: 1.5 },
       bossa: { 0: 1, 6: 1.5, 8: 1, 14: 1.5 },
       reggae: { 0: 1, 3: 1, 10: 1.5 },
+      baiao: { 0: 1, 3: 1, 8: 1.5, 11: 1 },
     }[song.bass] || {};
     if (bassAt[inBar]) {
       const len = song.bass === 'long' ? 7 : 2;

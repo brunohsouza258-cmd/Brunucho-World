@@ -237,6 +237,7 @@ const BossMixin = {
     Progress.completeLevel(this.levelIndex, { noDeath: this.levelDeaths === 0, allCoins: this.levelCoins === this.totalCoins });
     Progress.clearRun();
     Achievements.unlock('chefao');
+    visitState('brasilia');
     if (this.levelDeaths === b.deathsAtStart) Achievements.unlock('chefao_limpo');
     Achievements.unlock('zerou');
     if (Settings.get('difficulty') === 'dificil') Achievements.unlock('zerou_dif');

@@ -310,7 +310,7 @@ class GameScene extends Phaser.Scene {
   // ---------------------------------------------------------------- Decoração automática
 
   decorate(level, themeKey) {
-    const set = DECOR_SETS[themeKey] || DECOR_SETS.dia;
+    const set = DECOR_SETS[(THEMES[themeKey] || {}).decor || themeKey] || DECOR_SETS.dia;
     const { tiles, width: W, height: H } = level;
     const solid = (x, y) => x >= 0 && x < W && y >= 0 && y < H && tiles[y][x] !== -1 && tiles[y][x] !== TILES.ONEWAY;
     const empty = (x, y) => x >= 0 && x < W && y >= 0 && y < H && tiles[y][x] === -1;
@@ -1165,6 +1165,7 @@ class GameScene extends Phaser.Scene {
     if (this.powerTime > 0) Music.play(this.levelSong);
     if (this.levelIndex === 0) Achievements.unlock('fase1');
     if (THEME_ACHIEVEMENT[this.themeKey]) Achievements.unlock(THEME_ACHIEVEMENT[this.themeKey]);
+    visitState(this.themeKey);
     if (this.levelDeaths === 0) Achievements.unlock('intocavel');
     if (allCoins) Achievements.unlock('todasmoedas');
     if (this.levelTime < 40) Achievements.unlock('speedrun');

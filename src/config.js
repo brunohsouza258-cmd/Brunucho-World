@@ -46,7 +46,22 @@ function difficulty() { return DIFFICULTY[Settings.get('difficulty')] || DIFFICU
 
 // ---- Progresso salvo: fases liberadas, estrelas e "Continuar" ----
 const Progress = {
-  data() { return { unlocked: 1, stars: {}, save: null, ...Storage.get('pp_progress', {}) }; },
+  data() {
+    const d = { unlocked: 1, stars: {}, save: null, ...Storage.get('pp_progress', {}) };
+    if (d.version !== 2 && (d.unlocked > 1 || Object.keys(d.stars).length || d.save)) {
+      // antes eram 9 fases; agora são 32 (os estados entraram no meio)
+      const map = { 0: 0, 1: 1, 2: 9, 3: 2, 4: 3, 5: 28, 6: 29, 7: 30, 8: 31 };
+      const stars = {};
+      for (const [k, v] of Object.entries(d.stars)) if (map[k] !== undefined) stars[map[k]] = v;
+      d.stars = stars;
+      const done = Object.keys(stars).map(Number);
+      d.unlocked = Math.min(LEVELS.length, Math.max(2, ...done.map((i) => i + 2)));
+      if (d.save && map[d.save.level] !== undefined) d.save.level = map[d.save.level];
+      else d.save = null;
+    }
+    d.version = 2;
+    return d;
+  },
   write(d) { Storage.set('pp_progress', d); },
   isUnlocked(i) { return Settings.get('allLevels') || i < this.data().unlocked; },
   // chamado ao terminar uma fase
@@ -60,7 +75,7 @@ const Progress = {
   starCount(i) { const s = this.data().stars[i]; return s ? (s.done ? 1 : 0) + (s.noDeath ? 1 : 0) + (s.allCoins ? 1 : 0) : 0; },
   saveRun(level, stats) { const d = this.data(); d.save = { level, stats }; this.write(d); },
   clearRun() { const d = this.data(); d.save = null; this.write(d); },
-  reset() { Storage.set('pp_progress', {}); Storage.set('pp_achievements', {}); Storage.set('pp_counters', {}); Storage.set('pp_ranking', []); Storage.set('pp_brainrot', []); },
+  reset() { Storage.set('pp_progress', {}); Storage.set('pp_achievements', {}); Storage.set('pp_counters', {}); Storage.set('pp_ranking', []); Storage.set('pp_brainrot', []); Storage.set('pp_ufs', []); },
 };
 
 // ---- Inimigos famosos (letra no mapa → tipo) ----
@@ -136,9 +151,9 @@ const PHYS = {
 // Índices dos blocos no tileset gerado em textures.js
 const TILES = {
   DIRT: 0, GRASS: 1, BRICK: 2, ONEWAY: 3, SAND: 4, SAND_TOP: 5, ROCK: 6,
-  CALCADAO: 7, SIDEWALK: 8, CONCRETE: 9, COBBLE: 10,
+  CALCADAO: 7, SIDEWALK: 8, CONCRETE: 9, COBBLE: 10, CLAY: 11, CLAY_TOP: 12,
 };
-const TILE_COUNT = 11;
+const TILE_COUNT = 13;
 
 // Tipo de chão de cada tema: [bloco de cima, bloco de baixo]
 const GROUNDS = {
@@ -147,6 +162,7 @@ const GROUNDS = {
   calcadao: [TILES.CALCADAO, TILES.SAND],    // calçadão de Copacabana
   calcada:  [TILES.SIDEWALK, TILES.CONCRETE], // calçada de cidade
   pedra:    [TILES.COBBLE, TILES.DIRT],       // paralelepípedo do Pelourinho
+  cerrado:  [TILES.CLAY_TOP, TILES.CLAY],     // terra vermelha com capim (cerrado, Norte, sertão)
 };
 
 const THEMES = {
@@ -197,8 +213,14 @@ const DECOR_SETS = {
   sp:         ['dec_lixeira', 'dec_hidrante', 'dec_placa', 'dec_lixeira'],
   escola:     ['dec_lixeira', 'dec_arbusto', 'dec_flor', 'dec_placa'],
   brasilia:   ['dec_ipe', 'dec_arbusto', 'dec_lixeira', 'dec_flor'],
+  colonial:   ['dec_flor', 'dec_arbusto', 'dec_lixeira', 'dec_flor'],
+  sul:        ['dec_araucaria', 'dec_flor', 'dec_arbusto', 'dec_pedrinha'],
+  pantanal:   ['dec_arbusto', 'dec_flor', 'dec_arvore', 'dec_pedrinha'],
+  cerrado:    ['dec_ipe', 'dec_pedrinha', 'dec_arbusto', 'dec_arvore'],
+  mata:       ['dec_arvore', 'dec_arbusto', 'dec_flor', 'dec_arvore'],
+  sertao:     ['dec_mandacaru', 'dec_pedrinha', 'dec_mandacaru', 'dec_arbusto'],
 };
-const BIG_DECOR = new Set(['dec_arvore', 'dec_guardasol', 'dec_barraca', 'dec_ipe', 'dec_placa']);
+const BIG_DECOR = new Set(['dec_arvore', 'dec_guardasol', 'dec_barraca', 'dec_ipe', 'dec_placa', 'dec_araucaria']);
 
 // localStorage pode falhar (aba anônima etc.), então tudo fica protegido.
 const Storage = {

@@ -601,7 +601,7 @@ function generateTextures(scene) {
 const OUTLINE_PREFIXES = ['player_', 'neymar', 'galvao', 'caze', 'ednaldo', 'lula', 'flavio', 'mae', 'caramelo',
   'capivara', 'tralalero', 'tungtung', 'slime', 'crab', 'pombo', 'bombardiro', 'patapim', 'bananini', 'lirili',
   'ballerina', 'coin', 'coxinha', 'tenis', 'ima', 'heart', 'gol_ball', 'picanha', 'ovo', 'bomba', 'pw_olhar', 'pw_anjo',
-  'goal', 'cp_', 'mola', 'chinelo', 'plataforma'];
+  'goal', 'cp_', 'mola', 'chinelo', 'plataforma', 'cacto'];
 
 function outlineSprites(scene) {
   for (const key of scene.textures.getTextureKeys()) {

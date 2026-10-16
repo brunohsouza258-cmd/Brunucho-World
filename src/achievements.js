@@ -13,6 +13,12 @@ const ACHIEVEMENTS = [
   { id: 'chefao',      icon: '🏛️', name: 'Moggou a Política',     desc: 'Derrotar o Lula e o Flávio' },
   { id: 'chefao_limpo', icon: '😇', name: 'Sem Comprar Briga',   desc: 'Vencer o chefão final sem morrer' },
   { id: 'casa',        icon: '🏠', name: 'De Volta pra Casa',     desc: 'Ver a cena final até o fim (sem pular)' },
+  { id: 'reg_sudeste',  icon: '🏙️', name: 'Sudeste Completo',      desc: 'Passar por SP, RJ, ES e MG' },
+  { id: 'reg_sul',      icon: '🧉', name: 'Bah, Tchê!',            desc: 'Passar por PR, SC e RS' },
+  { id: 'reg_centro',   icon: '🐆', name: 'Pantaneiro',            desc: 'Passar por MS, MT, GO e DF' },
+  { id: 'reg_norte',    icon: '🌳', name: 'Desbravador da Amazônia', desc: 'Passar pelos 7 estados do Norte' },
+  { id: 'reg_nordeste', icon: '🌵', name: 'Arretado!',             desc: 'Passar pelos 9 estados do Nordeste' },
+  { id: 'brasil',       icon: '🇧🇷', name: 'Turista Nacional',      desc: 'Passar pelos 26 estados e pelo DF' },
   { id: 'zerou',       icon: '♾️', name: 'Aura Infinita',         desc: 'Zerar o jogo' },
   { id: 'zerou_dif',   icon: '👑', name: 'Modo Andreia',          desc: 'Zerar o jogo no Difícil' },
   // --- mog ---
@@ -81,6 +87,21 @@ const Achievements = {
 
   progress() { return { done: Object.keys(this.unlocked()).length, total: ACHIEVEMENTS.length }; },
 };
+
+// Estados visitados (para as conquistas por região)
+function visitState(themeKey) {
+  const t = THEMES[themeKey] || {};
+  const info = t.uf ? [t.uf, t.region] : OLD_THEME_UF[themeKey];
+  if (!info) return;
+  const seen = new Set(Storage.get('pp_ufs', []));
+  seen.add(info[0]);
+  Storage.set('pp_ufs', [...seen]);
+  for (const r of Object.values(REGIONS)) {
+    if (r.ufs.every((u) => seen.has(u))) Achievements.unlock(r.ach);
+  }
+  const all = Object.values(REGIONS).flatMap((r) => r.ufs);
+  if (all.every((u) => seen.has(u))) Achievements.unlock('brasil');
+}
 
 // Fases que dão conquista ao terminar (pelo tema)
 const THEME_ACHIEVEMENT = { escola: 'escola', sp: 'sp', rio: 'rio', bahia: 'bahia', praia: 'praia' };

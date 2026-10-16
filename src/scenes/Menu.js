@@ -1,4 +1,5 @@
-const LEVEL_COLS = 5; // cartões por linha em "Escolher fase"
+const LEVEL_COLS = 5;       // cartões por linha em "Escolher fase"
+const LEVELS_PER_PAGE = 10; // cartões por página
 
 class MenuScene extends Phaser.Scene {
   constructor() { super('Menu'); }
@@ -133,31 +134,49 @@ class MenuScene extends Phaser.Scene {
 
   createLevelPanel() {
     const panel = this.add.container(0, 0);
-    panel.add(this.add.rectangle(WIDTH / 2, 318, 900, 270, 0x1b1b2a, 0.8).setStrokeStyle(3, 0xffd23f));
+    panel.add(this.add.rectangle(WIDTH / 2, 318, 940, 270, 0x1b1b2a, 0.8).setStrokeStyle(3, 0xffd23f));
     panel.add(this.add.text(WIDTH / 2, 202, 'ESCOLHA A FASE', textStyle(26, '#ffd23f')).setOrigin(0.5));
     this.levelSel = 0;
+    this.levelGroups = [];
     this.levelCards = LEVELS.map((lv, i) => {
-      const col = i % LEVEL_COLS, row = Math.floor(i / LEVEL_COLS);
+      const slot = i % LEVELS_PER_PAGE;
+      const col = slot % LEVEL_COLS, row = Math.floor(slot / LEVEL_COLS);
       const x = WIDTH / 2 - 352 + col * 176, y = 262 + row * 96;
       const theme = THEMES[lv.theme] || THEMES.dia;
       const open = Progress.isUnlocked(i);
       const card = this.add.rectangle(x, y, 164, 82, open ? theme.skyTop : 0x333344, 1).setStrokeStyle(3, 0xffffff).setInteractive({ useHandCursor: true });
-      const num = this.add.text(x - 74, y - 6, open ? `${i + 1}` : '🔒', textStyle(open ? 30 : 24, '#ffd23f')).setOrigin(0, 0.5);
-      const name = this.add.text(x + 12, y - 12, lv.name, { ...textStyle(15), align: 'center', wordWrap: { width: 118 } }).setOrigin(0.5).setAlpha(open ? 1 : 0.5);
+      const num = this.add.text(x - 76, y - 6, open ? `${i + 1}` : '🔒', textStyle(open ? (i + 1 > 9 ? 24 : 30) : 22, '#ffd23f')).setOrigin(0, 0.5);
+      const name = this.add.text(x + 14, y - 12, lv.name.replace(': Chefão Final', ''), { ...textStyle(lv.name.length > 16 ? 13 : 15), align: 'center', wordWrap: { width: 112 } }).setOrigin(0.5).setAlpha(open ? 1 : 0.5);
       const n = Progress.starCount(i);
       const stars = this.add.text(x + 12, y + 24, '★'.repeat(n) + '☆'.repeat(3 - n), textStyle(18, '#ffd23f')).setOrigin(0.5).setAlpha(open ? 1 : 0.3);
       card.on('pointerover', () => { if (this.mode === 'levels') { this.levelSel = i; this.refreshLevels(); } });
       card.on('pointerdown', () => { if (this.mode === 'levels') this.tryLevel(i); });
-      panel.add([card, num, name, stars]);
+      const group = [card, num, name, stars];
+      panel.add(group);
+      this.levelGroups.push(group);
       return card;
     });
-    panel.add(this.add.text(WIDTH / 2, 442, '★ passou  ★ sem morrer  ★ todas as moedas   ·   ESC voltar', textStyle(15)).setOrigin(0.5));
+    // páginas (10 fases por página)
+    const pages = Math.ceil(LEVELS.length / LEVELS_PER_PAGE);
+    const arrow = (x, label, d) => {
+      const t = this.add.text(x, 318, label, textStyle(34, '#ffd23f')).setOrigin(0.5).setInteractive({ useHandCursor: true });
+      t.on('pointerdown', () => { if (this.mode === 'levels') { this.levelSel = Phaser.Math.Clamp(this.levelSel + d * LEVELS_PER_PAGE, 0, LEVELS.length - 1); this.refreshLevels(); } });
+      panel.add(t);
+    };
+    arrow(36, '◀', -1);
+    arrow(WIDTH - 36, '▶', 1);
+    this.pageText = this.add.text(WIDTH / 2, 442, '', textStyle(15)).setOrigin(0.5);
+    panel.add(this.pageText);
+    this.levelPages = pages;
     return panel;
   }
 
   refreshLevels() {
+    const page = Math.floor(this.levelSel / LEVELS_PER_PAGE);
+    this.levelGroups.forEach((grp, i) => grp.forEach((o) => o.setVisible(Math.floor(i / LEVELS_PER_PAGE) === page)));
     this.levelCards.forEach((c, i) => c.setStrokeStyle(i === this.levelSel ? 5 : 2, i === this.levelSel ? 0xffd23f : 0xffffff)
       .setScale(i === this.levelSel ? 1.06 : 1));
+    this.pageText.setText(`página ${page + 1}/${this.levelPages}  ·  ★ passou  ★ sem morrer  ★ todas as moedas  ·  ESC voltar`);
   }
 
   tryLevel(i) {
