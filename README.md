@@ -4,7 +4,7 @@ Jogo de plataforma 2D estrelado pelo Brunucho, feito com [Phaser 3](https://phas
 
 ## Como jogar
 
-Dê dois cliques em `index.html` (precisa de internet na primeira vez para baixar o Phaser).
+Dê dois cliques em `index.html`. **Funciona sem internet** (o Phaser fica na pasta `lib/`).
 
 | Tecla | Ação |
 |---|---|
@@ -14,6 +14,12 @@ Dê dois cliques em `index.html` (precisa de internet na primeira vez para baixa
 | R | reiniciar a fase |
 | M | ligar/desligar som |
 | O | opções (no menu e na pausa) |
+
+**No celular:** setas e botão de pular na tela, e o botão **II** (canto de cima) pausa.
+Nas Opções dá pra ativar a **tela cheia**.
+
+**Com controle de videogame** (Xbox, PlayStation...): direcional/analógico anda, **A/X** pula e confirma,
+**B/○** volta, **Start** pausa.
 
 No menu, aperte **C** (ou toque no Brunucho) para trocar de roupa: **Praia** (blusa preta, bermuda rosa,
 óculos na cabeça e chinelo) ou **Diesel** (blusa azul e bermuda de moletom). As cores ficam em `OUTFITS`, no `src/config.js`.
@@ -94,6 +100,12 @@ As falas e a velocidade ficam em `FAMOUS`, no `config.js`.
 - **Tênis de Mola** 👟: **pulo duplo** até o fim da fase (aperte pular de novo no ar).
 - **Ímã de Aura** 🧲: puxa as moedas por perto durante 12 segundos.
 
+### Elementos das fases
+
+- **Plataformas que se movem** (por cima do mar no Rio e na Praia, e no abismo do Pico Final): suba e ela te leva.
+- **Trampolim**: joga o Brunucho lá no alto.
+- **Pombo** 🐦: voa em zigue-zague pelas cidades. Pise nele também!
+
 ### Pontuação
 
 | Ação | Pontos |
@@ -109,7 +121,7 @@ As falas e a velocidade ficam em `FAMOUS`, no `config.js`.
 | Fase sem morrer | +2000 |
 | Todas as moedas da fase | +1500 |
 
-Os 5 melhores ficam no **Ranking** (menu principal). Os valores ficam em `SCORE`, no `config.js`.
+Os 5 melhores ficam no **Ranking** (menu principal). No fim do jogo cada um **digita o próprio nome**. Os valores ficam em `SCORE`, no `config.js`.
 
 ### Intro
 
@@ -129,6 +141,9 @@ src/levels.js       mapas das fases em texto  ← o lugar mais fácil para mexer
 src/textures.js     desenhos (gerados por código)
 src/scenery.js      cenários do Brasil (Rio, SP, Bahia, Escola Zacarias)
 src/audio.js        efeitos sonoros e vozes (gerados por código)
+src/gamepad.js      suporte a controle de videogame
+src/phaser-fix.js   correção de teclas repetidas no Phaser
+lib/phaser.min.js   o Phaser (para jogar sem internet)
 src/music.js        trilha sonora (músicas em notas)
 src/achievements.js lista de conquistas
 src/boss.js         chefão final (Lula & Flávio)
@@ -146,6 +161,7 @@ P  início           K  checkpoint   G  bandeira final
 R  pedra            Y  coqueiro (enfeite)
 6  poder 67         A  aura
 H  coxinha          T  tênis de mola    M  ímã de aura
+O  plataforma móvel Z  trampolim        F  pombo voador
 L  poste de luz     S  Escola Zacarias (enfeite)
 N  Neymar           V  Galvão Bueno
 J  Casimiro         D  Ednaldo Pereira
@@ -161,9 +177,6 @@ Os temas disponíveis são `dia`, `entardecer`, `noite`, `praia`, `escola`, `sp`
 
 ## Ideias para continuar
 
-- Plataformas que se movem e trampolins
-- Inimigo voador
-- Controle de videogame
 - Trocar os desenhos por sprites próprios (carregar no `Boot.js` com os mesmos nomes)
 
 ## Créditos
@@ -176,3 +189,14 @@ Os créditos completos rolam no fim do jogo e na opção **CRÉDITOS** do menu (
 
 > ⚠️ **Este jogo é só brincadeira!** Todos os famosos e políticos aparecem como paródia e caricatura, sem intenção de
 > ofender ninguém. Não leve a sério. Zoeira para todos os lados, sem preferência política.
+
+## Backup (Git)
+
+O projeto tem um repositório Git **local** (só no seu computador). Para salvar uma nova versão:
+
+```
+git add -A
+git commit -m "o que mudou"
+```
+
+Para ver o histórico: `git log --oneline`.
