@@ -309,7 +309,7 @@ class GameScene extends Phaser.Scene {
     // Garoa paulistana
     if (theme.rain) {
       this.add.particles(0, -20, 'px', {
-        x: { min: 0, max: WIDTH + 100 }, lifespan: 1100, speedY: { min: 520, max: 640 }, speedX: { min: -90, max: -60 },
+        x: { min: 0, max: VIEW_W + 100 }, lifespan: 1100, speedY: { min: 520, max: 640 }, speedX: { min: -90, max: -60 },
         scaleX: 0.25, scaleY: 1.6, alpha: 0.35, tint: 0xd5dde8, frequency: Settings.get('fx') === 'leve' ? 34 : 12, quantity: 2,
       }).setScrollFactor(0).setDepth(50);
     }
@@ -354,7 +354,7 @@ class GameScene extends Phaser.Scene {
     if (!a || Settings.get('fx') === 'leve') return;          // clima só no modo de efeitos completo
     const fix = (e) => e.setScrollFactor(0).setDepth(45);
     if (a === 'neblina') {
-      this.fog = [0, 1].map((i) => this.add.tileSprite(0, 200 + i * 70, WIDTH, 240, 'fog').setOrigin(0)
+      this.fog = [0, 1].map((i) => this.add.tileSprite(0, 200 + i * 70, VIEW_W, 240, 'fog').setOrigin(0)
         .setScrollFactor(0).setDepth(30).setAlpha(0.5 - i * 0.18));
     } else if (a === 'poeira') {
       fix(this.add.particles(-10, 0, 'px', {
@@ -363,12 +363,12 @@ class GameScene extends Phaser.Scene {
       }));
     } else if (a === 'folhas') {
       fix(this.add.particles(0, -10, 'px', {
-        x: { min: 0, max: WIDTH + 60 }, speedY: { min: 30, max: 75 }, speedX: { min: -45, max: 20 }, lifespan: 7000,
+        x: { min: 0, max: VIEW_W + 60 }, speedY: { min: 30, max: 75 }, speedX: { min: -45, max: 20 }, lifespan: 7000,
         rotate: { min: 0, max: 360 }, scale: { start: 1.4, end: 1 }, tint: [0x4caf50, 0x8bc34a, 0xc0a030, 0x2e7d32], frequency: 380,
       }));
     } else if (a === 'vagalumes') {
       fix(this.add.particles(0, 0, 'px', {
-        x: { min: 0, max: WIDTH }, y: { min: 220, max: 440 }, speed: { min: 6, max: 22 }, lifespan: 3200,
+        x: { min: 0, max: VIEW_W }, y: { min: 220, max: 440 }, speed: { min: 6, max: 22 }, lifespan: 3200,
         scale: { start: 1.6, end: 0.8 }, alpha: { start: 1, end: 0 }, tint: [0xeaff7a, 0xfff3a0], frequency: 260,
         blendMode: Phaser.BlendModes.ADD,
       }));
@@ -438,20 +438,20 @@ class GameScene extends Phaser.Scene {
     const panel = this.add.graphics().setScrollFactor(0).setDepth(99);
     panel.fillStyle(0x0b0b14, 0.35);
     panel.fillRoundedRect(6, 6, 222, 96, 12);
-    panel.fillRoundedRect(WIDTH - 166, 6, 160, 66, 12);
+    panel.fillRoundedRect(VIEW_W - 166, 6, 160, 66, 12);
     fixed(this.add.image(30, 30, 'coin'));
     this.coinText = fixed(this.add.text(48, 18, '', textStyle(22)));
-    this.timeText = fixed(this.add.text(WIDTH - 16, 16, '', textStyle(22)).setOrigin(1, 0));
-    this.deathText = fixed(this.add.text(WIDTH - 16, 46, '', textStyle(18, '#ffb3b3')).setOrigin(1, 0));
+    this.timeText = fixed(this.add.text(VIEW_W - 16, 16, '', textStyle(22)).setOrigin(1, 0));
+    this.deathText = fixed(this.add.text(VIEW_W - 16, 46, '', textStyle(18, '#ffb3b3')).setOrigin(1, 0));
     this.scoreText = fixed(this.add.text(16, 48, '', textStyle(22, '#ffe9a0')));
     this.auraText = fixed(this.add.text(16, 108, '', textStyle(16, '#7ff6ff')));
     fixed(this.add.image(28, 92, 'heart'));
     this.livesText = fixed(this.add.text(44, 80, '', textStyle(20, '#ff9aae')));
     this.shownScore = this.stats.score;
-    this.powerText = fixed(this.add.text(WIDTH / 2, 20, '', textStyle(26, '#ffb000')).setOrigin(0.5, 0));
+    this.powerText = fixed(this.add.text(VIEW_W / 2, 20, '', textStyle(26, '#ffb000')).setOrigin(0.5, 0));
     this.updateHud();
 
-    const banner = fixed(this.add.text(WIDTH / 2, HEIGHT / 2 - 60, `Fase ${this.levelIndex + 1}\n${def.name}`,
+    const banner = fixed(this.add.text(VIEW_W / 2, HEIGHT / 2 - 60, `Fase ${this.levelIndex + 1}\n${def.name}`,
       { ...textStyle(44, '#ffd23f'), align: 'center', strokeThickness: 8 }).setOrigin(0.5));
     this.tweens.add({ targets: banner, alpha: 0, y: banner.y - 30, delay: 1300, duration: 600, onComplete: () => banner.destroy() });
   }
@@ -511,9 +511,9 @@ class GameScene extends Phaser.Scene {
     const base = this.add.circle(IDLE.x, IDLE.y, R, 0xffffff, 0.14).setStrokeStyle(3, 0xffffff, 0.4).setScrollFactor(0).setDepth(200);
     const arrows = this.add.text(IDLE.x, IDLE.y, '◀      ▶', textStyle(20)).setOrigin(0.5).setScrollFactor(0).setDepth(200).setAlpha(0.45);
     const knob = this.add.circle(IDLE.x, IDLE.y, 30, 0xffffff, 0.38).setStrokeStyle(3, 0xffffff, 0.8).setScrollFactor(0).setDepth(201);
-    this.joy = { R, IDLE, base, arrows, knob, id: null, ox: IDLE.x, oy: IDLE.y, zoneX: WIDTH * 0.5 };
+    this.joy = { R, IDLE, base, arrows, knob, id: null, ox: IDLE.x, oy: IDLE.y, zoneX: VIEW_W * 0.5 };
     // Botão de pulo (direita) — o jogo confere onde está CADA dedo a cada quadro
-    const jb = { key: 'jump', x: WIDTH - 100, y: 450, r: 64, label: '▲' };
+    const jb = { key: 'jump', x: VIEW_W - 100, y: 450, r: 64, label: '▲' };
     jb.circle = this.add.circle(jb.x, jb.y, jb.r, 0xffffff, 0.2).setStrokeStyle(3, 0xffffff, 0.45).setScrollFactor(0).setDepth(200);
     jb.text = this.add.text(jb.x, jb.y, jb.label, textStyle(34)).setOrigin(0.5).setScrollFactor(0).setDepth(201).setAlpha(0.85);
     this.touchBtns = [jb];
@@ -531,8 +531,8 @@ class GameScene extends Phaser.Scene {
       }
     });
     // botão de pausa
-    const pause = this.add.circle(WIDTH - 46, 112, 30, 0xffffff, 0.22).setStrokeStyle(2, 0xffffff, 0.4).setScrollFactor(0).setDepth(200).setInteractive();
-    this.pauseIcon = this.add.text(WIDTH - 46, 112, 'II', textStyle(24)).setOrigin(0.5).setScrollFactor(0).setDepth(201);
+    const pause = this.add.circle(VIEW_W - 46, 112, 30, 0xffffff, 0.22).setStrokeStyle(2, 0xffffff, 0.4).setScrollFactor(0).setDepth(200).setInteractive();
+    this.pauseIcon = this.add.text(VIEW_W - 46, 112, 'II', textStyle(24)).setOrigin(0.5).setScrollFactor(0).setDepth(201);
     this.pauseBtn = pause;
     pause.on('pointerdown', () => this.pauseGame());
     // notebook com tela de toque: os botões somem assim que alguém usar o teclado
@@ -1173,7 +1173,7 @@ class GameScene extends Phaser.Scene {
     Sfx.tone(110, 1.2, { type: 'sine', to: 55, vol: 0.2 });
     Sfx.voice('olhar');
     if (!cena) {
-      const t = this.add.text(WIDTH / 2, HEIGHT / 2 - 40, 'OLHAR DE MIL JARDAS', { ...textStyle(48, '#e8e8e8'), strokeThickness: 8 })
+      const t = this.add.text(VIEW_W / 2, HEIGHT / 2 - 40, 'OLHAR DE MIL JARDAS', { ...textStyle(48, '#e8e8e8'), strokeThickness: 8 })
         .setOrigin(0.5).setScrollFactor(0).setDepth(130).setAlpha(0);
       this.tweens.add({ targets: t, alpha: 1, duration: 500, hold: 900, yoyo: true, onComplete: () => t.destroy() });
     }
@@ -1314,14 +1314,14 @@ class GameScene extends Phaser.Scene {
     this.physics.world.pause();
     this.jumpQueued = false;
     this.squash = 0.45;
-    const cx = WIDTH / 2, cy = HEIGHT / 2 - 36;
+    const cx = VIEW_W / 2, cy = HEIGHT / 2 - 36;
     const all = [];
     const add = (o) => { all.push(o); return o.setScrollFactor(0).setDepth(140); };
     const out = (targets, delay = 1000) => this.tweens.add({ targets, alpha: 0, delay, duration: 280 });
 
     // faixas de cinema
-    const top = add(this.add.rectangle(WIDTH / 2, -30, WIDTH, 60, 0x000000, 0.85));
-    const bot = add(this.add.rectangle(WIDTH / 2, HEIGHT + 30, WIDTH, 60, 0x000000, 0.85));
+    const top = add(this.add.rectangle(VIEW_W / 2, -30, VIEW_W, 60, 0x000000, 0.85));
+    const bot = add(this.add.rectangle(VIEW_W / 2, HEIGHT + 30, VIEW_W, 60, 0x000000, 0.85));
     this.tweens.add({ targets: top, y: 30, duration: 160 });
     this.tweens.add({ targets: bot, y: HEIGHT - 30, duration: 160 });
     this.tweens.add({ targets: [top, bot], alpha: 0, delay: 1000, duration: 280 });
@@ -1356,17 +1356,17 @@ class GameScene extends Phaser.Scene {
       const t = add(this.add.text(0, 0, e, { fontSize: '30px' })).setOrigin(0.5).setAlpha(0).setDepth(141);
       const delay = 60 + i * 55, a = (i / n) * Math.PI * 2;
       if (d.gag === 'chuva') {
-        t.setPosition(60 + Math.random() * (WIDTH - 120), 40);
+        t.setPosition(60 + Math.random() * (VIEW_W - 120), 40);
         this.tweens.add({ targets: t, alpha: 1, y: HEIGHT - 60, angle: 360, delay, duration: 700, ease: 'Quad.in' });
       } else if (d.gag === 'sobe') {
-        t.setPosition(80 + Math.random() * (WIDTH - 160), HEIGHT - 40);
+        t.setPosition(80 + Math.random() * (VIEW_W - 160), HEIGHT - 40);
         this.tweens.add({ targets: t, alpha: 1, y: 60 + Math.random() * 120, delay, duration: 750, ease: 'Sine.out' });
       } else if (d.gag === 'suga') {
         t.setPosition(cx + Math.cos(a) * 420, cy + Math.sin(a) * 240);
         this.tweens.add({ targets: t, alpha: 1, x: cx, y: cy, scale: 0.4, delay, duration: 520, ease: 'Quad.in' });
       } else {        // maos: mãozinhas 6-7 subindo e descendo dos dois lados
         const left = i % 2 === 0;
-        t.setPosition(left ? 120 : WIDTH - 120, cy + 90 + (Math.floor(i / 2) % 3) * 30);
+        t.setPosition(left ? 120 : VIEW_W - 120, cy + 90 + (Math.floor(i / 2) % 3) * 30);
         this.tweens.add({ targets: t, alpha: 1, y: t.y - 90, delay, duration: 220, yoyo: true, repeat: 1 });
       }
       this.tweens.add({ targets: t, alpha: 0, delay: 1000, duration: 280 });
@@ -1396,7 +1396,7 @@ class GameScene extends Phaser.Scene {
       this.cameras.main.flash(200, 255, 176, 0);
       // "SIX SEVEN!" gigante na tela, com as mãozinhas subindo e descendo
       if (!cena) {
-      const big = this.add.text(WIDTH / 2, HEIGHT / 2 - 40, 'SIX SEVEN!', { ...textStyle(64, '#ffb000'), strokeThickness: 10 })
+      const big = this.add.text(VIEW_W / 2, HEIGHT / 2 - 40, 'SIX SEVEN!', { ...textStyle(64, '#ffb000'), strokeThickness: 10 })
         .setOrigin(0.5).setScrollFactor(0).setDepth(130).setScale(0.3);
       this.tweens.add({ targets: big, scale: 1, duration: 250, ease: 'Back.out' });
       this.tweens.add({ targets: big, alpha: 0, y: big.y - 40, delay: 900, duration: 400, onComplete: () => big.destroy() });
@@ -1580,14 +1580,14 @@ class GameScene extends Phaser.Scene {
 
     const fixed = (obj) => obj.setScrollFactor(0).setDepth(150);
     const boxH = 150 + bonuses.length * 30;
-    fixed(this.add.rectangle(WIDTH / 2, HEIGHT / 2, 560, boxH, 0x1b1b2a, 0.85).setStrokeStyle(3, 0xffd23f));
+    fixed(this.add.rectangle(VIEW_W / 2, HEIGHT / 2, 560, boxH, 0x1b1b2a, 0.85).setStrokeStyle(3, 0xffd23f));
     const top = HEIGHT / 2 - boxH / 2;
-    fixed(this.add.text(WIDTH / 2, top + 34, `${PLAYER_NAME} passou de fase!`, textStyle(36, '#ffd23f')).setOrigin(0.5));
+    fixed(this.add.text(VIEW_W / 2, top + 34, `${PLAYER_NAME} passou de fase!`, textStyle(36, '#ffd23f')).setOrigin(0.5));
     bonuses.forEach(([label, pts], i) => {
       const y = top + 80 + i * 30;
       const row = [
-        fixed(this.add.text(WIDTH / 2 - 230, y, label, textStyle(20)).setOrigin(0, 0.5)),
-        fixed(this.add.text(WIDTH / 2 + 230, y, `+${pts}`, textStyle(20, '#ffe9a0')).setOrigin(1, 0.5)),
+        fixed(this.add.text(VIEW_W / 2 - 230, y, label, textStyle(20)).setOrigin(0, 0.5)),
+        fixed(this.add.text(VIEW_W / 2 + 230, y, `+${pts}`, textStyle(20, '#ffe9a0')).setOrigin(1, 0.5)),
       ];
       row.forEach((t) => t.setAlpha(0));
       // cada linha aparece com um "plim" e soma no placar
@@ -1598,7 +1598,7 @@ class GameScene extends Phaser.Scene {
       });
     });
     const totalY = top + 80 + bonuses.length * 30 + 12;
-    this.totalText = fixed(this.add.text(WIDTH / 2, totalY, '', textStyle(26, '#ffffff')).setOrigin(0.5));
+    this.totalText = fixed(this.add.text(VIEW_W / 2, totalY, '', textStyle(26, '#ffffff')).setOrigin(0.5));
 
     this.time.delayedCall(1200 + bonuses.length * 450 + 1200, () => {
       this.cameras.main.fadeOut(400);

@@ -10,7 +10,7 @@ class GameOverScene extends Phaser.Scene {
     Progress.clearRun();
     this.cameras.main.fadeIn(500);
 
-    this.add.rectangle(WIDTH / 2, HEIGHT / 2, WIDTH, HEIGHT, 0x1a0b14);
+    this.add.rectangle(WIDTH / 2, HEIGHT / 2, VIEW_W, HEIGHT, 0x1a0b14);
     this.add.text(WIDTH / 2, 70, 'GAME OVER', { ...textStyle(72, '#ff3b3b'), strokeThickness: 12 }).setOrigin(0.5);
     this.add.text(WIDTH / 2, 136, 'A Andreia te achou...', textStyle(28, '#ff8ab3')).setOrigin(0.5);
 

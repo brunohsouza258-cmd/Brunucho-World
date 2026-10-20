@@ -7,15 +7,15 @@ class WardrobeScene extends Phaser.Scene {
     this.sel = Math.max(0, OUTFIT_KEYS.indexOf(currentOutfit()));
     this.worn = currentOutfit();
 
-    this.add.rectangle(WIDTH / 2, HEIGHT / 2, WIDTH, HEIGHT, 0x0b0b14, 1);
+    this.add.rectangle(WIDTH / 2, HEIGHT / 2, VIEW_W, HEIGHT, 0x0b0b14, 1);
     this.add.text(WIDTH / 2, 32, '👕 GUARDA-ROUPA', { ...textStyle(36, '#ffd23f'), strokeThickness: 7 }).setOrigin(0.5);
 
     // ---- vitrine (esquerda) ----
     this.add.rectangle(215, 286, 360, 340, 0x1b1b2a, 1).setStrokeStyle(3, 0xffd23f);
-    this.nameText = this.add.text(215, 128, '', { ...textStyle(26, '#ffffff'), align: 'center', wordWrap: { width: 330 } }).setOrigin(0.5);
-    this.descText = this.add.text(215, 156, '', { ...textStyle(16, '#cfd0e8'), align: 'center', wordWrap: { width: 320 }, lineSpacing: 4 }).setOrigin(0.5, 0);
+    this.nameText = this.add.text(215, 138, '', { ...textStyle(26, '#ffffff'), align: 'center', wordWrap: { width: 330 } }).setOrigin(0.5);
+    this.descText = this.add.text(215, 166, '', { ...textStyle(16, '#cfd0e8'), align: 'center', wordWrap: { width: 320 }, lineSpacing: 4 }).setOrigin(0.5, 0);
     this.add.ellipse(215, 424, 170, 22, 0x000000, 0.4);
-    this.preview = this.add.sprite(215, 424, `player_${OUTFIT_KEYS[this.sel]}`).setOrigin(0.5, 1).setScale(5);
+    this.preview = this.add.sprite(215, 424, `player_${OUTFIT_KEYS[this.sel]}`).setOrigin(0.5, 1).setScale(4);
     this.wearBtn = this.button(215, 474, '', () => this.wear());
 
     // ---- grade de roupas (direita) ----
@@ -25,6 +25,8 @@ class WardrobeScene extends Phaser.Scene {
       const bg = this.add.rectangle(x, y, 96, 138, 0x1b1b2a, 1).setStrokeStyle(2, 0x444455).setInteractive({ useHandCursor: true });
       this.add.sprite(x, y + 30, `player_${key}`).setOrigin(0.5, 1).setScale(2);
       const label = this.add.text(x, y + 47, OUTFITS[key].name, { ...textStyle(13), align: 'center', wordWrap: { width: 90 } }).setOrigin(0.5, 0.5);
+      let fs = parseInt(label.style.fontSize, 10);
+      while ((label.height > 36 || label.width > 92) && fs > 9) label.setFontSize(--fs);      // nome comprido encolhe até caber no cartão
       const check = this.add.text(x - 40, y - 60, '✔', textStyle(18, '#8aff8a')).setOrigin(0, 0).setVisible(false);
       bg.on('pointerdown', () => { if (this.sel === i) this.wear(); else this.select(i); });
       return { bg, label, check };

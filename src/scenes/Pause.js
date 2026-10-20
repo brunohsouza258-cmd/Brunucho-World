@@ -3,7 +3,7 @@ class PauseScene extends Phaser.Scene {
   constructor() { super('Pause'); }
 
   create() {
-    this.add.rectangle(WIDTH / 2, HEIGHT / 2, WIDTH, HEIGHT, 0x000000, 0.6);
+    this.add.rectangle(WIDTH / 2, HEIGHT / 2, VIEW_W, HEIGHT, 0x000000, 0.6);
     this.add.text(WIDTH / 2, 90, 'PAUSADO', textStyle(56, '#ffd23f')).setOrigin(0.5);
     const a = Achievements.progress();
     this.add.text(WIDTH / 2, 145, `🏆 Conquistas: ${a.done}/${a.total}`, textStyle(18, '#ffe9a0')).setOrigin(0.5);

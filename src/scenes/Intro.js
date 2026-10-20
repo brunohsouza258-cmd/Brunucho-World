@@ -246,7 +246,7 @@ class IntroScene extends Phaser.Scene {
   // Letreiro antes da fase 1
   afterScene() {
     this.children.removeAll(true);
-    this.add.rectangle(WIDTH / 2, HEIGHT / 2, WIDTH, HEIGHT, 0x000000);
+    this.add.rectangle(WIDTH / 2, HEIGHT / 2, VIEW_W, HEIGHT, 0x000000);
     const t = this.add.text(WIDTH / 2, HEIGHT / 2, 'E assim começou\nA LENDA DA AURA INFINITA...',
       { ...textStyle(32, '#7ff6ff'), align: 'center', lineSpacing: 12 }).setOrigin(0.5).setAlpha(0);
     this.tweens.add({ targets: t, alpha: 1, duration: 700, hold: 1500, yoyo: true, onComplete: () => {

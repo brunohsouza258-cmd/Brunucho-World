@@ -76,7 +76,7 @@ class CreditsScene extends Phaser.Scene {
     this.leaving = false;
     this.cameras.main.fadeIn(500);
     Music.play('vitoria');
-    this.add.rectangle(WIDTH / 2, HEIGHT / 2, WIDTH, HEIGHT, 0x07070f);
+    this.add.rectangle(WIDTH / 2, HEIGHT / 2, VIEW_W, HEIGHT, 0x07070f);
 
     // estrelinhas no fundo
     this.add.particles(0, 0, 'px', {

@@ -9,7 +9,7 @@ class VoiceScene extends Phaser.Scene {
     this.busy = false;     // processando uma gravação
     this.dead = false;     // a tela já fechou (descarta o que ainda estava pendente)
 
-    this.add.rectangle(WIDTH / 2, HEIGHT / 2, WIDTH, HEIGHT, 0x0b0b14, 1);
+    this.add.rectangle(WIDTH / 2, HEIGHT / 2, VIEW_W, HEIGHT, 0x0b0b14, 1);
     this.add.text(WIDTH / 2, 36, '🎤 MINHA VOZ', { ...textStyle(40, '#ffd23f'), strokeThickness: 7 }).setOrigin(0.5);
     this.add.text(WIDTH / 2, 76, 'Grave a sua voz em cada fala. Onde você não gravar, o jogo usa a voz do computador.', textStyle(15)).setOrigin(0.5).setAlpha(0.9);
 

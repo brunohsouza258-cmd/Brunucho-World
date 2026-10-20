@@ -14,8 +14,8 @@ class MenuScene extends Phaser.Scene {
 
     // --- Fundo: Rio de Janeiro passando, com o Brunucho correndo de um Caramelo ---
     this.backdrop = createBackdrop(this, THEMES.rio);
-    this.groundTop = this.add.tileSprite(0, HEIGHT - TILE * 2, WIDTH, TILE, 'tiles', TILES.CALCADAO).setOrigin(0);
-    this.groundFill = this.add.tileSprite(0, HEIGHT - TILE, WIDTH, TILE, 'tiles', TILES.SAND).setOrigin(0);
+    this.groundTop = this.add.tileSprite(-UI_OFF, HEIGHT - TILE * 2, VIEW_W, TILE, 'tiles', TILES.CALCADAO).setOrigin(0);
+    this.groundFill = this.add.tileSprite(-UI_OFF, HEIGHT - TILE, VIEW_W, TILE, 'tiles', TILES.SAND).setOrigin(0);
     this.hero = this.add.sprite(190, HEIGHT - TILE * 2, playerTexture()).setOrigin(0.5, 1).setScale(2).setInteractive({ useHandCursor: true });
     this.hero.play(`${playerTexture()}_walk`);
     this.chaser = this.add.image(60, HEIGHT - TILE * 2, 'caramelo').setOrigin(0.5, 1).setScale(2).setFlipX(true);
@@ -216,7 +216,7 @@ class MenuScene extends Phaser.Scene {
     const got = Achievements.unlocked();
     const prog = Achievements.progress();
 
-    p.add(this.add.rectangle(WIDTH / 2, HEIGHT / 2, WIDTH, HEIGHT, 0x0b0b14, 0.92));
+    p.add(this.add.rectangle(WIDTH / 2, HEIGHT / 2, VIEW_W, HEIGHT, 0x0b0b14, 0.92));
     p.add(this.add.text(WIDTH / 2, 34, `🏆 CONQUISTAS  ${prog.done}/${prog.total}`, textStyle(32, '#ffd23f')).setOrigin(0.5));
     ACHIEVEMENTS.slice(this.achPage * perPage, (this.achPage + 1) * perPage).forEach((a, i) => {
       const col = i % 2, row = Math.floor(i / 2);

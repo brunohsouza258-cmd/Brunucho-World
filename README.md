@@ -206,6 +206,12 @@ As falas ficam em `INTRO_SCRIPT`, no `src/scenes/Intro.js`. (Escolher uma fase d
 Pise nos inimigos para derrotá-los, desvie dos espinhos, pegue as moedas e chegue na bandeira verde.
 No celular aparecem botões na tela.
 
+### Telas de vários tamanhos
+
+O jogo se ajusta ao aparelho: em celulares compridos (iPhone, Android 19,5:9, monitores ultrawide) a fase ocupa a **tela toda**, sem barras
+pretas, mostrando um pedaço um pouco maior do cenário (largura de 960 a 1200). Os menus continuam centralizados. Em telas bem pequenas as
+letras têm um tamanho mínimo para dar pra ler. A largura é calculada em `VIEW_W`, no `src/config.js`.
+
 ### Cenas dos poderes
 
 Ao pegar um poder o jogo congela por **1 segundo** numa ceninha: faixas de cinema, raios girando, ícone gigante, título e uma

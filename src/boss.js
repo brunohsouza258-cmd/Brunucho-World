@@ -48,7 +48,7 @@ const BossMixin = {
     // Câmera vai para a arena e fica parada
     cam.stopFollow();
     cam.pan(this.arenaLeft + WIDTH / 2, cam.midPoint.y, 700, 'Sine.easeInOut', false, (c, p) => {
-      if (p === 1) cam.setBounds(this.arenaLeft, 0, WIDTH, this.mapH);
+      if (p === 1) cam.setBounds(this.arenaLeft - UI_OFF, 0, VIEW_W, this.mapH);
     });
 
     Music.play('chefao');
@@ -71,14 +71,14 @@ const BossMixin = {
     // Barras de vida
     const fixed = (o) => o.setScrollFactor(0).setDepth(140);
     b.bars = BOSSES.map((cfg, i) => {
-      const x = WIDTH / 2 + (i === 0 ? -170 : 170);
+      const x = VIEW_W / 2 + (i === 0 ? -170 : 170);
       fixed(this.add.text(x, 72, cfg.name, textStyle(18, i === 0 ? '#ff8a8a' : '#8ae6ff')).setOrigin(0.5));
       fixed(this.add.rectangle(x, 96, 220, 14, 0x1b1b2a).setStrokeStyle(2, 0xffffff));
       return fixed(this.add.rectangle(x - 108, 96, 216, 10, cfg.color).setOrigin(0, 0.5));
     });
 
     // Apresentação
-    const banner = this.add.text(WIDTH / 2, HEIGHT / 2 - 70, 'CHEFÃO FINAL\nLULA & FLÁVIO',
+    const banner = this.add.text(VIEW_W / 2, HEIGHT / 2 - 70, 'CHEFÃO FINAL\nLULA & FLÁVIO',
       { ...textStyle(50, '#ffd23f'), align: 'center', strokeThickness: 10 }).setOrigin(0.5).setScrollFactor(0).setDepth(150).setScale(0.3);
     this.tweens.add({ targets: banner, scale: 1, duration: 400, ease: 'Back.out' });
     this.tweens.add({ targets: banner, alpha: 0, delay: 1900, duration: 400, onComplete: () => banner.destroy() });
@@ -244,9 +244,9 @@ const BossMixin = {
     this.addScore(10000);
 
     const fixed = (o) => o.setScrollFactor(0).setDepth(150);
-    const t1 = fixed(this.add.text(WIDTH / 2, HEIGHT / 2 - 60, 'MOGGADOS!', { ...textStyle(80, '#ff3df2'), strokeThickness: 12 }).setOrigin(0.5).setScale(0.2));
+    const t1 = fixed(this.add.text(VIEW_W / 2, HEIGHT / 2 - 60, 'MOGGADOS!', { ...textStyle(80, '#ff3df2'), strokeThickness: 12 }).setOrigin(0.5).setScale(0.2));
     t1.setShadow(0, 0, '#7ff6ff', 16, true, true);
-    const t2 = fixed(this.add.text(WIDTH / 2, HEIGHT / 2 + 20, 'AURA INFINITA DESBLOQUEADA  +10000', textStyle(28, '#7ff6ff')).setOrigin(0.5).setAlpha(0));
+    const t2 = fixed(this.add.text(VIEW_W / 2, HEIGHT / 2 + 20, 'AURA INFINITA DESBLOQUEADA  +10000', textStyle(28, '#7ff6ff')).setOrigin(0.5).setAlpha(0));
     this.tweens.add({ targets: t1, scale: 1, duration: 400, ease: 'Back.out' });
     this.tweens.add({ targets: t2, alpha: 1, delay: 600, duration: 400 });
     Sfx.voice('moggados');

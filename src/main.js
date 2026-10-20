@@ -1,7 +1,7 @@
 const game = new Phaser.Game({
   type: Phaser.AUTO,
   parent: 'game',
-  width: WIDTH,
+  width: VIEW_W,
   height: HEIGHT,
   backgroundColor: '#12121c',
   roundPixels: true,
@@ -15,6 +15,14 @@ const game = new Phaser.Game({
   },
   // A ordem importa: quem vem depois aparece por cima (Toast = avisos de conquista, sempre no topo)
   scene: [BootScene, MenuScene, IntroScene, EndingScene, CreditsScene, GameScene, PauseScene, EndScene, GameOverScene, OptionsScene, VoiceScene, WardrobeScene, ToastScene],
+});
+
+// Menus e telas por cima: o desenho de 960px fica centralizado (a câmera anda UI_OFF para o lado). Só a fase usa a tela toda.
+game.events.once('ready', () => {
+  game.scene.scenes.forEach((s) => {
+    if (s.sys.settings.key === 'Game') return;
+    s.events.on('create', () => s.cameras.main.setScroll(-UI_OFF, 0));
+  });
 });
 
 // Celular em pé: pede pra girar e pausa o jogo (e o som) até virar. Notebook/PC nunca mostra isso.

@@ -65,7 +65,7 @@ class EndingScene extends IntroScene {
   // Letreiro final + créditos, depois a tela de pontuação/ranking
   afterScene() {
     this.children.removeAll(true);
-    this.add.rectangle(WIDTH / 2, HEIGHT / 2, WIDTH, HEIGHT, 0x000000);
+    this.add.rectangle(WIDTH / 2, HEIGHT / 2, VIEW_W, HEIGHT, 0x000000);
     Music.play('vitoria');
     const fim = this.add.text(WIDTH / 2, 110, 'FIM', { ...textStyle(90, '#ffd23f'), strokeThickness: 12 }).setOrigin(0.5).setAlpha(0);
     const sub = this.add.text(WIDTH / 2, 190, 'O Brunucho farmou aura infinita...\nmas ficou de castigo.',

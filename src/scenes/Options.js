@@ -7,7 +7,7 @@ class OptionsScene extends Phaser.Scene {
     this.sel = 0;
     this.confirmReset = false;
 
-    this.add.rectangle(WIDTH / 2, HEIGHT / 2, WIDTH, HEIGHT, 0x0b0b14, 0.97);
+    this.add.rectangle(WIDTH / 2, HEIGHT / 2, VIEW_W, HEIGHT, 0x0b0b14, 0.97);
     this.add.text(WIDTH / 2, 50, 'OPÇÕES', { ...textStyle(44, '#ffd23f'), strokeThickness: 8 }).setOrigin(0.5);
 
     const pct = (v) => `${Math.round(v * 100)}%`;

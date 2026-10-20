@@ -1,7 +1,15 @@
 // Configurações gerais do jogo. Mude os números para alterar a "sensação" do controle.
 
-const WIDTH = 960;
+const WIDTH = 960;       // largura do "desenho" dos menus (centralizado na tela)
 const HEIGHT = 540;
+// Largura real do jogo: em celular/monitor mais comprido que 16:9 a fase ocupa a tela toda (sem barras pretas dos lados).
+// Vai de 960 (16:9) até 1200 (20:9). Os menus continuam no desenho de 960, centralizados (UI_OFF = folga de cada lado).
+const VIEW_W = (() => {
+  const w = window.innerWidth || WIDTH, h = window.innerHeight || HEIGHT;
+  const aspect = Math.max(w, h) / Math.max(1, Math.min(w, h));
+  return Math.max(WIDTH, Math.min(1200, 2 * Math.round((HEIGHT * aspect) / 2)));
+})();
+const UI_OFF = (VIEW_W - WIDTH) / 2;
 const TILE = 32;
 const GROUND_Y = 14 * TILE; // altura do topo do chão (linha 14 do mapa)
 const FONT = '"Trebuchet MS", Verdana, sans-serif';
@@ -297,6 +305,9 @@ const Storage = {
 
 function textStyle(size, color = '#ffffff') {
   if (IS_TOUCH && size < 18) size = Math.round(size * 1.3);   // no celular a tela é pequena: letra miúda não dá pra ler
+  // tela bem pequena (ou janela pequena): garante um mínimo de ~12px na tela de verdade, sem inflar mais que 1,5x
+  const sc = Math.min(window.innerWidth / VIEW_W, window.innerHeight / HEIGHT);
+  if (sc > 0 && size * sc < 12) size = Math.round(Math.min(size * 1.5, 12 / sc));
   return { fontFamily: FONT, fontSize: `${size}px`, color, stroke: '#1b1b2a', strokeThickness: Math.max(3, size / 6) };
 }
 
@@ -311,7 +322,7 @@ function formatTime(seconds) {
 function createBackdrop(scene, theme, full = false) {
   const g = scene.add.graphics().setScrollFactor(0).setDepth(-10);
   g.fillGradientStyle(theme.skyTop, theme.skyTop, theme.skyBottom, theme.skyBottom, 1);
-  g.fillRect(0, 0, WIDTH, HEIGHT);
+  g.fillRect(0, 0, VIEW_W, HEIGHT);
   // sol, pôr do sol ou lua com estrelas
   const sky = scene.add.graphics().setScrollFactor(0).setDepth(-9.5);
   if (theme.sky === 'sun') {
@@ -324,7 +335,7 @@ function createBackdrop(scene, theme, full = false) {
   } else if (theme.sky === 'moon') {
     for (let i = 0; i < 70; i++) {
       sky.fillStyle(0xffffff, 0.3 + ((i * 37) % 7) / 10);
-      sky.fillRect((i * 137) % WIDTH, (i * 59) % 260, 2, 2);
+      sky.fillRect((i * 137) % VIEW_W, (i * 59) % 260, 2, 2);
     }
     sky.fillStyle(0xf4f1ea, 0.2); sky.fillCircle(690, 96, 40);
     sky.fillStyle(0xf4f1ea, 1); sky.fillCircle(690, 96, 28);
@@ -350,7 +361,7 @@ function createBackdrop(scene, theme, full = false) {
   const sprites = layers.map((l, i) => {
     const h = scene.textures.get(l.key).getSourceImage().height;
     const y = l.bottom !== undefined ? l.bottom - h : l.y;
-    const s = scene.add.tileSprite(0, y, WIDTH, h, l.key).setOrigin(0).setScrollFactor(0).setDepth(l.depth !== undefined ? l.depth : -9 + i);
+    const s = scene.add.tileSprite(0, y, VIEW_W, h, l.key).setOrigin(0).setScrollFactor(0).setDepth(l.depth !== undefined ? l.depth : -9 + i);
     if (l.tint) s.setTint(l.tint);
     if (l.alpha !== undefined) s.setAlpha(l.alpha);
     if (l.scaleY) s.setScale(1, l.scaleY);
