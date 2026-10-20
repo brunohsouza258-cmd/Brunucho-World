@@ -58,6 +58,15 @@ const CREDITS = [
   ['big', 'Obrigado por jogar!'],
 ];
 
+// Lista dos créditos; ganha uma seção de NARRAÇÃO se o jogador gravou a própria voz
+function creditsList() {
+  if (typeof Voices === 'undefined' || Voices.count() === 0) return CREDITS;
+  const out = [...CREDITS];
+  const i = out.findIndex((c) => c[0] === 'head' && c[1] === 'TESTES');
+  out.splice(i, 0, ['head', 'NARRAÇÃO'], ['line', 'A voz do próprio Brunucho!'], ['gap']);
+  return out;
+}
+
 class CreditsScene extends Phaser.Scene {
   constructor() { super('Credits'); }
 
@@ -85,7 +94,7 @@ class CreditsScene extends Phaser.Scene {
       big: () => textStyle(30, '#ffffff'),
       line: () => textStyle(20, '#e8e8e8'),
     };
-    for (const [kind, text] of CREDITS) {
+    for (const [kind, text] of creditsList()) {
       if (kind === 'gap') { y += 26; continue; }
       const t = this.add.text(WIDTH / 2, y, text, { ...styles[kind](), align: 'center' }).setOrigin(0.5, 0);
       this.roll.add(t);

@@ -43,7 +43,7 @@ class EndingScene extends IntroScene {
       .setStrokeStyle(4, 0x7ff6ff).setBlendMode(Phaser.BlendModes.ADD);
     this.tweens.add({ targets: glow, scale: 1.15, alpha: 0.6, duration: 450, yoyo: true, repeat: -1 });
     Sfx.aura();
-    Sfx.say('six seven', { lang: 'en-US', rate: 0.9, pitch: 1 });
+    Sfx.voice('sixseven');
   }
 
   act_bonk() {

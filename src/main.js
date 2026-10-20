@@ -14,5 +14,5 @@ const game = new Phaser.Game({
     arcade: { gravity: { y: PHYS.gravity }, debug: false },
   },
   // A ordem importa: quem vem depois aparece por cima (Toast = avisos de conquista, sempre no topo)
-  scene: [BootScene, MenuScene, IntroScene, EndingScene, CreditsScene, GameScene, PauseScene, EndScene, GameOverScene, OptionsScene, ToastScene],
+  scene: [BootScene, MenuScene, IntroScene, EndingScene, CreditsScene, GameScene, PauseScene, EndScene, GameOverScene, OptionsScene, VoiceScene, ToastScene],
 });

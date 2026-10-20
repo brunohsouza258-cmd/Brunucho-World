@@ -249,7 +249,7 @@ const BossMixin = {
     const t2 = fixed(this.add.text(WIDTH / 2, HEIGHT / 2 + 20, 'AURA INFINITA DESBLOQUEADA  +10000', textStyle(28, '#7ff6ff')).setOrigin(0.5).setAlpha(0));
     this.tweens.add({ targets: t1, scale: 1, duration: 400, ease: 'Back.out' });
     this.tweens.add({ targets: t2, alpha: 1, delay: 600, duration: 400 });
-    Sfx.say('moggados!', { rate: 1.1, pitch: 1.2 });
+    Sfx.voice('moggados');
     for (let i = 0; i < 4; i++) this.time.delayedCall(i * 350, () => this.fxParty.explode(50, this.arenaLeft + Phaser.Math.Between(200, 760), 300));
 
     this.time.delayedCall(4200, () => {

@@ -35,7 +35,7 @@ const COINS_PER_LIFE = 100;
 
 // ---- Opções do jogador (tela de Opções) ----
 const Settings = {
-  defaults: { music: 0.5, sfx: 0.8, voices: true, shake: true, difficulty: 'normal', allLevels: false },
+  defaults: { music: 0.5, sfx: 0.8, voices: true, myVoice: true, shake: true, difficulty: 'normal', allLevels: false },
   all() { return { ...this.defaults, ...Storage.get('pp_settings', {}) }; },
   get(key) { return this.all()[key]; },
   set(key, value) {

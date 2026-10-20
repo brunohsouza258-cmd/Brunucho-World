@@ -459,7 +459,7 @@ class GameScene extends Phaser.Scene {
 
   // "MOGGADO!" estourando em cima do inimigo derrotado
   moggedText(x, y) {
-    if (Math.random() < 0.6) Sfx.say('moggado!', { rate: 1.3, pitch: 1.3 });
+    if (Math.random() < 0.6) Sfx.voice('moggado');
     const t = this.add.text(x, y, 'MOGGADO!', { ...textStyle(26, '#ff3df2'), strokeThickness: 6 })
       .setOrigin(0.5).setDepth(125).setScale(0.2).setAngle(Phaser.Math.Between(-12, 12));
     t.setShadow(0, 0, '#7ff6ff', 12, true, true);
@@ -999,7 +999,7 @@ class GameScene extends Phaser.Scene {
     cam.flash(250, 255, 255, 255);
     if (Sfx.musicGain) Sfx.musicGain.gain.value = Settings.get('music') * 0.25;   // música abafada
     Sfx.tone(110, 1.2, { type: 'sine', to: 55, vol: 0.2 });
-    Sfx.say('olhar de mil jardas', { rate: 0.8, pitch: 0.7 });
+    Sfx.voice('olhar');
     const t = this.add.text(WIDTH / 2, HEIGHT / 2 - 40, 'OLHAR DE MIL JARDAS', { ...textStyle(48, '#e8e8e8'), strokeThickness: 8 })
       .setOrigin(0.5).setScrollFactor(0).setDepth(130).setAlpha(0);
     this.tweens.add({ targets: t, alpha: 1, duration: 500, hold: 900, yoyo: true, onComplete: () => t.destroy() });
@@ -1070,7 +1070,7 @@ class GameScene extends Phaser.Scene {
       this.mogsIn67 = 0;
       this.addScore(SCORE.power67);
       Sfx.sixSeven();
-      Sfx.say('six seven!', { lang: 'en-US', rate: 1.1, pitch: 1.4 });
+      Sfx.voice('sixseven');
       Music.play('poder67');
       Achievements.unlock('sixseven');
       Achievements.count('p67');
@@ -1086,6 +1086,7 @@ class GameScene extends Phaser.Scene {
       this.hasAura = true;
       this.addScore(SCORE.aura);
       Sfx.aura();
+      Sfx.voice('aura');
       this.fxAura.explode(30, p.x, p.y);
       this.floatText(p.x, p.y - 20, '+1000 AURA', '#7ff6ff', 24);
     } else if (p.kind === 'olhar') {
@@ -1095,7 +1096,7 @@ class GameScene extends Phaser.Scene {
       this.haloAvailable = true;
       this.fxFeather.explode(20, p.x, p.y);
       Sfx.aura();
-      Sfx.say('anjo caído', { rate: 1, pitch: 0.9 });
+      Sfx.voice('anjo');
       this.floatText(p.x, p.y - 20, 'ANJO CAÍDO! segure pular no ar para planar', '#ffffff', 18);
       Achievements.unlock('anjo_pegou');
     } else if (p.kind === 'coxinha') {

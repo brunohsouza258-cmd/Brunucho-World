@@ -5,6 +5,7 @@ class GameOverScene extends Phaser.Scene {
   create(data) {
     this.data_ = data;
     Music.play('gameover');
+    Sfx.voice('gameover');
     Achievements.unlock('gameover');
     Progress.clearRun();
     this.cameras.main.fadeIn(500);

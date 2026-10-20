@@ -7,7 +7,7 @@ class OptionsScene extends Phaser.Scene {
     this.sel = 0;
     this.confirmReset = false;
 
-    this.add.rectangle(WIDTH / 2, HEIGHT / 2, WIDTH, HEIGHT, 0x0b0b14, 0.88);
+    this.add.rectangle(WIDTH / 2, HEIGHT / 2, WIDTH, HEIGHT, 0x0b0b14, 0.97);
     this.add.text(WIDTH / 2, 50, 'OPÇÕES', { ...textStyle(44, '#ffd23f'), strokeThickness: 8 }).setOrigin(0.5);
 
     const pct = (v) => `${Math.round(v * 100)}%`;
@@ -26,11 +26,14 @@ class OptionsScene extends Phaser.Scene {
       { label: () => `Efeitos  ${bar(Settings.get('sfx'))}  ${pct(Settings.get('sfx'))}`,
         side: (d) => { step('sfx', d / 10); Sfx.coin(); }, act: () => { cycle('sfx'); Sfx.coin(); } },
       { label: () => `Vozes ("six seven!", "moggado!"): ${Settings.get('voices') ? 'LIGADAS' : 'DESLIGADAS'}`,
-        side: () => this.toggle('voices'), act: () => { this.toggle('voices'); Sfx.say('six seven!', { lang: 'en-US' }); } },
+        side: () => this.toggle('voices'), act: () => { this.toggle('voices'); Sfx.voice('sixseven'); } },
       { label: () => `Tremer a tela: ${Settings.get('shake') ? 'SIM' : 'NÃO'}`,
         side: () => this.toggle('shake'), act: () => this.toggle('shake') },
       { label: () => `Dificuldade: ${difficulty().name}  (${difficulty().lives} vidas)`,
         side: (d) => cycleDiff(d), act: () => cycleDiff(1) },
+      { label: () => `Usar a minha voz: ${Settings.get('myVoice') ? 'SIM' : 'NÃO'}  (${Voices.count()}/${VOICE_LINES.length} falas gravadas)`,
+        side: () => this.toggle('myVoice'), act: () => this.toggle('myVoice') },
+      { label: () => '🎤 GRAVAR MINHA VOZ', act: () => this.openVoice() },
       { label: () => `Tela cheia: ${this.scale.isFullscreen ? 'SIM' : 'NÃO'}`,
         side: () => this.toggleFullscreen(), act: () => this.toggleFullscreen() },
       { label: () => `Todas as fases liberadas: ${Settings.get('allLevels') ? 'SIM' : 'NÃO'}`,
@@ -41,7 +44,7 @@ class OptionsScene extends Phaser.Scene {
     ];
 
     this.texts = this.items.map((it, i) => {
-      const t = this.add.text(WIDTH / 2, 112 + i * 43, '', textStyle(22)).setOrigin(0.5).setInteractive({ useHandCursor: true });
+      const t = this.add.text(WIDTH / 2, 100 + i * 37, '', textStyle(20)).setOrigin(0.5).setInteractive({ useHandCursor: true });
       t.on('pointerover', () => { this.sel = i; this.refresh(); });
       t.on('pointerdown', () => { this.sel = i; this.activate(); });
       return t;
@@ -65,6 +68,11 @@ class OptionsScene extends Phaser.Scene {
   }
 
   toggle(key) { Settings.set(key, !Settings.get(key)); }
+
+  openVoice() {
+    this.scene.pause();
+    this.scene.launch('Voice');
+  }
 
   toggleFullscreen() {
     if (this.scale.isFullscreen) this.scale.stopFullscreen();

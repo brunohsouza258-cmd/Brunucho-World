@@ -42,6 +42,24 @@ No menu, aperte **C** (ou toque no Brunucho) para trocar de roupa: **Praia** (bl
 Volume da música e dos efeitos, **vozes** (o jogo fala "six seven!" e "moggado!"), tremer a tela, dificuldade,
 liberar todas as fases e apagar o progresso.
 
+### 🎤 Minha voz (narração)
+
+Em **Opções → 🎤 Gravar minha voz** você grava a sua voz em cada fala do jogo: *Six seven!*, *Moggado!*, *Moggados!*,
+*Olhar de mil jardas*, *Anjo caído*, *Aura!* e *Ai, mãe!*. Onde você gravar, o jogo usa a **sua** voz; onde não gravar,
+usa a voz do computador (*Aura!* e *Ai, mãe!* só tocam se você gravar).
+
+| Tecla | O que faz |
+|---|---|
+| ↑ ↓ | escolher a fala |
+| ENTER (ou o botão ●) | gravar / parar (para sozinho em 4 segundos); aparece um medidor de volume |
+| P (▶) | ouvir como vai ficar |
+| I (📁) | **importar um arquivo de áudio** (pode gravar pelo celular e mandar pro computador) |
+| X (✖) | apagar a gravação |
+
+O jogo corta o silêncio do começo e do fim e ajusta o volume sozinho. As gravações ficam **só no seu navegador** (nada é
+enviado pra internet) e continuam salvas quando você fecha o jogo. Dá para ligar e desligar em *Usar a minha voz*.
+Se o navegador pedir permissão do microfone, é só permitir. Os créditos ganham a linha **NARRAÇÃO: a voz do próprio Brunucho**.
+
 ### Trilha sonora
 
 Músicas originais geradas por código (`src/music.js`): o **hino "Six Seven"** no menu, uma música para cada cenário
@@ -50,7 +68,7 @@ música da intro, de vitória e de game over. As notas ficam em `SONGS` e dá pr
 
 ### Conquistas
 
-**49 conquistas**, como *Fugiu da Chinelada*, *Mogador Serial*, *Haja Coração!*, *Foi Pênalti?*, *Sigma do Combo*,
+**50 conquistas**, como *Fugiu da Chinelada*, *Mogador Serial*, *Haja Coração!*, *Foi Pênalti?*, *Sigma do Combo*,
 *Atropelamento 67*, *A Andreia Te Achou* e *Modo Andreia* (zerar no Difícil). Aparece um aviso na tela quando desbloqueia
 e dá pra ver todas no menu. A lista fica em `src/achievements.js`.
 
