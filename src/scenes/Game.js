@@ -343,6 +343,8 @@ class GameScene extends Phaser.Scene {
     this.input.keyboard.on('keydown-M', () => Sfx.toggle());
     // O pulo é registrado no evento da tecla: assim nem um toque rapidinho se perde
     this.sceneT = 0;                    // > 0: cena de poder rolando (jogo congelado)
+    this.restartQueued = false;         // R: também pelo evento da tecla, pra batida rápida não se perder
+    this.input.keyboard.on('keydown-R', (ev) => { if (!ev.repeat) this.restartQueued = true; });
     this.jumpQueued = false;
     ['SPACE', 'UP', 'W'].forEach((k) => this.input.keyboard.on(`keydown-${k}`, (ev) => { if (!ev.repeat) this.jumpQueued = true; }));    this.createTouchControls();
 
@@ -616,7 +618,7 @@ class GameScene extends Phaser.Scene {
 
     const k = this.keys;
     const JustDown = Phaser.Input.Keyboard.JustDown;
-    if (JustDown(k.R)) { this.restartLevel(); return; }
+    if (JustDown(k.R) || this.restartQueued) { this.restartQueued = false; this.restartLevel(); return; }
 
     const p = this.player;
     const b = p.body;
@@ -1693,8 +1695,8 @@ class GameScene extends Phaser.Scene {
   }
 
   restartLevel() {
-    // Moedas e tempo voltam ao início da fase; as mortes continuam contando.
-    this.scene.restart({ level: this.levelIndex, stats: { ...this.startStats, deaths: this.stats.deaths, lives: this.stats.lives } });
+    // Moedas, tempo e VIDAS voltam ao que eram no início da fase; só o contador de mortes continua.
+    this.scene.restart({ level: this.levelIndex, stats: { ...this.startStats, deaths: this.stats.deaths } });
   }
 
   pauseGame() {
