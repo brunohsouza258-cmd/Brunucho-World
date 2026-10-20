@@ -191,12 +191,30 @@ const OUTFITS = {
     longSleeves: true, hood: 0x8a6142, hoodDark: 0x6b4a30, orange: true, pocket: 0x6b4a30, shoes: 'bota', shoeColor: 0x4f361f,
   },
 };
-const OUTFIT_KEYS = Object.keys(OUTFITS);
+
+// ---- Amigos: personagens jogáveis (seção AMIGOS do guarda-roupa). O Brunucho continua sendo o protagonista da história.
+// Cada amigo é desenhado a partir de uma foto. Opções de desenho (veja drawPlayer em textures.js):
+//   hairStyle: 'curto' | 'topete' | 'raspado' | 'cacheado' | 'longo' | 'careca'    beard: cor (+ beardAlpha p/ barba por fazer)
+//   glasses: cor da armação   cap: cor do boné   thickBrows: sobrancelha grossa
+const FRIENDS = {
+  stanley: {
+    name: 'Stanley', who: 'Stanley', desc: 'Camisa branca, cabelo castanho curto de lado e sobrancelha marcante. Amigo do Brunucho!',
+    colors: { hair: 0x4a3426, hairDark: 0x2e2018, hairLight: 0x6a4a36, skin: 0xc98f64, skinDark: 0xa8734d,
+      shirt: 0xf4f4f4, shirtDark: 0xd2d2d6, shorts: 0x2b3a5c, shortsDark: 0x1f2b46 },
+    hairStyle: 'curto', thickBrows: true, shoes: 'tenis',
+  },
+};
+Object.keys(FRIENDS).forEach((k) => { OUTFITS[k] = { ...FRIENDS[k], friend: true }; });
+const OUTFIT_KEYS = Object.keys(OUTFITS);                                   // todos (gera as texturas)
+const BRU_KEYS = OUTFIT_KEYS.filter((k) => !OUTFITS[k].friend);             // roupas do Brunucho
+const FRIEND_KEYS = OUTFIT_KEYS.filter((k) => OUTFITS[k].friend);           // amigos
 function currentOutfit() {
   const key = Storage.get('pp_outfit', OUTFIT_KEYS[0]);
   return OUTFITS[key] ? key : OUTFIT_KEYS[0];
 }
 function playerTexture() { return `player_${currentOutfit()}`; }
+// Nome de quem está sendo jogado (Brunucho ou um amigo)
+function heroName() { const o = OUTFITS[currentOutfit()]; return o.friend ? o.who : PLAYER_NAME; }
 
 const PHYS = {
   gravity: 1400,

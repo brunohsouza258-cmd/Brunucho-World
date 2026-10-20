@@ -14,7 +14,7 @@ class EndScene extends Phaser.Scene {
     if (!best || stats.time < best.time) Storage.set('pp_best', { time: stats.time, deaths: stats.deaths, coins: stats.coins });
     this.stats = stats;
 
-    this.add.text(WIDTH / 2, 60, `${PLAYER_NAME.toUpperCase()} VENCEU!`, { ...textStyle(54, '#ffd23f'), strokeThickness: 10 }).setOrigin(0.5);
+    this.add.text(WIDTH / 2, 60, `${heroName().toUpperCase()} VENCEU!`, { ...textStyle(54, '#ffd23f'), strokeThickness: 10 }).setOrigin(0.5);
 
     // Pontuação final contando do zero
     const scoreText = this.add.text(WIDTH / 2, 130, '', { ...textStyle(40, '#ffe9a0'), strokeThickness: 8 }).setOrigin(0.5);

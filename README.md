@@ -206,6 +206,12 @@ As falas ficam em `INTRO_SCRIPT`, no `src/scenes/Intro.js`. (Escolher uma fase d
 Pise nos inimigos para derrotá-los, desvie dos espinhos, pegue as moedas e chegue na bandeira verde.
 No celular aparecem botões na tela.
 
+### Amigos (personagens jogáveis)
+
+No guarda-roupa (**ROUPA** no menu) há duas abas: **ROUPAS** (os 10 looks do Brunucho) e **AMIGOS**, com personagens jogáveis feitos a partir
+de fotos de amigos, com o nome aparecendo em cima deles. O Brunucho continua sendo o protagonista da história. Amigos atuais: **Stanley**.
+Pra adicionar um amigo, crie uma entrada em `FRIENDS`, no `src/config.js` (cores, `hairStyle`, `beard`, `glasses`, `cap`, `thickBrows`...).
+As fotos **não** vão pro repositório, só o desenho pixelado.
 ### Telas de vários tamanhos
 
 O jogo se ajusta ao aparelho: em celulares compridos (iPhone, Android 19,5:9, monitores ultrawide) a fase ocupa a **tela toda**, sem barras

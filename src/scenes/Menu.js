@@ -98,7 +98,7 @@ class MenuScene extends Phaser.Scene {
       { label: () => 'RANKING', action: () => this.showMode('ranking') },
       { label: () => 'OPÇÕES', action: () => this.openOptions() },
       { label: () => 'CRÉDITOS', action: () => this.openCredits() },
-      { label: () => `ROUPA: ${OUTFITS[currentOutfit()].name}`, action: () => this.openWardrobe(), side: () => this.openWardrobe() },
+      { label: () => (OUTFITS[currentOutfit()].friend ? `AMIGO: ${OUTFITS[currentOutfit()].name}` : `ROUPA: ${OUTFITS[currentOutfit()].name}`), action: () => this.openWardrobe(), side: () => this.openWardrobe() },
     );
     this.selected = 0;
     this.optionTexts = this.options.map((opt, i) => {

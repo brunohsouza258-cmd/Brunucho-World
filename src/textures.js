@@ -899,13 +899,48 @@ function drawPlayer(g, o, pose = 'idle') {
   g.fillStyle(0xb5634a); g.fillRect(17, 14, 4, 1);
   g.fillStyle(0xff8a8a, 0.5); g.fillRect(12, 12, 3, 2);
 
-  // cabelo curto com topete para frente
-  g.fillStyle(c.hair);
-  g.fillRoundedRect(4, 0, 19, 7, 3);
-  g.fillRect(4, 4, 4, 8);
-  g.fillTriangle(14, 1, 26, 4, 14, 7);
-  g.fillStyle(c.hairDark); g.fillRect(4, 6, 4, 2); g.fillRect(10, 5, 6, 1);
-  g.fillStyle(c.hairLight); g.fillRect(9, 1, 8, 2);
+  // barba (antes do cabelo; a boca é redesenhada por cima)
+  if (o.beard) {
+    g.fillStyle(o.beard, o.beardAlpha || 1); g.fillRoundedRect(8, 12, 15, 5, 2);
+    g.fillStyle(0xb5634a); g.fillRect(17, 14, 4, 1);
+  }
+
+  // cabelo
+  const hs = o.hairStyle || 'topete';
+  if (hs === 'topete') {                               // cabelo curto com topete para frente (Brunucho)
+    g.fillStyle(c.hair);
+    g.fillRoundedRect(4, 0, 19, 7, 3);
+    g.fillRect(4, 4, 4, 8);
+    g.fillTriangle(14, 1, 26, 4, 14, 7);
+    g.fillStyle(c.hairDark); g.fillRect(4, 6, 4, 2); g.fillRect(10, 5, 6, 1);
+    g.fillStyle(c.hairLight); g.fillRect(9, 1, 8, 2);
+  } else if (hs === 'curto') {                         // curto nas laterais, mais alto em cima e franja de lado
+    g.fillStyle(c.hair);
+    g.fillRoundedRect(4, -1, 19, 7, 3);
+    g.fillRect(4, 3, 4, 7);                            // nuca
+    g.fillRect(8, 3, 14, 3);                           // franja cobrindo a testa
+    g.fillTriangle(13, 4, 23, 3, 21, 7);               // pontinha da franja pro lado
+    g.fillStyle(c.hairDark); g.fillRect(4, 8, 3, 2); g.fillRect(9, 5, 9, 1);
+    g.fillStyle(c.hairLight); g.fillRect(8, 0, 9, 2); g.fillRect(17, 1, 4, 1);
+  } else if (hs === 'raspado') {                       // máquina zero/um
+    g.fillStyle(c.hairDark); g.fillRoundedRect(5, 1, 18, 5, 3); g.fillRect(4, 4, 3, 6);
+    g.fillStyle(c.hair); g.fillRect(8, 2, 10, 2);
+  } else if (hs === 'cacheado') {                      // volume de cachos
+    g.fillStyle(c.hair); g.fillRoundedRect(3, -3, 22, 10, 5); g.fillRect(3, 3, 5, 9);
+    [[6, -3], [11, -4], [16, -4], [21, -2], [4, 3], [24, 3]].forEach(([x, y]) => g.fillCircle(x, y + 1, 3));
+    g.fillStyle(c.hairDark); [[9, 1], [14, 0], [19, 1], [6, 6]].forEach(([x, y]) => g.fillRect(x, y, 2, 2));
+    g.fillStyle(c.hairLight); g.fillRect(10, -2, 3, 1); g.fillRect(17, -2, 3, 1);
+  } else if (hs === 'longo') {                         // cabelo comprido caindo atrás
+    g.fillStyle(c.hair);
+    g.fillRoundedRect(4, -1, 19, 8, 4); g.fillRect(8, 3, 14, 3);
+    g.fillRect(2, 3, 6, 19); g.fillRoundedRect(2, 18, 6, 6, 2);
+    g.fillStyle(c.hairDark); g.fillRect(3, 8, 2, 12); g.fillRect(9, 5, 9, 1);
+    g.fillStyle(c.hairLight); g.fillRect(9, 0, 8, 2);
+  } else if (hs === 'careca') {                        // sem cabelo: só um brilhinho
+    g.fillStyle(c.skinDark); g.fillRect(5, 3, 18, 1);
+    g.fillStyle(0xffffff, 0.35); g.fillRect(9, 3, 6, 1);
+  }
+  if (o.thickBrows) { g.fillStyle(c.hairDark); g.fillRect(14, 6, 5, 2); g.fillRect(19, 6, 4, 2); }   // sobrancelha grossa
 
   // acessórios na cabeça
   if (o.hood) {                                        // frente do capuz (cobre o cabelo) + orelhas + laranja
@@ -922,6 +957,15 @@ function drawPlayer(g, o, pose = 'idle') {
     g.fillStyle(0xff9a1f); g.fillCircle(14, -1, 4);
     g.fillStyle(0xffc060); g.fillCircle(13, -2, 1.5);
     g.fillStyle(0x3fa34d); g.fillRect(14, -5, 3, 2);
+  }
+  if (o.cap) {                                         // boné virado pra frente
+    g.fillStyle(o.cap); g.fillRoundedRect(4, -1, 20, 7, 3); g.fillRect(4, 3, 3, 4);
+    g.fillStyle(o.capDark || 0x15151a); g.fillRect(15, 4, 12, 2);
+  }
+  if (o.glasses) {                                     // óculos de grau
+    g.lineStyle(1, o.glasses, 1);
+    g.strokeRect(14.5, 8.5, 5, 4); g.strokeRect(19.5, 8.5, 4, 4);
+    g.fillStyle(o.glasses); g.fillRect(19, 10, 1, 1); g.fillRect(8, 9, 6, 1);
   }
   if (o.sunglasses) {
     g.fillStyle(0x1b1b2a); g.fillRect(8, 2, 16, 2);

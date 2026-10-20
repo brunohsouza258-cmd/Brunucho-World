@@ -258,7 +258,7 @@ class GameScene extends Phaser.Scene {
     // sombreado suave nos cantos da tela
     if (Settings.get('fx') !== 'leve' && this.cameras.main.postFX) this.cameras.main.postFX.addVignette(0.5, 0.5, 0.92, 0.28);
     // Plaquinha com o nome em cima do personagem (some depois de alguns segundos)
-    this.nameTag = this.add.text(0, 0, PLAYER_NAME, textStyle(14, '#ffd23f')).setOrigin(0.5, 1).setDepth(6);
+    this.nameTag = this.add.text(0, 0, heroName(), textStyle(14, '#ffd23f')).setOrigin(0.5, 1).setDepth(6);
     this.tweens.add({ targets: this.nameTag, alpha: 0, delay: 3500, duration: 800 });
     // Brilho do escudo de aura (fica escondido até pegar o poder)
     this.auraGlow = this.add.ellipse(0, 0, 46, 54, 0x8f6bff, 0.35).setStrokeStyle(3, 0x7ff6ff, 0.9)
@@ -1582,7 +1582,7 @@ class GameScene extends Phaser.Scene {
     const boxH = 150 + bonuses.length * 30;
     fixed(this.add.rectangle(VIEW_W / 2, HEIGHT / 2, 560, boxH, 0x1b1b2a, 0.85).setStrokeStyle(3, 0xffd23f));
     const top = HEIGHT / 2 - boxH / 2;
-    fixed(this.add.text(VIEW_W / 2, top + 34, `${PLAYER_NAME} passou de fase!`, textStyle(36, '#ffd23f')).setOrigin(0.5));
+    fixed(this.add.text(VIEW_W / 2, top + 34, `${heroName()} passou de fase!`, textStyle(36, '#ffd23f')).setOrigin(0.5));
     bonuses.forEach(([label, pts], i) => {
       const y = top + 80 + i * 30;
       const row = [
