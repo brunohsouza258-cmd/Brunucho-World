@@ -865,6 +865,13 @@ function drawPlayer(g, o, pose = 'idle') {
     g.fillStyle(o.vneck.tie); g.fillRect(14, 17, 3, 2); g.fillTriangle(14, 19, 17, 19, 15.5, 25);
     g.fillStyle(c.shirtDark); g.fillRect(11, 16, 1, 6); g.fillRect(19, 16, 1, 5);
   }
+  if (o.plaid) {                                       // camisa xadrez: listras verticais escuras e duas linhas horizontais coloridas
+    const x0 = 4 + sl * 2, w = 18 - sl * 4;
+    g.fillStyle(o.plaid.v); [7, 11, 15, 19].forEach((x) => { if (x > x0 && x < x0 + w - 1) g.fillRect(x, 17, 1, 8); });
+    g.fillStyle(o.plaid.h1); g.fillRect(x0 + 1, 19, w - 2, 1);
+    g.fillStyle(o.plaid.h2); g.fillRect(x0 + 1, 22, w - 2, 1);
+    g.fillStyle(o.plaid.v); g.fillRect(x0 + 1, 24, w - 2, 1);
+  }
   if (o.hoodie) {                                      // moletom: capuz caído no pescoço, cordões, zíper e estampa no peito
     g.fillStyle(c.shirtDark); g.fillRoundedRect(7 + sl, 15, 14 - sl * 2, 4, 2);
     g.fillRect(13, 18, 1, 8);
@@ -972,6 +979,14 @@ function drawPlayer(g, o, pose = 'idle') {
     g.fillStyle(0xff9a1f); g.fillCircle(14, -1, 4);
     g.fillStyle(0xffc060); g.fillCircle(13, -2, 1.5);
     g.fillStyle(0x3fa34d); g.fillRect(14, -5, 3, 2);
+  }
+  if (o.cowboy) {                                      // chapéu de cowboy de aba larga (copa mais clara que a aba, com fita)
+    g.fillStyle(o.cowboy); g.fillEllipse(15, 2, 31, 5);                           // aba
+    g.fillRect(-1, 0, 3, 2); g.fillRect(28, 0, 3, 2);                             // pontas da aba viradas pra cima
+    g.fillStyle(o.cowboyTop || 0x30303a); g.fillRoundedRect(8, -4, 13, 6, 4);     // copa
+    g.fillStyle(o.cowboy); g.fillRect(14, -4, 2, 2);                              // amassadinho no topo
+    g.fillStyle(o.cowboyBand || 0x8a7350); g.fillRect(8, 0, 13, 1);               // fita
+    g.fillStyle(0xffffff, 0.18); g.fillRect(9, -3, 3, 1);
   }
   if (o.cap) {                                         // boné virado pra frente
     g.fillStyle(o.cap); g.fillRoundedRect(4, -1, 20, 7, 3); g.fillRect(4, 3, 3, 4);
