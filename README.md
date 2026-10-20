@@ -76,7 +76,7 @@ música da intro, de vitória e de game over. As notas ficam em `SONGS` e dá pr
 
 ### Conquistas
 
-**55 conquistas**, como *Fugiu da Chinelada*, *Mogador Serial*, *Haja Coração!*, *Foi Pênalti?*, *Sigma do Combo*,
+**58 conquistas**, como *Fugiu da Chinelada*, *Mogador Serial*, *Haja Coração!*, *Foi Pênalti?*, *Sigma do Combo*,
 *Atropelamento 67*, *A Andreia Te Achou* e *Modo Andreia* (zerar no Difícil). Aparece um aviso na tela quando desbloqueia
 e dá pra ver todas no menu. A lista fica em `src/achievements.js`.
 
@@ -212,6 +212,21 @@ No guarda-roupa (**ROUPA** no menu) há duas abas: **ROUPAS** (os 10 looks do Br
 de fotos de amigos, com o nome aparecendo em cima deles. O Brunucho continua sendo o protagonista da história. Amigos atuais: **Stanley**, **Biel** (Gabriel Silva, corpo magrinho) , **Yan** e **Pedro** (de cowboy).
 Pra adicionar um amigo, crie uma entrada em `FRIENDS`, no `src/config.js` (cores, `hairStyle`, `beard`, `glasses`, `cap`, `thickBrows`, `slim`, `pants`, `smile`, `hoodie`, `cowboy`, `plaid`...).
 As fotos **não** vão pro repositório, só o desenho pixelado.
+
+Cada amigo tem um **poder** (aparece no guarda-roupa e no começo da fase) e uma **frase**:
+
+| Amigo | Poder | Frase |
+|---|---|---|
+| Stanley | **Olho de águia**: puxa as moedas de perto | "Tá tranquilo, tá favorável!" |
+| Biel | **Levinho**: pula 12% mais alto | "Levinho que nem pluma!" |
+| Yan | **Sorrisão**: moedas valem 50% mais | "Sorria, você foi moggado!" |
+| Pedro | **Galope**: corre 10% mais rápido | "Cowboy vai te pegar!" |
+
+A frase aparece num balão e é falada quando você pega um poder jogando com o amigo. **Dublagem:** em *Opções > Gravar minha voz*, a aba
+**Falas dos amigos** deixa gravar a fala de cada um (ou importar um áudio); sem gravação o jogo usa a voz do computador.
+Os amigos também aparecem **como inimigos-figurantes** em algumas fases (no lugar de um inimigo comum, com o nome em cima). Pisar neles é de
+brincadeira: eles reclamam com a própria frase e rendem as conquistas *Só de Brincadeira*, *A Turma Toda* e *Jogando em Turma*.
+Os poderes e frases ficam em `FRIEND_EXTRA`, no `src/config.js`.
 ### Telas de vários tamanhos
 
 O jogo se ajusta ao aparelho: em celulares compridos (iPhone, Android 19,5:9, monitores ultrawide) a fase ocupa a **tela toda**, sem barras

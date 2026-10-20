@@ -26,6 +26,14 @@ function parseLevel(rows, theme = {}) {
 
 // Cenas rápidas ao pegar um poder (≈1 segundo): ícone, título, legenda engraçada e uma pequena gag de emojis.
 // gag: 'chuva' (caem do alto) · 'sobe' (sobem) · 'suga' (voam até o ícone) · 'maos' (mãozinhas 6-7 nos lados)
+// Fases (0 = fase 1) em que um amigo aparece como inimigo-figurante no lugar de um inimigo comum (ele aguenta a pisada, é de brincadeira).
+// Candidatas: fases 2 a 30 com pelo menos 1 inimigo comum ('E'); entra 1 a cada 3.
+const CAMEO_LEVELS = (() => {
+  const ok = [];
+  LEVELS.forEach((l, i) => { if (i >= 1 && i <= 29 && l.map.join('').split('E').length - 1 >= 1) ok.push(i); });
+  return ok.filter((_, k) => k % 3 === 1);
+})();
+
 const POWER_SCENES = {
   '67':     { icon: '🤙', title: 'SIX SEVEN!', color: '#ffb000', ray: 0xffb000, sub: 'ninguém sabe o que significa. nem a gente.', gag: 'maos', gagIcons: ['✋', '🤚'] },
   aura:     { icon: '😎', title: 'AURA!', color: '#7ff6ff', ray: 0x29d3ff, sub: '+1000 de aura. sigma detectado.', gag: 'chuva', gagIcons: ['✨', '💠'] },
@@ -43,6 +51,7 @@ class GameScene extends Phaser.Scene {
   init(data) {
     this.levelIndex = data.level || 0;
     this.stats = { coins: 0, deaths: 0, time: 0, score: 0, lives: difficulty().lives, lifeCoins: 0, ...data.stats };
+    this.perk = OUTFITS[currentOutfit()].perk || {};   // poder do amigo que está sendo jogado (veja FRIEND_EXTRA em config.js)
     this.hasDoubleJump = false; // Tênis de Mola
     this.airJumps = 0;
     this.magnetTime = 0;        // Ímã de Aura
@@ -117,6 +126,7 @@ class GameScene extends Phaser.Scene {
     this.springs = this.physics.add.staticGroup(); // trampolins
     this.crumbles = this.physics.add.staticGroup(); // plataformas que caem
     this.spawn = { x: 2 * TILE, y: 13 * TILE };
+    this.cameoPlan = this.planCameos(level);
 
     for (const o of level.objects) {
       const cx = o.x * TILE + TILE / 2;
@@ -158,6 +168,8 @@ class GameScene extends Phaser.Scene {
           break;
         }
         case 'E': {
+          const cameo = this.cameoPlan.get(o);
+          if (cameo) { this.spawnFriendEnemy(cameo, cx, bottom); break; }
           const e = this.spawnEnemy(theme.enemy || 'slime', cx, bottom, { behavior: 'walker', speed: PHYS.enemySpeed });
           this.tweens.add({ targets: e, angle: { from: -5, to: 5 }, duration: 300, yoyo: true, repeat: -1 });
           break;
@@ -335,6 +347,7 @@ class GameScene extends Phaser.Scene {
     ['SPACE', 'UP', 'W'].forEach((k) => this.input.keyboard.on(`keydown-${k}`, (ev) => { if (!ev.repeat) this.jumpQueued = true; }));    this.createTouchControls();
 
     this.createHud(def);
+    this.friendIntro();
     if (this.bossSpawn) this.setupBoss(); // fase do chefão final (boss.js)
 
     // Modo de visualização: index.html?fase=1&mapa=1 mostra a fase inteira.
@@ -621,8 +634,8 @@ class GameScene extends Phaser.Scene {
     // Poderes: modo 67 deixa mais rápido e com pulo maior
     this.updatePowers(dt, time);
     const boosted = this.powerTime > 0;
-    const maxSpeed = PHYS.maxSpeed * (boosted ? 1.35 : 1);
-    const jumpForce = PHYS.jump * (boosted ? 1.15 : 1);
+    const maxSpeed = PHYS.maxSpeed * (boosted ? 1.35 : 1) * (this.perk.speed || 1);
+    const jumpForce = PHYS.jump * (boosted ? 1.15 : 1) * (this.perk.jump || 1);
 
     // Movimento horizontal com aceleração e freio
     const dir = (right ? 1 : 0) - (left ? 1 : 0);
@@ -714,15 +727,16 @@ class GameScene extends Phaser.Scene {
       this.stareTime -= dt;
       if (this.stareTime <= 0) this.endStare();
     }
-    // Ímã de Aura: puxa as moedas por perto
-    if (this.magnetTime > 0) {
-      this.magnetTime -= dt;
+    // Ímã de Aura (poder) ou "Olho de águia" (Stanley): puxa as moedas por perto
+    if (this.magnetTime > 0) this.magnetTime -= dt;
+    const reach = this.magnetTime > 0 ? 190 : (this.perk.magnet || 0);
+    if (reach > 0) {
       const pb = this.player.body;
       this.coins.children.iterate((c) => {
         if (!c || !c.body || !c.body.enable) return;
         const dx = pb.center.x - c.x, dy = pb.center.y - c.y;
         const dist = Math.hypot(dx, dy);
-        if (dist < 190 && dist > 1) {
+        if (dist < reach && dist > 1) {
           const sp = Math.min(dist, 520 * dt);
           c.x += (dx / dist) * sp; c.y += (dy / dist) * sp;
           c.body.updateFromGameObject();
@@ -791,6 +805,67 @@ class GameScene extends Phaser.Scene {
     }
   }
 
+  // ---- Amigos: poder, frase e aparições como inimigo ----
+  // Escolhe quais inimigos 'E' desta fase viram amigos (um amigo diferente a cada fase marcada; nunca o que você está jogando).
+  planCameos(level) {
+    const plan = new Map();
+    const n = CAMEO_LEVELS.indexOf(this.levelIndex);
+    if (n < 0) return plan;
+    const others = FRIEND_KEYS.filter((k) => k !== currentOutfit());
+    const es = level.objects.filter((o) => o.ch === 'E');
+    if (!others.length || !es.length) return plan;
+    plan.set(es[Math.min(1, es.length - 1)], others[n % others.length]);
+    if (n >= 5 && es.length >= 4) plan.set(es[3], others[(n + 1) % others.length]);
+    return plan;
+  }
+
+  spawnFriendEnemy(key, cx, bottom) {
+    const f = OUTFITS[key];
+    const e = this.spawnEnemy(`player_${key}`, cx, bottom, { behavior: 'walker', speed: PHYS.enemySpeed });
+    e.body.setSize(18, 30).setOffset(8, 10);            // caixa de colisão só do corpo (o quadro tem folga pra capa e chapéu)
+    e.faceRight = true;
+    e.friendKey = key;
+    e.famous = { key: `amigo_${key}`, lines: [f.phrase] };
+    e.talkTimer = Phaser.Math.FloatBetween(1, 4);
+    e.tag = this.add.text(e.x, e.y - 24, f.who, textStyle(12, '#9ff0ff')).setOrigin(0.5, 1).setDepth(6);
+    return e;
+  }
+
+  // Levou uma pisada: reclama com a própria frase (na voz gravada, se tiver) e rende conquistas
+  friendStomped(e) {
+    const f = OUTFITS[e.friendKey];
+    if (e.tag) { e.tag.destroy(); e.tag = null; }
+    this.speech(e, f.phrase);
+    Sfx.voice(`f_${e.friendKey}`);
+    Achievements.unlock('amigo_pisado');
+    const seen = new Set(Storage.get('pp_amigos_pisados', []));
+    seen.add(e.friendKey);
+    Storage.set('pp_amigos_pisados', [...seen]);
+    if (FRIEND_KEYS.every((k) => seen.has(k) || k === currentOutfit())) Achievements.unlock('turma_toda');
+  }
+
+  // Jogando com um amigo: anuncia o poder no começo e registra com quem você já jogou
+  friendIntro() {
+    const o = OUTFITS[currentOutfit()];
+    if (!o.friend) return;
+    const used = new Set(Storage.get('pp_jogou_com', []));
+    used.add(currentOutfit());
+    Storage.set('pp_jogou_com', [...used]);
+    if (FRIEND_KEYS.every((k) => used.has(k))) Achievements.unlock('jogou_turma');
+    if (o.perk) this.time.delayedCall(1500, () => this.floatText(this.player.x, this.player.y - 60, `⚡ ${o.perk.name}: ${o.perk.desc}`, '#9ff0ff', 16));
+  }
+
+  // Frase do amigo ao pegar um poder (espera a ceninha do poder acabar)
+  friendSay(delay) {
+    const o = OUTFITS[currentOutfit()];
+    if (!o.friend) return;
+    this.time.delayedCall(delay, () => {
+      if (this.dead) return;
+      this.speech(this.playerGfx, o.phrase);
+      Sfx.voice(`f_${currentOutfit()}`);
+    });
+  }
+
   spawnEnemy(key, cx, bottom, cfg) {
     const h = this.textures.getFrame(key).height;
     const e = this.enemies.create(cx, bottom - h / 2, key);
@@ -808,6 +883,7 @@ class GameScene extends Phaser.Scene {
     const pb = this.player.body;
     this.enemies.children.iterate((e) => {
       if (!e || e.dead) return;
+      if (e.tag) e.tag.setPosition(e.x, e.y - e.displayHeight / 2 - 2);
       const b = e.body;
       // Olhar de Mil Jardas: todo mundo parado
       if (this.stareTime > 0) {
@@ -1062,7 +1138,7 @@ class GameScene extends Phaser.Scene {
     this.fxCoin.explode(8, coin.x, coin.y);
     this.levelCoins++;
     this.stats.coins++;
-    this.addScore(SCORE.coin);
+    this.addScore(Math.round(SCORE.coin * (this.perk.coin || 1)));
     Sfx.coin();
     Achievements.count('coins');
     this.stats.lifeCoins++;
@@ -1109,6 +1185,7 @@ class GameScene extends Phaser.Scene {
 
   defeatEnemy(enemy, launched) {
     enemy.dead = true;
+    if (enemy.friendKey) this.friendStomped(enemy);
     enemy.disableBody(false, false);
     this.tweens.killTweensOf(enemy);
     if (launched) {
@@ -1383,6 +1460,7 @@ class GameScene extends Phaser.Scene {
     this.tweens.killTweensOf(p);
     this.tweens.add({ targets: p, scale: 2, alpha: 0, duration: 250, onComplete: () => p.destroy() });
     const cena = this.powerScene(p.kind);      // true: a cena já mostra o título (sem os letreiros antigos)
+    this.friendSay(cena ? 1150 : 350);
 
     if (p.kind === '67') {
       this.powerTime = 6.7;

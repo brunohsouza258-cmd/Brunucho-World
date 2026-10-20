@@ -225,7 +225,14 @@ const FRIENDS = {
     plaid: { v: 0x3a3c46, h1: 0xd9a8a8, h2: 0x9fb7d9 },
   },
 };
-Object.keys(FRIENDS).forEach((k) => { OUTFITS[k] = { ...FRIENDS[k], friend: true }; });
+// Frase (dublável na tela Minha voz) e poder de cada amigo. perk: speed (corre mais) · jump (pula mais) · coin (moeda vale mais) · magnet (puxa moedas, em pixels)
+const FRIEND_EXTRA = {
+  stanley: { phrase: 'Tá tranquilo, tá favorável!', pitch: 0.9, perk: { name: 'Olho de águia', desc: 'puxa as moedas de perto', magnet: 80 } },
+  biel:    { phrase: 'Levinho que nem pluma!', pitch: 1.4, perk: { name: 'Levinho', desc: 'pula 12% mais alto', jump: 1.12 } },
+  yan:     { phrase: 'Sorria, você foi moggado!', pitch: 0.8, perk: { name: 'Sorrisão', desc: 'moedas valem 50% mais', coin: 1.5 } },
+  pedro:   { phrase: 'Cowboy vai te pegar!', pitch: 1.0, perk: { name: 'Galope', desc: 'corre 10% mais rápido', speed: 1.1 } },
+};
+Object.keys(FRIENDS).forEach((k) => { OUTFITS[k] = { ...FRIENDS[k], ...(FRIEND_EXTRA[k] || {}), friend: true }; });
 const OUTFIT_KEYS = Object.keys(OUTFITS);                                   // todos (gera as texturas)
 const BRU_KEYS = OUTFIT_KEYS.filter((k) => !OUTFITS[k].friend);             // roupas do Brunucho
 const FRIEND_KEYS = OUTFIT_KEYS.filter((k) => OUTFITS[k].friend);           // amigos

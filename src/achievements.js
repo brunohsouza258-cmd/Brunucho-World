@@ -64,6 +64,9 @@ const ACHIEVEMENTS = [
   { id: 'dublador',    icon: '🎤', name: 'Dublador',              desc: 'Gravar a sua própria voz no jogo' },
   { id: 'closet',      icon: '🧥', name: 'Closet Completo',       desc: 'Vestir todas as roupas do guarda-roupa' },
   { id: 'roupa',       icon: '👕', name: 'Fashionista',           desc: 'Trocar de roupa no menu' },
+  { id: 'amigo_pisado', icon: '🤝', name: 'Só de Brincadeira',    desc: 'Pisar num amigo (ele aguenta)' },
+  { id: 'turma_toda',  icon: '🧑‍🤝‍🧑', name: 'A Turma Toda',          desc: 'Pisar em todos os amigos (de brincadeira)' },
+  { id: 'jogou_turma', icon: '🎮', name: 'Jogando em Turma',      desc: 'Jogar uma fase com cada amigo' },
 ];
 
 const Achievements = {

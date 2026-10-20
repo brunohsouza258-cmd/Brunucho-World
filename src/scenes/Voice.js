@@ -19,25 +19,34 @@ class VoiceScene extends Phaser.Scene {
       { txt: '📁', color: '#ffffff', tip: 'arquivo', act: (i) => this.pickFile(i) },
       { txt: '✖', color: '#ffb0b0', tip: 'apagar', act: (i) => this.erase(i) },
     ];
+    this.tab = 'jogo';
+    this.tabs = [['jogo', '🎮 FALAS DO JOGO', 290], ['amigos', '🤝 FALAS DOS AMIGOS', 670]].map(([id, label, x]) => {
+      const t = this.add.text(x, 104, label, { ...textStyle(18), padding: { x: 12, y: 5 }, strokeThickness: 0 }).setOrigin(0.5).setInteractive({ useHandCursor: true });
+      t.on('pointerdown', () => this.time.delayedCall(1, () => this.setTab(id)));
+      return { id, t };
+    });
     this.rows = VOICE_LINES.map((ln, i) => {
-      const y = 118 + i * 42;
-      const bg = this.add.rectangle(WIDTH / 2, y, 900, 36, 0x1b1b2a, 0.9).setStrokeStyle(2, 0x444455).setInteractive({ useHandCursor: true });
+      const c = this.add.container(0, 0);
+      const bg = this.add.rectangle(WIDTH / 2, 0, 900, 34, 0x1b1b2a, 0.9).setStrokeStyle(2, 0x444455).setInteractive({ useHandCursor: true });
       bg.on('pointerdown', () => { this.sel = i; this.refresh(); });
-      this.add.text(50, y, ln.label, textStyle(22)).setOrigin(0, 0.5);
-      this.add.text(290, y, ln.when, textStyle(13, '#b5b5c8')).setOrigin(0, 0.5);
-      const status = this.add.text(560, y, '', textStyle(15)).setOrigin(0, 0.5);
+      const parts = [bg, this.add.text(50, 0, ln.label, textStyle(22)).setOrigin(0, 0.5), this.add.text(290, 0, ln.when, textStyle(13, '#b5b5c8')).setOrigin(0, 0.5)];
+      const status = this.add.text(560, 0, '', textStyle(15)).setOrigin(0, 0.5);
+      parts.push(status);
       BTN.forEach((b, k) => {
-        const t = this.add.text(742 + k * 38, y, b.txt, { ...textStyle(20, b.color), backgroundColor: '#2b2b3a', padding: { x: 7, y: 3 } })
+        const t = this.add.text(742 + k * 38, 0, b.txt, { ...textStyle(20, b.color), backgroundColor: '#2b2b3a', padding: { x: 7, y: 3 } })
           .setOrigin(0.5).setInteractive({ useHandCursor: true });
         t.on('pointerdown', () => { this.sel = i; this.refresh(); b.act(i); });
+        parts.push(t);
       });
-      return { bg, status };
+      c.add(parts);
+      return { c, bg, status, friend: !!ln.friend };
     });
+    this.layout();
 
     this.msg = this.add.text(WIDTH / 2, 462, '', { ...textStyle(18, '#ffe9a0'), align: 'center', wordWrap: { width: 880 } }).setOrigin(0.5);
     this.meterBg = this.add.rectangle(WIDTH / 2, 494, 420, 10, 0x2b2b3a).setStrokeStyle(1, 0x555566);
     this.meter = this.add.rectangle(WIDTH / 2 - 210, 494, 0, 8, 0x8aff8a).setOrigin(0, 0.5);
-    this.add.text(WIDTH / 2, 520, hint('↑↓ escolher · ENTER gravar/parar · P ouvir · I importar arquivo · X apagar · ESC voltar', 'toque nos botões: ● gravar · ▶ ouvir · 📁 arquivo · ✖ apagar'), textStyle(13)).setOrigin(0.5).setAlpha(0.85);
+    this.add.text(WIDTH / 2, 520, hint('↑↓ escolher · ←→ aba · ENTER gravar/parar · P ouvir · I importar arquivo · X apagar · ESC voltar', 'toque nos botões: ● gravar · ▶ ouvir · 📁 arquivo · ✖ apagar'), textStyle(13)).setOrigin(0.5).setAlpha(0.85);
     const back = this.add.text(WIDTH - 16, 30, '◀ VOLTAR', { ...textStyle(20), backgroundColor: '#2b2b3a', padding: { x: 12, y: 6 } }).setOrigin(1, 0.5).setInteractive({ useHandCursor: true });
     back.on('pointerdown', () => this.time.delayedCall(1, () => this.close()));
 
@@ -53,6 +62,9 @@ class VoiceScene extends Phaser.Scene {
     kb.on('keydown-X', () => this.erase(this.sel));
     kb.on('keydown-ESC', () => this.close());
     kb.on('keydown-BACKSPACE', () => this.close());
+    kb.on('keydown-LEFT', () => this.setTab('jogo'));
+    kb.on('keydown-RIGHT', () => this.setTab('amigos'));
+    kb.on('keydown-TAB', (e) => { if (e && e.preventDefault) e.preventDefault(); this.setTab(this.tab === 'jogo' ? 'amigos' : 'jogo'); });
 
     const semMic = !window.isSecureContext || !navigator.mediaDevices;
     if (semMic && location.protocol !== 'file:') this.setMsg('Aviso: aqui o microfone não funciona (precisa de https). Use "importar arquivo" (📁).', '#ff9a6b');
@@ -60,9 +72,33 @@ class VoiceScene extends Phaser.Scene {
     this.refresh();
   }
 
+  // só as falas da aba atual aparecem (cada uma ocupa uma linha, de cima pra baixo)
+  visible() { return VOICE_LINES.map((l, i) => i).filter((i) => !!VOICE_LINES[i].friend === (this.tab === 'amigos')); }
+
+  layout() {
+    let n = 0;
+    this.rows.forEach((r) => {
+      const show = r.friend === (this.tab === 'amigos');
+      r.c.setVisible(show);
+      r.c.list.forEach((o) => { if (o.input) o.input.enabled = show; });
+      if (show) r.c.y = 146 + n++ * 40;
+    });
+    this.tabs.forEach((t) => { const on = t.id === this.tab; t.t.setColor(on ? '#1b1b2a' : '#ffffff').setBackgroundColor(on ? '#ffd23f' : '#2b2b3a'); });
+  }
+
+  setTab(id) {
+    if (this.rec || this.busy || this.tab === id) return;
+    this.tab = id;
+    this.sel = this.visible()[0];
+    this.layout();
+    this.refresh();
+    Sfx.tone(620, 0.06, { vol: 0.05 });
+  }
+
   move(d) {
     if (this.rec || this.busy) return;
-    this.sel = (this.sel + d + VOICE_LINES.length) % VOICE_LINES.length;
+    const vis = this.visible();
+    this.sel = vis[(vis.indexOf(this.sel) + d + vis.length) % vis.length];
     Sfx.tone(520, 0.05, { vol: 0.05 });
     this.refresh();
   }
@@ -95,7 +131,7 @@ class VoiceScene extends Phaser.Scene {
       if (this.dead) { ctl.stop(); return; }
       this.rec = { id, ctl };
       if (Sfx.musicGain) Sfx.musicGain.gain.value = 0;      // a música não pode entrar na gravação
-      this.setMsg(`🔴 GRAVANDO... diga "${VOICE_LINES[i].label}"  (ENTER para parar)`, '#ff6b6b');
+      this.setMsg(`🔴 GRAVANDO... diga "${VOICE_LINES[i].say || VOICE_LINES[i].label}"  (ENTER para parar)`, '#ff6b6b');
       const auto = this.time.delayedCall(4000, () => ctl.stop());
       const blob = await ctl.done;
       auto.remove();

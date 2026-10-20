@@ -16,8 +16,9 @@ class WardrobeScene extends Phaser.Scene {
     this.add.rectangle(215, 286, 360, 340, 0x1b1b2a, 1).setStrokeStyle(3, 0xffd23f);
     this.nameText = this.add.text(215, 138, '', { ...textStyle(26, '#ffffff'), align: 'center', wordWrap: { width: 330 } }).setOrigin(0.5);
     this.descText = this.add.text(215, 166, '', { ...textStyle(16, '#cfd0e8'), align: 'center', wordWrap: { width: 320 }, lineSpacing: 4 }).setOrigin(0.5, 0);
-    this.add.ellipse(215, 424, 170, 22, 0x000000, 0.4);
-    this.preview = this.add.sprite(215, 424, `player_${this.keysOf()[this.sel]}`).setOrigin(0.5, 1).setScale(4);
+    this.add.ellipse(215, 414, 170, 22, 0x000000, 0.4);
+    this.preview = this.add.sprite(215, 414, `player_${this.keysOf()[this.sel]}`).setOrigin(0.5, 1).setScale(4);
+    this.perkText = this.add.text(215, 440, '', { ...textStyle(13, '#9ff0ff'), align: 'center', wordWrap: { width: 340 } }).setOrigin(0.5);
     this.wearBtn = this.button(215, 474, '', () => this.wear());
 
     // ---- abas ----
@@ -106,6 +107,7 @@ class WardrobeScene extends Phaser.Scene {
     this.preview.play(`player_${key}_walk`);
     this.nameText.setText(o.name);
     this.descText.setText(o.desc);
+    this.perkText.setText(o.perk ? `⚡ ${o.perk.name}: ${o.perk.desc}` : '');
     this.wearBtn.setText(key === this.worn ? '✔ VESTINDO' : (o.friend ? 'JOGAR COM ELE' : 'VESTIR'));
     this.cards.forEach((c, k) => {
       c.bg.setStrokeStyle(k === i ? 4 : 2, k === i ? 0xffd23f : 0x444455);

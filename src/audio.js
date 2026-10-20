@@ -133,6 +133,12 @@ const VOICE_LINES = [
   { id: 'gameover', label: 'Ai, mãe!', when: 'quando acabam as vidas', tts: null },
 ];
 
+// Uma fala por amigo (aba "Falas dos amigos"): toca ao pegar um poder jogando com ele e quando ele leva uma pisada de brincadeira.
+FRIEND_KEYS.forEach((k) => {
+  const f = OUTFITS[k];
+  VOICE_LINES.push({ id: `f_${k}`, label: f.name, say: f.phrase, friend: true, when: `“${f.phrase}”`, tts: [f.phrase, { rate: 1.1, pitch: f.pitch || 1 }] });
+});
+
 // Guarda as gravações no navegador (IndexedDB), junto com o resto do jogo.
 const VoiceStore = {
   _db: null,
