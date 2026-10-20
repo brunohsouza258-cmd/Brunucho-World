@@ -195,13 +195,19 @@ const OUTFITS = {
 // ---- Amigos: personagens jogáveis (seção AMIGOS do guarda-roupa). O Brunucho continua sendo o protagonista da história.
 // Cada amigo é desenhado a partir de uma foto. Opções de desenho (veja drawPlayer em textures.js):
 //   hairStyle: 'curto' | 'topete' | 'raspado' | 'cacheado' | 'longo' | 'careca'    beard: cor (+ beardAlpha p/ barba por fazer)
-//   glasses: cor da armação   cap: cor do boné   thickBrows: sobrancelha grossa
+//   glasses: cor da armação   cap: cor do boné   thickBrows: sobrancelha grossa   slim: corpo magrinho   pants: calça comprida
 const FRIENDS = {
   stanley: {
     name: 'Stanley', who: 'Stanley', desc: 'Camisa branca, cabelo castanho curto de lado e sobrancelha marcante. Amigo do Brunucho!',
     colors: { hair: 0x4a3426, hairDark: 0x2e2018, hairLight: 0x6a4a36, skin: 0xc98f64, skinDark: 0xa8734d,
       shirt: 0xf4f4f4, shirtDark: 0xd2d2d6, shorts: 0x2b3a5c, shortsDark: 0x1f2b46 },
     hairStyle: 'curto', thickBrows: true, shoes: 'tenis',
+  },
+  biel: {
+    name: 'Biel', who: 'Biel', desc: 'Gabriel Silva. Magrelo de dar dó, cabelo cacheadinho e sobrancelha que fala sozinha. Camiseta preta e calça cinza.',
+    colors: { hair: 0x1f1610, hairDark: 0x120d09, hairLight: 0x3e2d21, skin: 0xcf9d74, skinDark: 0xae7b55,
+      shirt: 0x1d1d22, shirtDark: 0x101014, shorts: 0x8d9099, shortsDark: 0x6f7279 },
+    hairStyle: 'cacheado', thickBrows: true, slim: true, pants: true, shoes: 'tenis',
   },
 };
 Object.keys(FRIENDS).forEach((k) => { OUTFITS[k] = { ...FRIENDS[k], friend: true }; });

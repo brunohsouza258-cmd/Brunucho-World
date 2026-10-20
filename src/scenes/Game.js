@@ -577,9 +577,8 @@ class GameScene extends Phaser.Scene {
   update(time, delta) {
     const dt = Math.min(delta, 50) / 1000;
     if (this.touchBtns) this.pollTouch();
-    if (this.sceneT > 0) {                  // cena de poder: o jogo fica parado por um instante
-      this.sceneT -= dt;
-      if (this.sceneT <= 0) this.physics.world.resume();
+    if (this.sceneT > 0) {                  // cena de poder: o jogo fica parado por um instante (1s em tempo real, mesmo em celular lento)
+      if (time >= this.sceneEnd) { this.sceneT = 0; this.physics.world.resume(); }
       this.backdrop.update(this.cameras.main.scrollX, time);
       this.syncPlayerGfx(time);
       return;
@@ -1311,6 +1310,7 @@ class GameScene extends Phaser.Scene {
     const d = POWER_SCENES[kind];
     if (!d || !Settings.get('cenas') || this.sceneT > 0) return false;
     this.sceneT = 1.0;
+    this.sceneEnd = this.time.now + 1000;
     this.physics.world.pause();
     this.jumpQueued = false;
     this.squash = 0.45;

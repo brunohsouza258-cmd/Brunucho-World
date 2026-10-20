@@ -790,6 +790,7 @@ function drawPlayer(g, o, pose = 'idle') {
   const B = (x, y, w, h) => g.fillRect(x + P.b[0], y + P.b[1], w, h);   // perna da frente
   const upper = o.tank ? c.skin : c.shirt, upperBack = o.tank ? c.skinDark : c.shirtDark;
   const lower = o.longSleeves ? c.shirt : c.skin, lowerBack = o.longSleeves ? c.shirtDark : c.skinDark;
+  const sl = o.slim ? 1 : 0;                           // corpo magrinho: tronco, braços e pernas mais finos
 
   // capa (atrás de tudo) e capuz (atrás da cabeça)
   if (o.cape) {
@@ -803,12 +804,12 @@ function drawPlayer(g, o, pose = 'idle') {
   }
 
   // braço de trás
-  g.fillStyle(upperBack); g.fillRect(2, 18 - P.arm, 5, 4);
-  g.fillStyle(lowerBack); g.fillRect(2, 22 - P.arm, 5, 3);
-  g.fillStyle(c.skinDark); g.fillRect(2, 25 - P.arm, 4, 3);
+  g.fillStyle(upperBack); g.fillRect(2 + sl * 2, 18 - P.arm, 5 - sl, 4);
+  g.fillStyle(lowerBack); g.fillRect(2 + sl * 2, 22 - P.arm, 5 - sl, 3);
+  g.fillStyle(c.skinDark); g.fillRect(2 + sl * 2, 25 - P.arm, 4 - sl, 3);
 
   // pernas, meiões e sapatos
-  g.fillStyle(o.pants ? c.shorts : c.skin); A(7, 30, 4, 4); B(15, 30, 4, 4);
+  g.fillStyle(o.pants ? c.shorts : c.skin); A(7 + sl, 30, 4 - sl, 4); B(15, 30, 4 - sl, 4);
   if (o.socks && !o.pants) {
     g.fillStyle(o.socks); A(7, 30, 4, 4); B(15, 30, 4, 4);
     if (o.socksStripe) { g.fillStyle(o.socksStripe); A(7, 31, 4, 1); B(15, 31, 4, 1); }
@@ -847,16 +848,16 @@ function drawPlayer(g, o, pose = 'idle') {
     g.fillStyle(o.boxers.waist); g.fillRect(5, 25, 16, 2);
     g.fillStyle(o.boxers.dot); [[7, 28], [10, 27], [13, 28], [16, 27], [19, 28], [9, 29]].forEach(([x, y]) => g.fillRect(x, y, 2, 1));
   } else {
-    g.fillStyle(c.shorts); g.fillRect(5, 25, 16, 6);
-    g.fillStyle(c.shortsDark); g.fillRect(5, 25, 16, 1); g.fillRect(12, 28, 2, 3);
+    g.fillStyle(c.shorts); g.fillRect(5 + sl * 2, 25, 16 - sl * 4, 6);
+    g.fillStyle(c.shortsDark); g.fillRect(5 + sl * 2, 25, 16 - sl * 4, 1); g.fillRect(12, 28, 2, 3);
     if (o.drawstring) { g.fillStyle(0xffffff); g.fillRect(11, 26, 1, 3); g.fillRect(14, 26, 1, 3); }
     if (o.stripes) { g.fillStyle(o.stripes); for (let x = 6; x < 21; x += 3) g.fillRect(x, 26, 1, 5); }
     if (o.sideStripe) { g.fillStyle(o.sideStripe); g.fillRect(5, 26, 1, 5); g.fillRect(20, 26, 1, 5); }
   }
 
   // blusa / camisa / paletó
-  g.fillStyle(c.shirt); g.fillRoundedRect(4, 16, 18, 10, 3);
-  g.fillStyle(c.shirtDark); g.fillRect(4, 24, 18, 2);
+  g.fillStyle(c.shirt); g.fillRoundedRect(4 + sl * 2, 16, 18 - sl * 4, 10, 3);
+  g.fillStyle(c.shirtDark); g.fillRect(4 + sl * 2, 24, 18 - sl * 4, 2);
   if (o.shirtStripes) { g.fillStyle(o.shirtStripes); for (let x = 6; x < 21; x += 3) g.fillRect(x, 17, 1, 8); }
   if (o.pocket) { g.fillStyle(o.pocket); g.fillRect(8, 21, 10, 4); }
   if (o.vneck) {                                       // terno: camisa branca em V + gravata
@@ -878,10 +879,10 @@ function drawPlayer(g, o, pose = 'idle') {
   if (o.belt) { g.fillStyle(o.belt); g.fillRect(4, 24, 18, 2); g.fillStyle(0xfff3b0); g.fillRect(12, 24, 3, 2); }
 
   // braço da frente
-  g.fillStyle(upper); g.fillRect(19, 17 + P.arm, 5, 4);
-  g.fillStyle(lower); g.fillRect(19, 21 + P.arm, 5, 3);
-  if (o.trim) { g.fillStyle(o.trim); g.fillRect(19, 20 + P.arm, 5, 1); }       // barrinha na ponta da manga
-  g.fillStyle(c.skin); g.fillRect(20, 24 + P.arm, 4, 3);
+  g.fillStyle(upper); g.fillRect(19 - sl * 2, 17 + P.arm, 5 - sl, 4);
+  g.fillStyle(lower); g.fillRect(19 - sl * 2, 21 + P.arm, 5 - sl, 3);
+  if (o.trim) { g.fillStyle(o.trim); g.fillRect(19 - sl * 2, 20 + P.arm, 5 - sl, 1); }       // barrinha na ponta da manga
+  g.fillStyle(c.skin); g.fillRect(20 - sl * 2, 24 + P.arm, 4 - sl, 3);
 
   // cabeça
   g.fillStyle(c.skin); g.fillRoundedRect(5, 3, 18, 14, 4);
@@ -925,11 +926,14 @@ function drawPlayer(g, o, pose = 'idle') {
   } else if (hs === 'raspado') {                       // máquina zero/um
     g.fillStyle(c.hairDark); g.fillRoundedRect(5, 1, 18, 5, 3); g.fillRect(4, 4, 3, 6);
     g.fillStyle(c.hair); g.fillRect(8, 2, 10, 2);
-  } else if (hs === 'cacheado') {                      // volume de cachos
-    g.fillStyle(c.hair); g.fillRoundedRect(3, -3, 22, 10, 5); g.fillRect(3, 3, 5, 9);
-    [[6, -3], [11, -4], [16, -4], [21, -2], [4, 3], [24, 3]].forEach(([x, y]) => g.fillCircle(x, y + 1, 3));
-    g.fillStyle(c.hairDark); [[9, 1], [14, 0], [19, 1], [6, 6]].forEach(([x, y]) => g.fillRect(x, y, 2, 2));
-    g.fillStyle(c.hairLight); g.fillRect(10, -2, 3, 1); g.fillRect(17, -2, 3, 1);
+  } else if (hs === 'cacheado') {                      // cachinhos no topo, laterais baixas (degradê)
+    g.fillStyle(c.hairDark); g.fillRect(4, 4, 3, 6);                              // lateral/nuca baixa
+    g.fillStyle(c.hair);
+    g.fillRoundedRect(4, -2, 20, 8, 4);
+    g.fillRect(8, 3, 13, 3);                                                      // franjinha de cachos
+    [[6, -1], [10, -2], [14, -2], [18, -2], [22, 0], [12, 4], [17, 4], [21, 4]].forEach(([x, y]) => g.fillCircle(x, y + 1, 2.4));
+    g.fillStyle(c.hairDark); [[8, 1], [13, 0], [18, 1], [11, 4], [20, 3]].forEach(([x, y]) => g.fillRect(x, y, 2, 1));
+    g.fillStyle(c.hairLight); g.fillRect(9, -2, 2, 1); g.fillRect(15, -2, 2, 1); g.fillRect(20, -1, 2, 1);
   } else if (hs === 'longo') {                         // cabelo comprido caindo atrás
     g.fillStyle(c.hair);
     g.fillRoundedRect(4, -1, 19, 8, 4); g.fillRect(8, 3, 14, 3);
