@@ -27,7 +27,7 @@ Pra jogar no celular, hospede a pasta (qualquer servidor estático / GitHub Page
 No menu, escolha **ROUPA** (ou aperte **C**, ou toque no Brunucho) para abrir o **guarda-roupa** com 10 looks:
 **Praia**, **Diesel**, **Cueca** (só de cueca e meia), **Terno** (com gravata), **Palmeiras** (camisa, calção e meiões verdes, chuteira),
 **Seleção**, **Pijama** (com gorro), **Herói** (capa e máscara), **Academia** e **Capivara** (capuz). As roupas ficam em `OUTFITS`,
-no `src/config.js`, e o desenho em `drawPlayer`, no `src/textures.js`. Vestir todas dá a conquista *Closet Infinito*.
+no `src/config.js`, e o desenho em `drawPlayer`, no `src/textures.js`. Vestir todas dá a conquista *Closet Completo*.
 
 ### Menu
 
