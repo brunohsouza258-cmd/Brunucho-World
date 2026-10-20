@@ -865,6 +865,12 @@ function drawPlayer(g, o, pose = 'idle') {
     g.fillStyle(o.vneck.tie); g.fillRect(14, 17, 3, 2); g.fillTriangle(14, 19, 17, 19, 15.5, 25);
     g.fillStyle(c.shirtDark); g.fillRect(11, 16, 1, 6); g.fillRect(19, 16, 1, 5);
   }
+  if (o.hoodie) {                                      // moletom: capuz caído no pescoço, cordões, zíper e estampa no peito
+    g.fillStyle(c.shirtDark); g.fillRoundedRect(7 + sl, 15, 14 - sl * 2, 4, 2);
+    g.fillRect(13, 18, 1, 8);
+    g.fillStyle(o.hoodie.cord); g.fillRect(11, 18, 1, 5); g.fillRect(16, 18, 1, 5);
+    g.fillStyle(o.hoodie.print); g.fillRect(7 + sl, 20, 4, 2); g.fillRect(16, 20, 4, 2);
+  }
   if (o.collar) { g.fillStyle(o.collar); g.fillRect(11, 16, 8, 2); g.fillRect(12, 18, 6, 1); g.fillRect(13, 19, 4, 1); }
   if (o.chestBadge) {
     g.fillStyle(0xd62828); g.fillRect(14, 19, 5, 3);
@@ -904,6 +910,11 @@ function drawPlayer(g, o, pose = 'idle') {
   if (o.beard) {
     g.fillStyle(o.beard, o.beardAlpha || 1); g.fillRoundedRect(8, 12, 15, 5, 2);
     g.fillStyle(0xb5634a); g.fillRect(17, 14, 4, 1);
+  }
+
+  if (o.smile) {                                       // sorrisão com dentes
+    g.fillStyle(0xfafafa); g.fillRect(16, 14, 6, 2);
+    g.fillStyle(0x7a3a30); g.fillRect(16, 13, 6, 1); g.fillRect(17, 16, 4, 1);
   }
 
   // cabelo
