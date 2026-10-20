@@ -244,7 +244,145 @@ function generateStateScenery(scene) {
     }
     for (let x = 30; x < 960; x += 200) palm(ctx, x, 272, 110);
   });
+  generateStateExtras(scene);
 }
+
+// ---------------- Extras dos estados: fundo dos buracos, silhuetas, neblina e enfeites típicos ----------------
+function generateStateExtras(scene) {
+  const make = (key, w, h, draw) => { const t = scene.textures.createCanvas(key, w, h); draw(t.getContext(), w, h); t.refresh(); };
+  const R = (ctx, c, x, y, w, h) => { ctx.fillStyle = c; ctx.fillRect(x, y, w, h); };
+  const circ = (ctx, c, x, y, r) => { ctx.fillStyle = c; ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill(); };
+  const ell = (ctx, c, x, y, rx, ry) => { ctx.fillStyle = c; ctx.beginPath(); ctx.ellipse(x, y, rx, ry, 0, 0, Math.PI * 2); ctx.fill(); };
+  const tri = (ctx, c, a, b, d) => { ctx.fillStyle = c; ctx.beginPath(); ctx.moveTo(...a); ctx.lineTo(...b); ctx.lineTo(...d); ctx.closePath(); ctx.fill(); };
+  const WHITE = '#ffffff';
+
+  // ---- o que aparece embaixo dos buracos ----
+  make('pit_water', 480, 80, (ctx) => {
+    const gr = ctx.createLinearGradient(0, 0, 0, 80); gr.addColorStop(0, '#3fa7d6'); gr.addColorStop(1, '#0f4a6a');
+    ctx.fillStyle = gr; ctx.fillRect(0, 6, 480, 74);
+    for (let x = 0; x < 480; x += 40) ell(ctx, WHITE, x + 20, 6, 22, 5);
+    for (let x = 0; x < 480; x += 60) { R(ctx, 'rgba(255,255,255,0.3)', x + 10, 24, 22, 2); R(ctx, 'rgba(255,255,255,0.22)', x + 36, 44, 16, 2); }
+  });
+  make('pit_river', 480, 80, (ctx) => {
+    const gr = ctx.createLinearGradient(0, 0, 0, 80); gr.addColorStop(0, '#7a8a4a'); gr.addColorStop(0.3, '#4a5a32'); gr.addColorStop(1, '#1a2a1a');
+    ctx.fillStyle = gr; ctx.fillRect(0, 4, 480, 76);
+    R(ctx, 'rgba(255,255,255,0.25)', 0, 4, 480, 2);
+    for (let x = 20; x < 480; x += 80) {
+      ell(ctx, '#3f8a3a', x, 12, 15, 4); ell(ctx, '#5cb85c', x - 2, 11, 10, 2);
+      if (x % 160 === 20) { circ(ctx, '#ff8ab3', x + 4, 8, 3); circ(ctx, '#ffffff', x + 4, 8, 1); }
+    }
+  });
+  make('pit_chasm', 480, 100, (ctx) => {   // cinza claro: o tema pinta com o tint
+    const gr = ctx.createLinearGradient(0, 0, 0, 100); gr.addColorStop(0, '#d8d8d8'); gr.addColorStop(0.35, '#8a8a8a'); gr.addColorStop(1, '#2a2a2a');
+    ctx.fillStyle = gr; ctx.fillRect(0, 0, 480, 100);
+    ctx.strokeStyle = 'rgba(0,0,0,0.35)'; ctx.lineWidth = 2;
+    [22, 46, 70].forEach((y, i) => { ctx.beginPath(); for (let x = 0; x <= 480; x += 20) ctx.lineTo(x, y + ((x / 20 + i) % 2 ? 4 : -4)); ctx.stroke(); });
+    ctx.strokeStyle = 'rgba(0,0,0,0.3)'; for (let x = 30; x < 480; x += 90) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x - 6, 40); ctx.lineTo(x + 4, 90); ctx.stroke(); }
+  });
+
+  // ---- silhuetas (desenhadas em branco; o tema pinta com o tint) ----
+  const tree = (ctx, x, base, h, r) => { R(ctx, WHITE, x - 2, base - h, 4, h); circ(ctx, WHITE, x, base - h, r); circ(ctx, WHITE, x - r * 0.6, base - h + r * 0.5, r * 0.7); circ(ctx, WHITE, x + r * 0.6, base - h + r * 0.5, r * 0.7); };
+  const fan = (ctx, x, y, len) => { [[-1, 0.2], [-0.7, -0.5], [0, -0.8], [0.7, -0.5], [1, 0.2]].forEach(([dx, dy]) => tri(ctx, WHITE, [x, y], [x + dx * len, y + dy * len], [x + dx * len * 0.5, y + dy * len * 0.5 + 8])); };
+  const palmSil = (ctx, x, base, h) => { ctx.strokeStyle = WHITE; ctx.lineWidth = 4; ctx.beginPath(); ctx.moveTo(x, base); ctx.quadraticCurveTo(x + 8, base - h / 2, x + 3, base - h); ctx.stroke(); fan(ctx, x + 3, base - h, 28); };
+  make('sil_mata', 960, 90, (ctx) => { for (let x = 10; x < 940; x += 46) tree(ctx, x, 90, 38 + ((x * 13) % 38), 15 + ((x * 7) % 9)); R(ctx, WHITE, 0, 80, 960, 10); });
+  make('sil_dunas', 960, 90, (ctx) => {
+    ctx.fillStyle = WHITE; ctx.beginPath(); ctx.moveTo(0, 90);
+    for (let x = 0; x <= 960; x += 8) ctx.lineTo(x, 60 + 14 * Math.sin((x / 960) * Math.PI * 6) + 6 * Math.sin((x / 960) * Math.PI * 14));
+    ctx.lineTo(960, 90); ctx.closePath(); ctx.fill();
+    [140, 520, 820].forEach((x) => palmSil(ctx, x, 70, 44));
+  });
+  make('sil_cerrado', 960, 90, (ctx) => {
+    ctx.fillStyle = WHITE; ctx.beginPath(); ctx.moveTo(0, 90);
+    for (let x = 0; x <= 960; x += 8) ctx.lineTo(x, 74 + 6 * Math.sin((x / 960) * Math.PI * 10));
+    ctx.lineTo(960, 90); ctx.closePath(); ctx.fill();
+    [120, 400, 700, 880].forEach((x) => { R(ctx, WHITE, x - 2, 30, 4, 50); fan(ctx, x, 30, 26); });
+    [260, 560].forEach((x) => { tri(ctx, WHITE, [x - 14, 80], [x, 52], [x + 14, 80]); });
+    for (let x = 40; x < 960; x += 90) { circ(ctx, WHITE, x, 74, 10); circ(ctx, WHITE, x + 12, 76, 7); }
+  });
+  make('sil_sul', 960, 90, (ctx) => {
+    for (let x = 30; x < 960; x += 110) {
+      const h = 52 + ((x * 11) % 22);
+      R(ctx, WHITE, x - 2, 90 - h, 4, h);
+      [0, 1, 2].forEach((i) => ell(ctx, WHITE, x, 90 - h + i * 8, 24 - i * 5, 5));
+    }
+    for (let x = 80; x < 960; x += 110) { tri(ctx, WHITE, [x - 14, 90], [x, 50], [x + 14, 90]); }
+    R(ctx, WHITE, 0, 82, 960, 8);
+  });
+  make('sil_coqueiros', 960, 90, (ctx) => { for (let x = 60; x < 940; x += 120) palmSil(ctx, x, 90, 52 + ((x * 3) % 22)); R(ctx, WHITE, 0, 84, 960, 6); });
+  make('sil_serra', 960, 90, (ctx) => {
+    ctx.fillStyle = WHITE; ctx.beginPath(); ctx.moveTo(0, 90);
+    for (let x = 0; x <= 960; x += 12) ctx.lineTo(x, 50 + 22 * Math.abs(Math.sin((x / 960) * Math.PI * 7)) + 8 * Math.sin((x / 960) * Math.PI * 19));
+    ctx.lineTo(960, 90); ctx.closePath(); ctx.fill();
+  });
+
+  // ---- neblina ----
+  make('fog', 480, 240, (ctx) => {
+    const blob = (x, y, r) => {
+      [x, x - 480, x + 480].forEach((cx) => {
+        const gr = ctx.createRadialGradient(cx, y, 0, cx, y, r); gr.addColorStop(0, 'rgba(255,255,255,0.55)'); gr.addColorStop(1, 'rgba(255,255,255,0)');
+        ctx.fillStyle = gr; ctx.fillRect(cx - r, y - r, r * 2, r * 2);
+      });
+    };
+    [[60, 120, 90], [200, 90, 110], [340, 140, 100], [440, 100, 70], [120, 190, 80], [300, 40, 70]].forEach((b) => blob(...b));
+  });
+
+  // ---- enfeites típicos de cada região ----
+  make('dec_samambaia', 40, 34, (ctx) => {
+    [[-16, -22], [-9, -30], [0, -33], [9, -30], [16, -22]].forEach(([dx, dy]) => {
+      ctx.strokeStyle = '#2e8b3e'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(20, 34); ctx.quadraticCurveTo(20 + dx * 0.4, 34 + dy * 0.9, 20 + dx, 34 + dy); ctx.stroke();
+      for (let t = 0.3; t < 1; t += 0.2) { const px = 20 + dx * t, py = 34 + dy * t; R(ctx, '#4caf50', px - 3, py, 6, 2); }
+    });
+  });
+  make('dec_acai', 36, 30, (ctx) => {
+    ell(ctx, '#8a5a2b', 18, 24, 15, 6); R(ctx, '#8a5a2b', 3, 12, 30, 12); ell(ctx, '#a87a45', 18, 12, 15, 4);
+    [[8, 9], [14, 6], [21, 6], [27, 9], [11, 11], [24, 11], [18, 8]].forEach(([x, y]) => circ(ctx, '#4a1a5a', x, y, 4));
+    circ(ctx, '#7a3a8a', 14, 5, 1.5); circ(ctx, '#7a3a8a', 22, 5, 1.5);
+  });
+  make('dec_hortensia', 34, 26, (ctx) => {
+    R(ctx, '#2e7d32', 15, 14, 3, 12); ell(ctx, '#3f9a46', 8, 20, 8, 4); ell(ctx, '#3f9a46', 26, 20, 8, 4);
+    [[9, 9], [17, 5], [25, 9], [13, 12], [21, 12]].forEach(([x, y], i) => circ(ctx, i % 2 ? '#e8a0d0' : '#7a9ae8', x, y, 6));
+  });
+  make('dec_cuia', 26, 28, (ctx) => {
+    ell(ctx, '#3a2414', 12, 20, 11, 8); R(ctx, '#3a2414', 3, 10, 18, 10); ell(ctx, '#5a3a22', 12, 10, 9, 3);
+    ell(ctx, '#4a7a2a', 12, 10, 7, 2); R(ctx, '#d9d9e0', 17, 0, 2, 18); circ(ctx, '#d9d9e0', 18, 1, 2);
+  });
+  make('dec_buriti', 60, 110, (ctx) => {
+    R(ctx, '#7a5a3a', 28, 34, 5, 76); [40, 52, 64, 76, 88].forEach((y) => R(ctx, '#5e4228', 28, y, 5, 2));
+    [[-1, 0.15], [-0.8, -0.45], [-0.35, -0.8], [0.35, -0.8], [0.8, -0.45], [1, 0.15]].forEach(([dx, dy]) => {
+      ctx.strokeStyle = '#2e7d3a'; ctx.lineWidth = 4; ctx.beginPath(); ctx.moveTo(30, 34); ctx.quadraticCurveTo(30 + dx * 14, 34 + dy * 18 - 6, 30 + dx * 28, 34 + dy * 28); ctx.stroke();
+    });
+    circ(ctx, '#a0522d', 26, 38, 3); circ(ctx, '#a0522d', 34, 40, 3);
+  });
+  make('dec_tuiuiu', 34, 56, (ctx) => {
+    R(ctx, '#1b1b1b', 14, 34, 2, 22); R(ctx, '#1b1b1b', 20, 34, 2, 22);
+    ell(ctx, WHITE, 18, 30, 12, 8); tri(ctx, WHITE, [28, 28], [34, 34], [26, 34]);
+    R(ctx, WHITE, 6, 12, 5, 20); circ(ctx, '#1b1b1b', 8, 10, 6); R(ctx, '#d62828', 5, 20, 7, 4);
+    R(ctx, '#1b1b1b', 0, 10, 4, 2); R(ctx, '#2a2a2a', -2, 9, 10, 2);
+  });
+  make('dec_capim', 30, 22, (ctx) => {
+    for (let i = 0; i < 9; i++) { const x = 3 + i * 3; ctx.strokeStyle = i % 2 ? '#c8a43a' : '#e8c85a'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(x, 22); ctx.lineTo(x + (i - 4) * 1.5, 4 + (i % 3) * 3); ctx.stroke(); }
+  });
+  make('dec_bandeirinha', 100, 46, (ctx) => {
+    R(ctx, '#5e3e22', 2, 4, 4, 42); R(ctx, '#5e3e22', 94, 4, 4, 42);
+    ctx.strokeStyle = '#3a2418'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(4, 6); ctx.quadraticCurveTo(50, 22, 96, 6); ctx.stroke();
+    ['#e53935', '#ffd23f', '#2b6cd4', '#2e9d4a', '#ff8ab3', '#f08a3c', '#e53935', '#ffd23f'].forEach((c, i) => {
+      const x = 12 + i * 10, y = 6 + Math.sin(((x - 4) / 92) * Math.PI) * 13; tri(ctx, c, [x - 4, y], [x + 4, y], [x, y + 11]);
+    });
+  });
+  make('dec_fogueira', 30, 30, (ctx) => {
+    R(ctx, '#5e3e22', 3, 24, 24, 5); R(ctx, '#7a5230', 6, 21, 18, 4);
+    tri(ctx, '#e53935', [6, 22], [15, 2], [24, 22]); tri(ctx, '#ff9a1f', [10, 22], [15, 8], [20, 22]); tri(ctx, '#ffe066', [13, 22], [15, 14], [17, 22]);
+  });
+  make('dec_jangada', 60, 58, (ctx) => {
+    R(ctx, '#8a5a2b', 4, 50, 52, 6); R(ctx, '#a87a45', 4, 50, 52, 2); [10, 20, 30, 40, 50].forEach((x) => R(ctx, '#6b4423', x, 50, 1, 6));
+    R(ctx, '#5e3e22', 29, 4, 3, 48); tri(ctx, WHITE, [32, 6], [32, 46], [56, 42]); tri(ctx, '#e8e8f0', [29, 14], [29, 46], [10, 42]);
+  });
+  make('dec_cafe', 34, 36, (ctx) => {
+    R(ctx, '#6b4a2a', 16, 18, 3, 18); ell(ctx, '#2e7d32', 17, 14, 15, 11); ell(ctx, '#3f9a46', 12, 10, 8, 5);
+    [[8, 14], [14, 18], [22, 12], [26, 17], [18, 8]].forEach(([x, y]) => circ(ctx, '#c62828', x, y, 2.5));
+  });
+}
+
 
 // ---------------- Temas das fases dos estados ----------------
 // region: usada nas conquistas por região. decor: conjunto de enfeites (DECOR_SETS em config.js).
@@ -275,13 +413,60 @@ const STATE_THEMES = {
 };
 
 // Monta as camadas do fundo de cada estado e junta tudo nos temas do jogo
+// [fundo do buraco, cor do abismo, silhueta, cor da silhueta, bloco, clima, enfeites]
+const STATE_EXTRA = {
+  es: ['water', 0, 'coqueiros', 0x1f5a3a, 'tijolo', null, ['palm', 'dec_cafe', 'dec_flor', 'dec_pedrinha']],
+  mg: ['chasm', 0x6a5a4a, 'serra', 0x3f5a46, 'tijolo', 'neblina', ['dec_cafe', 'dec_flor', 'dec_arbusto', 'dec_pedrinha']],
+  pr: ['chasm', 0x3a4a3a, 'sul', 0x1f4a2a, 'madeira', 'neblina', ['dec_araucaria', 'dec_hortensia', 'dec_arbusto', 'dec_pedrinha']],
+  sc: ['water', 0, 'serra', 0x2f5a3a, 'tijolo', null, ['dec_hortensia', 'dec_jangada', 'dec_arbusto', 'dec_concha']],
+  rs: ['chasm', 0x4a5a3a, 'sul', 0x2a5a2a, 'tijolo', 'poeira', ['dec_cuia', 'dec_hortensia', 'dec_arbusto', 'dec_capim']],
+  ms: ['river', 0, 'cerrado', 0x4a6a2a, 'madeira', 'vagalumes', ['dec_tuiuiu', 'dec_capim', 'dec_arbusto', 'dec_arvore']],
+  mt: ['chasm', 0x8a4a2a, 'cerrado', 0x6a4a2a, 'arenito', 'poeira', ['dec_buriti', 'dec_capim', 'dec_pedrinha', 'dec_ipe']],
+  go: ['chasm', 0x8a5a3a, 'cerrado', 0x5a6a2a, 'arenito', 'poeira', ['dec_buriti', 'dec_capim', 'dec_ipe', 'dec_pedrinha']],
+  ro: ['river', 0, 'mata', 0x1a4a2a, 'madeira', 'folhas', ['dec_samambaia', 'dec_acai', 'dec_arvore', 'dec_flor']],
+  ac: ['river', 0, 'mata', 0x1a4a2a, 'madeira', 'chuva', ['dec_samambaia', 'dec_acai', 'dec_arvore', 'dec_flor']],
+  am: ['river', 0, 'mata', 0x164a28, 'madeira', 'chuva', ['dec_samambaia', 'dec_acai', 'dec_arvore', 'dec_samambaia']],
+  rr: ['chasm', 0x5a4a4a, 'serra', 0x4a4a5a, 'arenito', 'neblina', ['dec_capim', 'dec_pedrinha', 'dec_buriti', 'dec_arbusto']],
+  ap: ['river', 0, 'mata', 0x1f5a3a, 'madeira', null, ['dec_samambaia', 'dec_acai', 'dec_flor', 'dec_arbusto']],
+  pa: ['river', 0, 'mata', 0x1a4a2a, 'madeira', 'chuva', ['dec_samambaia', 'dec_acai', 'dec_arvore', 'dec_flor']],
+  to: ['chasm', 0x9a5a2a, 'dunas', 0xb87a3a, 'arenito', 'poeira', ['dec_capim', 'dec_buriti', 'dec_mandacaru', 'dec_pedrinha']],
+  ma: ['lagoa', 0, 'dunas', 0xe8dcc0, 'arenito', 'poeira', ['dec_buriti', 'dec_concha', 'dec_capim', 'dec_jangada']],
+  pi: ['chasm', 0x8a4a2a, 'serra', 0x8a4a2a, 'arenito', 'poeira', ['dec_mandacaru', 'dec_pedrinha', 'dec_capim', 'dec_bandeirinha']],
+  ce: ['water', 0, 'coqueiros', 0x1f6a4a, 'madeira', null, ['palm', 'dec_jangada', 'dec_concha', 'dec_guardasol']],
+  rn: ['water', 0, 'dunas', 0xc89a5a, 'arenito', 'poeira', ['dec_mandacaru', 'dec_jangada', 'dec_concha', 'dec_pedrinha']],
+  pb: ['water', 0, 'coqueiros', 0x1f6a4a, 'madeira', null, ['palm', 'dec_bandeirinha', 'dec_concha', 'dec_jangada']],
+  pe: ['chasm', 0x5a4a3a, 'serra', 0x3a5a46, 'tijolo', null, ['dec_bandeirinha', 'dec_fogueira', 'dec_flor', 'dec_arbusto']],
+  al: ['water', 0, 'coqueiros', 0x1f6a4a, 'madeira', null, ['palm', 'dec_jangada', 'dec_bandeirinha', 'dec_concha']],
+  se: ['water', 0, 'coqueiros', 0x1f6a4a, 'madeira', null, ['palm', 'dec_fogueira', 'dec_jangada', 'dec_guardasol']],
+};
+const PIT_DEFS = {
+  water: { key: 'pit_water', y: 466, wave: true },
+  lagoa: { key: 'pit_water', y: 466, wave: true, tint: 0x9ff0e0 },
+  river: { key: 'pit_river', y: 462, wave: true },
+  chasm: { key: 'pit_chasm', y: GROUND_Y },
+};
+const DUST_COLORS = { rs: 0xc8d8a0, mt: 0xd08a5a, go: 0xc89a6a, to: 0xe0b070, ma: 0xffffff, pi: 0xd09a6a, rn: 0xf2d79a };
+
 for (const [key, t] of Object.entries(STATE_THEMES)) {
+  const [pit, pitTint, sil, silTint, block, ambient, decor] = STATE_EXTRA[key];
   t.layers = [
     { key: 'hills', y: HEIGHT - 290, factor: 0.1, tint: t.hill, scaleY: 0.7 },
     { key: t.bg, y: HEIGHT - 375, factor: 0.25 },
   ];
+  t.pit = { ...PIT_DEFS[pit], ...(pitTint ? { tint: pitTint } : {}) };
+  t.sil = { key: 'sil_' + sil, tint: silTint, alpha: 0.85 };
+  t.block = block;
+  t.ambient = ambient === 'chuva' ? null : ambient;
+  t.rain = ambient === 'chuva';
+  t.dust = DUST_COLORS[key];
+  DECOR_SETS[key] = decor;
+  t.decor = key;
   THEMES[key] = t;
 }
+
+// As fases antigas também ganham fundo nos buracos (antes aparecia uma faixa vazia embaixo)
+const OLD_PITS = { dia: 0x6a4a2a, entardecer: 0x5a3a4a, noite: 0x1a2040, escola: 0x55585f, sp: 0x55585f, brasilia: 0x55585f, bahia: 0x6a5a4a };
+for (const [k, tint] of Object.entries(OLD_PITS)) THEMES[k].pit = { key: 'pit_chasm', y: GROUND_Y, tint };
 
 // UFs que já tinham fase (pelo tema) — para as conquistas por região
 const OLD_THEME_UF = { sp: ['SP', 'sudeste'], rio: ['RJ', 'sudeste'], bahia: ['BA', 'nordeste'], brasilia: ['DF', 'centro_oeste'] };

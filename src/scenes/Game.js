@@ -11,7 +11,7 @@ function parseLevel(rows, theme = {}) {
     for (let x = 0; x < width; x++) {
       const ch = grid[y][x];
       if (ch === '#') row.push(y > 0 && grid[y - 1][x] === '#' ? fillTile : topTile);
-      else if (ch === '=') row.push(TILES.BRICK);
+      else if (ch === '=') row.push(BLOCKS[theme.block] !== undefined ? BLOCKS[theme.block] : TILES.BRICK);
       else if (ch === 'R') row.push(TILES.ROCK);
       else if (ch === '-') row.push(TILES.ONEWAY);
       else {
@@ -41,6 +41,7 @@ class GameScene extends Phaser.Scene {
     this.glideTime = 0;
     this.boss = null;
     this.bossSpawn = null;
+    this.fog = null;
     this.levelDeaths = 0;
     this.totalText = null;
     this.combo = 0;       // inimigos seguidos sem tocar o chão
@@ -70,7 +71,7 @@ class GameScene extends Phaser.Scene {
     this.mapW = level.width * TILE;
     this.mapH = level.height * TILE;
 
-    this.backdrop = createBackdrop(this, theme);
+    this.backdrop = createBackdrop(this, theme, true);
     this.themeKey = def.theme;
     this.levelSong = theme.music || (SONGS[def.theme] ? def.theme : 'dia');
     Music.play(this.levelSong);
@@ -97,6 +98,7 @@ class GameScene extends Phaser.Scene {
     this.shots = this.physics.add.group({ allowGravity: false }); // bolas do Galvão
     this.movers = this.physics.add.group({ allowGravity: false, immovable: true }); // plataformas que se movem
     this.springs = this.physics.add.staticGroup(); // trampolins
+    this.crumbles = this.physics.add.staticGroup(); // plataformas que caem
     this.spawn = { x: 2 * TILE, y: 13 * TILE };
 
     for (const o of level.objects) {
@@ -112,6 +114,11 @@ class GameScene extends Phaser.Scene {
           m.body.setAllowGravity(false).setImmovable(true).setSize(96, 12).setOffset(0, 2);
           m.startX = cx; m.range = 2.5 * TILE; m.speed = 70;
           m.setVelocityX(m.speed);
+          break;
+        }
+        case 'X': { // plataforma que cai (some meio segundo depois que você pisa)
+          const c = this.crumbles.create(cx, cy, 'crumble');
+          c.homeX = cx; c.homeY = cy; c.state = 'idle';
           break;
         }
         case 'Z': // trampolim
@@ -242,6 +249,8 @@ class GameScene extends Phaser.Scene {
     this.physics.add.collider(this.player, this.movers, null,
       (pl, m) => pl.body.velocity.y >= 0 && pl.body.bottom <= m.body.top + 10, this);
     this.physics.add.overlap(this.player, this.springs, this.bounceSpring, null, this);
+    this.physics.add.collider(this.player, this.crumbles, this.stepCrumble,
+      (pl, c) => c.state !== 'gone' && pl.body.velocity.y >= 0 && pl.body.bottom <= c.body.top + 10, this);
     this.physics.add.overlap(this.player, this.enemies, this.hitEnemy, null, this);
     this.physics.add.overlap(this.player, this.shots, (pl, shot) => {
       if (this.powerTime > 0) { shot.destroy(); return; }
@@ -279,6 +288,9 @@ class GameScene extends Phaser.Scene {
       }).setScrollFactor(0).setDepth(50);
     }
 
+    this.addAmbient(theme);
+    this.addWelcomeSign(def, theme);
+
     // --- Câmera ---
     const cam = this.cameras.main;
     cam.setBounds(0, 0, this.mapW, this.mapH);
@@ -305,6 +317,50 @@ class GameScene extends Phaser.Scene {
       cam.setZoom(WIDTH / this.mapW);
       cam.centerOn(this.mapW / 2, this.mapH / 2);
     }
+  }
+
+  // ---------------------------------------------------------------- Clima e placa de boas-vindas
+
+  // theme.ambient: 'neblina', 'poeira', 'folhas' ou 'vagalumes' (a chuva é o theme.rain)
+  addAmbient(theme) {
+    const a = theme.ambient;
+    if (!a) return;
+    const fix = (e) => e.setScrollFactor(0).setDepth(45);
+    if (a === 'neblina') {
+      this.fog = [0, 1].map((i) => this.add.tileSprite(0, 200 + i * 70, WIDTH, 240, 'fog').setOrigin(0)
+        .setScrollFactor(0).setDepth(30).setAlpha(0.5 - i * 0.18));
+    } else if (a === 'poeira') {
+      fix(this.add.particles(-10, 0, 'px', {
+        y: { min: 240, max: 520 }, speedX: { min: 150, max: 260 }, speedY: { min: -12, max: 12 }, lifespan: 4800,
+        scale: { start: 1.4, end: 0.6 }, alpha: { start: 0.55, end: 0 }, tint: theme.dust || 0xe0c090, frequency: 70,
+      }));
+    } else if (a === 'folhas') {
+      fix(this.add.particles(0, -10, 'px', {
+        x: { min: 0, max: WIDTH + 60 }, speedY: { min: 30, max: 75 }, speedX: { min: -45, max: 20 }, lifespan: 7000,
+        rotate: { min: 0, max: 360 }, scale: { start: 1.4, end: 1 }, tint: [0x4caf50, 0x8bc34a, 0xc0a030, 0x2e7d32], frequency: 380,
+      }));
+    } else if (a === 'vagalumes') {
+      fix(this.add.particles(0, 0, 'px', {
+        x: { min: 0, max: WIDTH }, y: { min: 220, max: 440 }, speed: { min: 6, max: 22 }, lifespan: 3200,
+        scale: { start: 1.6, end: 0.8 }, alpha: { start: 1, end: 0 }, tint: [0xeaff7a, 0xfff3a0], frequency: 260,
+        blendMode: Phaser.BlendModes.ADD,
+      }));
+    }
+  }
+
+  // Placa de madeira "BEM-VINDO" logo depois do começo das fases dos estados e das cidades
+  addWelcomeSign(def, theme) {
+    if (!(theme.uf || ['sp', 'rio', 'bahia'].includes(def.theme))) return;
+    const x = this.spawn.x + 4 * TILE, y = this.spawn.y;
+    const g = this.add.graphics().setDepth(-1.5);
+    g.fillStyle(0x4a2e14); g.fillRect(x - 38, y - 64, 6, 64); g.fillRect(x + 32, y - 64, 6, 64);
+    g.fillStyle(0x3b2410); g.fillRoundedRect(x - 60, y - 100, 120, 50, 7);
+    g.fillStyle(0x8a5a2b); g.fillRoundedRect(x - 58, y - 98, 116, 46, 6);
+    g.lineStyle(2, 0xffd23f); g.strokeRoundedRect(x - 55, y - 95, 110, 40, 5);
+    this.add.text(x, y - 88, 'BEM-VINDO', { ...textStyle(10, '#ffe9a0'), strokeThickness: 2 }).setOrigin(0.5).setDepth(-1.4);
+    this.add.text(x, y - 71, def.name.replace(': Chefão Final', ''),
+      { ...textStyle(def.name.length > 12 ? 12 : 15, '#ffffff'), align: 'center', wordWrap: { width: 104 }, strokeThickness: 3 })
+      .setOrigin(0.5).setDepth(-1.4);
   }
 
   // ---------------------------------------------------------------- Decoração automática
@@ -441,6 +497,7 @@ class GameScene extends Phaser.Scene {
   update(time, delta) {
     const dt = Math.min(delta, 50) / 1000;
     this.backdrop.update(this.cameras.main.scrollX, time);
+    if (this.fog) this.fog.forEach((f, i) => { f.tilePositionX = time * 0.012 * (i + 1) + this.cameras.main.scrollX * (0.35 + i * 0.25); });
     this.updateEnemies(Math.min(delta, 50) / 1000);
     const pb = this.player.body;
     this.movers.children.iterate((m) => {
@@ -968,6 +1025,27 @@ class GameScene extends Phaser.Scene {
     this.cameras.main.flash(300, 255, 255, 220);
     Sfx.aura();
     Achievements.unlock('anjo');
+  }
+
+  // Plataforma que cai: treme por meio segundo, some, e volta depois de uns 3 segundos
+  stepCrumble(player, c) {
+    if (c.state !== 'idle') return;
+    c.state = 'shaking';
+    this.tweens.add({ targets: c, x: c.homeX + 2, duration: 40, yoyo: true, repeat: 5 });
+    Sfx.tone(140, 0.2, { type: 'triangle', vol: 0.06 });
+    this.time.delayedCall(450, () => {
+      if (!c.active) return;
+      c.state = 'gone';
+      c.disableBody(false, false);
+      this.fxDust.explode(10, c.x, c.y);
+      this.tweens.add({ targets: c, y: c.homeY + 70, alpha: 0, duration: 350 });
+      this.time.delayedCall(2800, () => {
+        if (!c.active) return;
+        c.setAlpha(1).setPosition(c.homeX, c.homeY);
+        c.enableBody(true, c.homeX, c.homeY, true, true);
+        c.state = 'idle';
+      });
+    });
   }
 
   gainLife(x, y, label = '+1 VIDA!') {

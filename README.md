@@ -30,7 +30,8 @@ No menu, aperte **C** (ou toque no Brunucho) para trocar de roupa: **Praia** (bl
 
 ### Vidas e progresso
 
-- Você começa com vidas de acordo com a dificuldade: **Fácil 7 · Normal 5 · Difícil 3** (no Difícil os inimigos também são mais rápidos).
+- Você começa com vidas de acordo com a dificuldade: **Fácil 6 · Normal 4 · Difícil 3**. Os inimigos ficam mais rápidos
+  (×0,9 · ×1,1 · ×1,5) e o chefão aguenta **3 · 4 · 5** pisões.
 - Ganha **+1 vida** comendo uma **coxinha** ou juntando **100 moedas**.
 - Acabou as vidas: **GAME OVER, a Andreia te achou...** Dá pra tentar a fase de novo.
 - As fases vão sendo **liberadas** conforme você passa (ou libere todas nas Opções). Cada fase tem **3 estrelas**:
@@ -68,8 +69,12 @@ Cada estado tem seu cartão-postal no fundo, chão e enfeites da região e músi
 | Nordeste | 21 Maranhão (Lençóis) · 22 Piauí (Pedra Furada) · 23 Ceará · 24 Rio Grande do Norte · 25 Paraíba · 26 Pernambuco (Olinda) · 27 Alagoas · 28 Sergipe · 29 Bahia | forró |
 | Final | 30 Praia do Brunucho · 31 Pico Final · 32 **Brasília: Chefão Final** | |
 
-As fases dos estados foram montadas por um gerador com pedaços testados, e um verificador conferiu que dá pra
-chegar do começo ao checkpoint e à bandeira em todas. Os fundos dos estados ficam em `src/estados.js`.
+As fases dos estados foram montadas por um gerador (`tools/gerar_fases.py`) e a dificuldade **sobe a cada estado**:
+de ~165 até ~210 blocos de comprimento, buracos de até **5 blocos** (que exigem corrida de impulso), sequências de
+espinhos, plataformas que caem, pombos sobre buracos, bombardeiros e mais inimigos. Um verificador confere que dá pra
+chegar do começo ao checkpoint e à bandeira em todas, e o gerador **nunca coloca inimigo nem espinho solto** nas 8
+casas antes de um buraco grande nem nas 3 depois (a corrida e o pouso ficam livres). Os fundos ficam em `src/estados.js`.
+Rode `python tools/gerar_fases.py --check` depois de editar o `levels.js` para conferir se todas as fases têm caminho.
 
 Conquistas por região: *Sudeste Completo*, *Bah, Tchê!*, *Pantaneiro*, *Desbravador da Amazônia*, *Arretado!*
 e **Turista Nacional** (todos os 26 estados + DF).
@@ -125,6 +130,11 @@ Ficam em `MEMES`, no `config.js` (no mapa são letras minúsculas: `b p c l r`).
 - **Plataformas que se movem** (por cima do mar no Rio e na Praia, e no abismo do Pico Final): suba e ela te leva.
 - **Trampolim**: joga o Brunucho lá no alto.
 - **Pombo** 🐦: voa em zigue-zague pelas cidades. Pise nele também!
+- **Plataforma que cai** (rachada): treme por meio segundo depois que você pisa, some, e volta uns 3 segundos depois.
+- **Fundo dos buracos**: água nas praias, rio com vitórias-régias na Amazônia e abismo no cerrado e no sertão.
+- **Blocos de cada região**: tijolo vermelho no Sudeste e Sul, madeira no Norte e litoral, arenito no sertão e cerrado.
+- **Clima**: chuva na Amazônia e no Pará, neblina em Minas, Paraná e Roraima, poeira no cerrado e sertão, folhas em
+  Rondônia e vagalumes no Pantanal. Cada estado tem uma **placa "BEM-VINDO"** no começo e silhuetas de profundidade.
 - **Decoração automática**: cada cenário ganha enfeites no chão (flores, árvores, guarda-sóis, castelos de areia,
   barraca de acarajé, ipês, hidrantes...). A lista fica em `DECOR_SETS`, no `config.js`.
 - Ao **renascer**, o Brunucho fica 2 segundos invencível e os inimigos em cima do checkpoint são empurrados.
@@ -163,7 +173,8 @@ src/config.js       nome do jogador (PLAYER_NAME), física do personagem (veloci
 src/levels.js       mapas das fases em texto  ← o lugar mais fácil para mexer!
 src/textures.js     desenhos (gerados por código)
 src/scenery.js      cenários (Rio, SP, Bahia, Escola Zacarias) e enfeites
-src/estados.js      cartões-postais e temas dos estados
+src/estados.js      cartões-postais, fundo dos buracos, clima e temas dos estados
+tools/gerar_fases.py  gerador e verificador das fases dos estados
 src/audio.js        efeitos sonoros e vozes (gerados por código)
 src/gamepad.js      suporte a controle de videogame
 src/phaser-fix.js   correção de teclas repetidas no Phaser
@@ -187,6 +198,7 @@ R  pedra            Y  coqueiro (enfeite)
 H  coxinha          T  tênis de mola    M  ímã de aura
 Q  olhar de mil jardas                 W  anjo caído
 O  plataforma móvel Z  trampolim        F  pombo voador
+X  plataforma que cai
 b  Bombardiro       p  Patapim          c  Bananini
 l  Lirilì Larilà    r  Ballerina Cappuccina
 L  poste de luz     S  Escola Zacarias (enfeite)

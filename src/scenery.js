@@ -332,6 +332,13 @@ function generateScenery(scene) {
     ctx.fillStyle = '#fff3c0'; [[12, 14], [20, 18], [12, 24], [4, 18], [27, 15], [20, 28]].forEach(([x, y]) => ctx.fillRect(x, y, 2, 1));
     rect(ctx, '#e5677b', 14, 7, 5, 4);
   });
+  canvasTex('crumble', 32, 32, (ctx) => {   // bloco que cai quando você pisa
+    rect(ctx, '#5a4030', 0, 0, 32, 32); rect(ctx, '#a07850', 2, 2, 28, 28); rect(ctx, '#c49a68', 2, 2, 28, 3); rect(ctx, '#80603c', 2, 25, 28, 5);
+    ctx.strokeStyle = '#3a2418'; ctx.lineWidth = 2;
+    [[[16, 2], [13, 10], [19, 16], [14, 24], [17, 30]], [[13, 10], [6, 14]], [[19, 16], [26, 20]]].forEach((pts) => {
+      ctx.beginPath(); ctx.moveTo(...pts[0]); pts.slice(1).forEach((p) => ctx.lineTo(...p)); ctx.stroke();
+    });
+  });
   canvasTex('dec_araucaria', 70, 130, (ctx) => {
     rect(ctx, '#5e3e22', 32, 30, 6, 100);
     [[35, 30, 34, 9], [35, 42, 28, 8], [35, 22, 22, 7]].forEach(([x, y, rx, ry]) => { ctx.fillStyle = '#2f5d3a'; ctx.beginPath(); ctx.ellipse(x, y, rx, ry, 0, Math.PI, 0); ctx.fill(); });
@@ -414,4 +421,31 @@ function drawCityTiles(g) {
   [[1, 1, 14, 14], [17, 1, 14, 14], [1, 17, 6, 14], [9, 17, 14, 14], [25, 17, 6, 14]].forEach(([x, y, w, h]) => g.fillRoundedRect(ox + x, y, w, h, 3));
   g.fillStyle(0xb3a99b);
   [[3, 2], [19, 2], [11, 18]].forEach(([x, y]) => g.fillRect(ox + x, y, 8, 2));
+  // 13: caixote de madeira
+  ox = TILE * TILES.WOOD;
+  g.fillStyle(0x5e3a1c); g.fillRect(ox, 0, TILE, TILE);
+  g.fillStyle(0xb8834a); g.fillRect(ox + 2, 2, 28, 28);
+  g.fillStyle(0xd09a5e); g.fillRect(ox + 2, 2, 28, 2);
+  g.fillStyle(0x8f6030); [9, 16, 23].forEach((y) => g.fillRect(ox + 2, y, 28, 1));
+  g.fillStyle(0x9a6a36); g.fillRect(ox + 2, 2, 3, 28); g.fillRect(ox + 27, 2, 3, 28);
+  g.fillStyle(0x3b2a20); [[4, 4], [26, 4], [4, 26], [26, 26]].forEach(([x, y]) => g.fillRect(ox + x, y, 2, 2));
+  // 14: arenito em camadas
+  ox = TILE * TILES.SANDSTONE;
+  g.fillStyle(0xd9a766); g.fillRect(ox, 0, TILE, TILE);
+  g.fillStyle(0xc98f4e); g.fillRect(ox, 7, TILE, 3); g.fillRect(ox, 21, TILE, 3);
+  g.fillStyle(0xe8bd80); g.fillRect(ox, 0, TILE, 2); g.fillRect(ox, 14, TILE, 2); g.fillRect(ox, 28, TILE, 2);
+  g.fillStyle(0xb87c3e); [[5, 12], [20, 18], [11, 27], [26, 4]].forEach(([x, y]) => g.fillRect(ox + x, y, 3, 2));
+  g.fillStyle(0x9a6a30); g.fillRect(ox, 31, TILE, 1); g.fillRect(ox + 31, 0, 1, TILE);
+  // 15: tijolo vermelho colonial
+  ox = TILE * TILES.REDBRICK;
+  g.fillStyle(0xcdbf9f); g.fillRect(ox, 0, TILE, TILE);
+  for (let row = 0; row < 4; row++) {
+    for (let k = -1; k < 3; k++) {
+      const x0 = Math.max(ox + k * 16 + (row % 2 ? 8 : 0), ox), x1 = Math.min(ox + k * 16 + (row % 2 ? 8 : 0) + 15, ox + TILE);
+      if (x1 <= x0) continue;
+      g.fillStyle(0xb5502e); g.fillRect(x0, row * 8 + 1, x1 - x0, 6);
+      g.fillStyle(0xcf6a42); g.fillRect(x0, row * 8 + 1, x1 - x0, 1);
+      g.fillStyle(0x8f3a20); g.fillRect(x0, row * 8 + 6, x1 - x0, 1);
+    }
+  }
 }

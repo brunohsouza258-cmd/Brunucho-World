@@ -3,6 +3,7 @@
 const WIDTH = 960;
 const HEIGHT = 540;
 const TILE = 32;
+const GROUND_Y = 14 * TILE; // altura do topo do chão (linha 14 do mapa)
 const FONT = '"Trebuchet MS", Verdana, sans-serif';
 const PLAYER_NAME = 'Brunucho';
 const GAME_TITLE = `SUPER ${PLAYER_NAME.toUpperCase()}`;
@@ -19,15 +20,15 @@ const SCORE = {
   levelClear: 1000,
   noDeath: 2000,       // bônus: passar a fase sem morrer
   allCoins: 1500,      // bônus: pegar todas as moedas da fase
-  parTime: 90,         // segundos: quanto mais rápido que isso, mais bônus
+  parTime: 120,         // segundos: quanto mais rápido que isso, mais bônus
   timeBonus: 25,       // pontos por segundo abaixo do parTime
 };
 
 // ---- Dificuldade ----
 const DIFFICULTY = {
-  facil:   { name: 'Fácil',   lives: 7, enemySpeed: 0.8 },
-  normal:  { name: 'Normal',  lives: 5, enemySpeed: 1 },
-  dificil: { name: 'Difícil', lives: 3, enemySpeed: 1.35 },
+  facil:   { name: 'Fácil',   lives: 6, enemySpeed: 0.9 },
+  normal:  { name: 'Normal',  lives: 4, enemySpeed: 1.1 },
+  dificil: { name: 'Difícil', lives: 3, enemySpeed: 1.5 },
 };
 const DIFFICULTY_KEYS = Object.keys(DIFFICULTY);
 const COINS_PER_LIFE = 100;
@@ -145,15 +146,18 @@ const PHYS = {
   coyote: 0.1,        // segundos em que ainda dá pra pular depois de sair da borda
   jumpBuffer: 0.12,   // aperto do pulo "lembrado" antes de tocar o chão
   stomp: 380,         // quique ao pisar num inimigo
-  enemySpeed: 60,
+  enemySpeed: 72,
 };
 
 // Índices dos blocos no tileset gerado em textures.js
 const TILES = {
   DIRT: 0, GRASS: 1, BRICK: 2, ONEWAY: 3, SAND: 4, SAND_TOP: 5, ROCK: 6,
-  CALCADAO: 7, SIDEWALK: 8, CONCRETE: 9, COBBLE: 10, CLAY: 11, CLAY_TOP: 12,
+  CALCADAO: 7, SIDEWALK: 8, CONCRETE: 9, COBBLE: 10, CLAY: 11, CLAY_TOP: 12, WOOD: 13, SANDSTONE: 14, REDBRICK: 15,
 };
-const TILE_COUNT = 13;
+const TILE_COUNT = 16;
+
+// Bloco "=" de cada região (o tema escolhe com "block"): madeira, arenito ou tijolo vermelho
+const BLOCKS = { madeira: TILES.WOOD, arenito: TILES.SANDSTONE, tijolo: TILES.REDBRICK };
 
 // Tipo de chão de cada tema: [bloco de cima, bloco de baixo]
 const GROUNDS = {
@@ -220,7 +224,7 @@ const DECOR_SETS = {
   mata:       ['dec_arvore', 'dec_arbusto', 'dec_flor', 'dec_arvore'],
   sertao:     ['dec_mandacaru', 'dec_pedrinha', 'dec_mandacaru', 'dec_arbusto'],
 };
-const BIG_DECOR = new Set(['dec_arvore', 'dec_guardasol', 'dec_barraca', 'dec_ipe', 'dec_placa', 'dec_araucaria']);
+const BIG_DECOR = new Set(['dec_arvore', 'dec_guardasol', 'dec_barraca', 'dec_ipe', 'dec_placa', 'dec_araucaria', 'palm', 'dec_buriti', 'dec_tuiuiu', 'dec_jangada', 'dec_bandeirinha']);
 
 // localStorage pode falhar (aba anônima etc.), então tudo fica protegido.
 const Storage = {
@@ -246,7 +250,8 @@ function formatTime(seconds) {
 }
 
 // Céu em degradê + nuvens + morros com parallax. Usado no menu e nas fases.
-function createBackdrop(scene, theme) {
+// full = true nas fases (com silhuetas e o fundo dos buracos); o menu e o fim usam a versão simples.
+function createBackdrop(scene, theme, full = false) {
   const g = scene.add.graphics().setScrollFactor(0).setDepth(-10);
   g.fillGradientStyle(theme.skyTop, theme.skyTop, theme.skyBottom, theme.skyBottom, 1);
   g.fillRect(0, 0, WIDTH, HEIGHT);
@@ -282,10 +287,13 @@ function createBackdrop(scene, theme) {
     ];
   }
   layers = [{ key: 'clouds', y: 30, factor: 0.1, drift: 0.006, alpha: theme.clouds }, ...layers];
+  if (full && theme.sil) layers.push({ key: theme.sil.key, bottom: GROUND_Y, factor: 0.55, tint: theme.sil.tint, alpha: theme.sil.alpha });
+  if (full && theme.pit) layers.push({ key: theme.pit.key, y: theme.pit.y, factor: 1, wave: theme.pit.wave, tint: theme.pit.tint, depth: -6.5 });
 
   const sprites = layers.map((l, i) => {
     const h = scene.textures.get(l.key).getSourceImage().height;
-    const s = scene.add.tileSprite(0, l.y, WIDTH, h, l.key).setOrigin(0).setScrollFactor(0).setDepth(-9 + i);
+    const y = l.bottom !== undefined ? l.bottom - h : l.y;
+    const s = scene.add.tileSprite(0, y, WIDTH, h, l.key).setOrigin(0).setScrollFactor(0).setDepth(l.depth !== undefined ? l.depth : -9 + i);
     if (l.tint) s.setTint(l.tint);
     if (l.alpha !== undefined) s.setAlpha(l.alpha);
     if (l.scaleY) s.setScale(1, l.scaleY);

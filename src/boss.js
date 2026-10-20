@@ -2,7 +2,7 @@
 // No mapa, a letra "B" marca o meio da arena. A arena tem 30 blocos (uma tela) de largura.
 // Estes métodos são "colados" na GameScene (veja o final do arquivo).
 
-const BOSS_HP = { facil: 2, normal: 3, dificil: 4 };
+const BOSS_HP = { facil: 3, normal: 4, dificil: 5 };
 
 const BOSSES = [
   { key: 'lula', name: 'LULA', color: 0xff4d4d, attack: 'picanha', speed: 80,
