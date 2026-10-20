@@ -15,7 +15,7 @@ Dê dois cliques em `index.html`. **Funciona sem internet** (o Phaser fica na pa
 | M | ligar/desligar som |
 | O | opções (no menu e na pausa) |
 
-**No celular:** setas e botão de pular na tela (dá pra deslizar o dedo de ◀ para ▶, e andar + pular com dois dedos),
+**No celular:** um **joystick de bolinha** (encoste o dedo na metade esquerda da tela e arraste a bolinha para o lado que quer ir; ele nasce onde você encosta) e o botão ▲ de pular na direita (dá pra andar + pular com dois dedos),
 e o botão **II** (canto de cima) pausa. Deixe o aparelho **deitado**: em pé aparece um aviso e o jogo pausa.
 Nas Opções dá pra ativar a **tela cheia** e o modo de efeitos **leve** (já vem ligado no celular, pra rodar mais liso).
 **Jogar no celular:** no computador, dê dois cliques em **`jogar-no-celular.bat`** (precisa do Python). Ele mostra dois endereços

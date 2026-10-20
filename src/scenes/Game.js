@@ -505,24 +505,33 @@ class GameScene extends Phaser.Scene {
   createTouchControls() {
     if (!IS_TOUCH) return;
     this.input.addPointer(3);
-    // Botões grandes. O jogo confere onde está CADA dedo a cada quadro, então dá pra deslizar o dedo de um botão pro outro.
-    this.touchBtns = [
-      { key: 'left', x: 92, y: 456, r: 54, label: '◀' },
-      { key: 'right', x: 224, y: 456, r: 54, label: '▶' },
-      { key: 'jump', x: WIDTH - 100, y: 450, r: 64, label: '▲' },
-    ].map((b) => {
-      b.circle = this.add.circle(b.x, b.y, b.r, 0xffffff, 0.2).setStrokeStyle(3, 0xffffff, 0.45).setScrollFactor(0).setDepth(200);
-      b.text = this.add.text(b.x, b.y, b.label, textStyle(34)).setOrigin(0.5).setScrollFactor(0).setDepth(201).setAlpha(0.85);
-      return b;
-    });
-    // toque mais curto que um quadro não seria visto pelo polling: o pulo também é registrado no instante em que o dedo encosta
+    // Joystick de bolinha (lado esquerdo): encoste o dedo em qualquer lugar da metade esquerda da tela e arraste a bolinha
+    // para o lado que quer ir. O joystick nasce onde o dedo encostou e some quando solta.
+    const R = 62, IDLE = { x: 118, y: 440 };
+    const base = this.add.circle(IDLE.x, IDLE.y, R, 0xffffff, 0.14).setStrokeStyle(3, 0xffffff, 0.4).setScrollFactor(0).setDepth(200);
+    const arrows = this.add.text(IDLE.x, IDLE.y, '◀      ▶', textStyle(20)).setOrigin(0.5).setScrollFactor(0).setDepth(200).setAlpha(0.45);
+    const knob = this.add.circle(IDLE.x, IDLE.y, 30, 0xffffff, 0.38).setStrokeStyle(3, 0xffffff, 0.8).setScrollFactor(0).setDepth(201);
+    this.joy = { R, IDLE, base, arrows, knob, id: null, ox: IDLE.x, oy: IDLE.y, zoneX: WIDTH * 0.5 };
+    // Botão de pulo (direita) — o jogo confere onde está CADA dedo a cada quadro
+    const jb = { key: 'jump', x: WIDTH - 100, y: 450, r: 64, label: '▲' };
+    jb.circle = this.add.circle(jb.x, jb.y, jb.r, 0xffffff, 0.2).setStrokeStyle(3, 0xffffff, 0.45).setScrollFactor(0).setDepth(200);
+    jb.text = this.add.text(jb.x, jb.y, jb.label, textStyle(34)).setOrigin(0.5).setScrollFactor(0).setDepth(201).setAlpha(0.85);
+    this.touchBtns = [jb];
+    // o pulo é registrado no instante em que o dedo encosta (toque mais curto que um quadro não seria visto pelo polling)
+    // e o joystick nasce onde o dedo encostou
     this.input.on('pointerdown', (ptr) => {
       if (!this.touchBtns) return;
-      const j = this.touchBtns[2];
-      if (Phaser.Math.Distance.Between(ptr.x, ptr.y, j.x, j.y) <= j.r * 1.3) this.touch.jumpPressed = true;
+      if (Phaser.Math.Distance.Between(ptr.x, ptr.y, jb.x, jb.y) <= jb.r * 1.3) { this.touch.jumpPressed = true; return; }
+      const j = this.joy;
+      if (j.id === null && ptr.x < j.zoneX && ptr.y > 140) {
+        j.id = ptr.id;
+        j.ox = Phaser.Math.Clamp(ptr.x, R + 12, j.zoneX - R);
+        j.oy = Phaser.Math.Clamp(ptr.y, 160 + R, HEIGHT - R - 10);
+        j.base.setPosition(j.ox, j.oy); j.arrows.setPosition(j.ox, j.oy);
+      }
     });
     // botão de pausa
-    const pause =this.add.circle(WIDTH - 46, 112, 30, 0xffffff, 0.22).setStrokeStyle(2, 0xffffff, 0.4).setScrollFactor(0).setDepth(200).setInteractive();
+    const pause = this.add.circle(WIDTH - 46, 112, 30, 0xffffff, 0.22).setStrokeStyle(2, 0xffffff, 0.4).setScrollFactor(0).setDepth(200).setInteractive();
     this.pauseIcon = this.add.text(WIDTH - 46, 112, 'II', textStyle(24)).setOrigin(0.5).setScrollFactor(0).setDepth(201);
     this.pauseBtn = pause;
     pause.on('pointerdown', () => this.pauseGame());
@@ -530,20 +539,37 @@ class GameScene extends Phaser.Scene {
     this.input.keyboard.once('keydown', () => {
       if (!this.touchBtns) return;
       this.touchBtns.forEach((b) => { b.circle.destroy(); b.text.destroy(); });
+      this.joy.base.destroy(); this.joy.arrows.destroy(); this.joy.knob.destroy(); this.joy = null;
       this.touchBtns = null; this.pauseBtn.destroy(); this.pauseIcon.destroy();
       this.touch.left = this.touch.right = this.touch.jump = false;
     });
   }
 
   pollTouch() {
-    const down = { left: false, right: false, jump: false };
+    const j = this.joy;
+    let jump = false, left = false, right = false, held = null;
     for (const ptr of this.input.manager.pointers) {
       if (!ptr.isDown) continue;
-      for (const b of this.touchBtns) if (Phaser.Math.Distance.Between(ptr.x, ptr.y, b.x, b.y) <= b.r * 1.3) down[b.key] = true;
+      const b = this.touchBtns[0];
+      if (Phaser.Math.Distance.Between(ptr.x, ptr.y, b.x, b.y) <= b.r * 1.3 && ptr.id !== j.id) jump = true;
+      if (ptr.id === j.id) held = ptr;
     }
-    if (down.jump && !this.touch.jump) this.touch.jumpPressed = true;     // acabou de apertar o pulo
-    this.touch.left = down.left; this.touch.right = down.right; this.touch.jump = down.jump;
-    this.touchBtns.forEach((b) => b.circle.setFillStyle(0xffffff, down[b.key] ? 0.42 : 0.2));
+    if (j.id !== null && !held) {                                    // soltou o dedo: joystick volta pro cantinho
+      j.id = null; j.ox = j.IDLE.x; j.oy = j.IDLE.y;
+      j.base.setPosition(j.ox, j.oy).setFillStyle(0xffffff, 0.14); j.arrows.setPosition(j.ox, j.oy).setAlpha(0.45);
+    }
+    let kx = j.ox, ky = j.oy;
+    if (held) {
+      const dx = held.x - j.ox, dy = held.y - j.oy, d = Math.hypot(dx, dy) || 1, k = Math.min(1, j.R / d);
+      kx = j.ox + dx * k; ky = j.oy + dy * k;                        // a bolinha segue o dedo, mas não sai do círculo
+      const nx = (kx - j.ox) / j.R;
+      left = nx < -0.3; right = nx > 0.3;
+      j.base.setFillStyle(0xffffff, 0.26); j.arrows.setAlpha(0.2);
+    }
+    j.knob.setPosition(kx, ky).setFillStyle(0xffffff, held ? 0.6 : 0.38);
+    if (jump && !this.touch.jump) this.touch.jumpPressed = true;     // acabou de apertar o pulo
+    this.touch.left = left; this.touch.right = right; this.touch.jump = jump;
+    this.touchBtns[0].circle.setFillStyle(0xffffff, jump ? 0.42 : 0.2);
   }
 
   // ---------------------------------------------------------------- Loop principal
