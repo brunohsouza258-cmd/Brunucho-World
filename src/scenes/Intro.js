@@ -52,14 +52,16 @@ class IntroScene extends Phaser.Scene {
     this.lineText = this.add.text(50, 432, '', { ...textStyle(22), wordWrap: { width: 860 }, lineSpacing: 6 });
     this.hint = this.add.text(WIDTH - 30, 515, '▼', textStyle(18, '#ffd23f')).setOrigin(1, 0.5);
     this.tweens.add({ targets: this.hint, y: 509, duration: 350, yoyo: true, repeat: -1 });
-    this.add.text(WIDTH - 12, 10, 'ESPAÇO: continuar   ·   ESC: pular', textStyle(14)).setOrigin(1, 0).setAlpha(0.85);
+    const skip = this.add.text(WIDTH - 12, 10, hint('ESPAÇO: continuar  ·  ESC: pular   ', 'toque para continuar   ') + '[ PULAR ▶▶ ]',
+      { ...textStyle(15), backgroundColor: '#1b1b2a', padding: { x: 8, y: 4 } }).setOrigin(1, 0).setInteractive({ useHandCursor: true });
+    skip.on('pointerdown', () => this.finish(false));
 
     // Controles
     const kb = this.input.keyboard;
     kb.on('keydown-SPACE', () => this.advance());
     kb.on('keydown-ENTER', () => this.advance());
     kb.on('keydown-ESC', () => this.finish(false));
-    this.input.on('pointerdown', () => this.advance());
+    this.input.on('pointerdown', (pointer, targets) => { if (!targets.length) this.advance(); });   // tocar no PULAR não avança a fala
 
     this.time.delayedCall(this.startDelay, () => this.next());
   }

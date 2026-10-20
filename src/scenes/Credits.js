@@ -105,10 +105,12 @@ class CreditsScene extends Phaser.Scene {
     this.roll.add(this.add.image(WIDTH / 2 + 60, y + 150, 'mae').setOrigin(0.5, 1).setScale(3).setFlipX(true));
     this.rollHeight = y + 180;
 
-    this.add.text(WIDTH - 12, HEIGHT - 10, 'segure ESPAÇO para acelerar · ESC pular', textStyle(13)).setOrigin(1, 1).setAlpha(0.7);
+    const skipC = this.add.text(WIDTH - 12, HEIGHT - 10, hint('segure ESPAÇO para acelerar · ESC pular   ', 'toque para acelerar   ') + '[ PULAR ▶▶ ]',
+      { ...textStyle(14), backgroundColor: '#1b1b2a', padding: { x: 8, y: 4 } }).setOrigin(1, 1).setInteractive({ useHandCursor: true });
+    skipC.on('pointerdown', () => this.showDisclaimer());
     this.keys = this.input.keyboard.addKeys('SPACE,ENTER');
     this.input.keyboard.on('keydown-ESC', () => this.showDisclaimer());
-    this.input.on('pointerdown', () => { this.fast = !this.fast; });
+    this.input.on('pointerdown', (pointer, targets) => { if (!targets.length) this.fast = !this.fast; });
   }
 
   update(time, delta) {

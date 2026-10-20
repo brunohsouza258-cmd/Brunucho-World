@@ -98,7 +98,7 @@ class MenuScene extends Phaser.Scene {
       { label: () => 'RANKING', action: () => this.showMode('ranking') },
       { label: () => 'OPÇÕES', action: () => this.openOptions() },
       { label: () => 'CRÉDITOS', action: () => this.openCredits() },
-      { label: () => `ROUPA: ${OUTFITS[currentOutfit()].name}`, action: () => this.nextOutfit(), side: () => this.nextOutfit() },
+      { label: () => `ROUPA: ${OUTFITS[currentOutfit()].name}`, action: () => this.openWardrobe(), side: () => this.openWardrobe() },
     );
     this.selected = 0;
     this.optionTexts = this.options.map((opt, i) => {
@@ -115,7 +115,17 @@ class MenuScene extends Phaser.Scene {
 
     const best = Ranking.list()[0];
     if (best) panel.add(this.add.text(WIDTH - 16, 16, `Recorde: ${formatScore(best.score)}`, textStyle(16, '#9ff0ff')).setOrigin(1, 0));
-    panel.add(this.add.text(16, 16, `↑↓ escolher · ENTER confirmar · O opções\nDificuldade: ${difficulty().name}`, textStyle(14)).setAlpha(0.85));
+    panel.add(this.add.text(16, 16, `${hint('↑↓ escolher · ENTER confirmar · O opções', 'toque numa opção')}\nDificuldade: ${difficulty().name}`, textStyle(14)).setAlpha(0.85));
+    // tela cheia (Android): esconde a barra do navegador e trava o celular deitado
+    if (IS_TOUCH && this.scale.fullscreen.available) {
+      const fs = this.add.text(WIDTH - 16, 46, '⛶ TELA CHEIA', { ...textStyle(16), backgroundColor: '#2b2b3a', padding: { x: 10, y: 5 } })
+        .setOrigin(1, 0).setInteractive({ useHandCursor: true });
+      fs.on('pointerdown', () => {
+        this.scale.toggleFullscreen();
+        try { if (screen.orientation && screen.orientation.lock) screen.orientation.lock('landscape').catch(() => {}); } catch (e) { /* sem trava de tela */ }
+      });
+      panel.add(fs);
+    }
     this.refreshMain();
     return panel;
   }
@@ -168,6 +178,11 @@ class MenuScene extends Phaser.Scene {
     this.pageText = this.add.text(WIDTH / 2, 442, '', textStyle(15)).setOrigin(0.5);
     panel.add(this.pageText);
     this.levelPages = pages;
+    // botão de voltar (no celular não tem ESC)
+    const back = this.add.text(WIDTH / 2, 488, '◀ VOLTAR AO MENU', { ...textStyle(22), backgroundColor: '#2b2b3a', padding: { x: 14, y: 6 } })
+      .setOrigin(0.5).setInteractive({ useHandCursor: true });
+    back.on('pointerdown', () => { if (this.mode === 'levels') this.time.delayedCall(1, () => this.showMode('main')); });
+    panel.add(back);
     return panel;
   }
 
@@ -176,7 +191,7 @@ class MenuScene extends Phaser.Scene {
     this.levelGroups.forEach((grp, i) => grp.forEach((o) => o.setVisible(Math.floor(i / LEVELS_PER_PAGE) === page)));
     this.levelCards.forEach((c, i) => c.setStrokeStyle(i === this.levelSel ? 5 : 2, i === this.levelSel ? 0xffd23f : 0xffffff)
       .setScale(i === this.levelSel ? 1.06 : 1));
-    this.pageText.setText(`página ${page + 1}/${this.levelPages}  ·  ★ passou  ★ sem morrer  ★ todas as moedas  ·  ESC voltar`);
+    this.pageText.setText(`página ${page + 1}/${this.levelPages}  ·  ★ passou  ★ sem morrer  ★ todas as moedas  ·  ${hint('ESC voltar', 'use o botão VOLTAR')}`);
   }
 
   tryLevel(i) {
@@ -308,14 +323,15 @@ class MenuScene extends Phaser.Scene {
 
   continueGame(save) { this.startGame(save.level, false, save.stats); }
 
-  nextOutfit() {
-    const i = OUTFIT_KEYS.indexOf(currentOutfit());
-    Storage.set('pp_outfit', OUTFIT_KEYS[(i + 1) % OUTFIT_KEYS.length]);
+  // O guarda-roupa abre por cima do menu (tecla C, tocar no Brunucho ou na opção ROUPA)
+  openWardrobe() {
+    if (this.starting) return;
     Sfx.unlock(); Sfx.select();
-    this.hero.play(`${playerTexture()}_walk`);
-    Achievements.unlock('roupa');
-    this.refreshMain();
+    this.scene.pause();
+    this.scene.launch('Wardrobe');
   }
+
+  nextOutfit() { this.openWardrobe(); }
 
   // ------------------------------------------------------------ Animação de fundo
 

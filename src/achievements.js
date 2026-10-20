@@ -62,6 +62,7 @@ const ACHIEVEMENTS = [
   { id: 'morreu10',    icon: '💀', name: '-10.000 de Aura',       desc: 'Morrer 10 vezes (total)', counter: 'deaths', goal: 10 },
   { id: 'gameover',    icon: '😱', name: 'A Andreia Te Achou',    desc: 'Tomar um Game Over' },
   { id: 'dublador',    icon: '🎤', name: 'Dublador',              desc: 'Gravar a sua própria voz no jogo' },
+  { id: 'closet',      icon: '🧥', name: 'Closet Completo',       desc: 'Vestir todas as roupas do guarda-roupa' },
   { id: 'roupa',       icon: '👕', name: 'Fashionista',           desc: 'Trocar de roupa no menu' },
 ];
 

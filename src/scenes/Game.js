@@ -243,7 +243,7 @@ class GameScene extends Phaser.Scene {
       tint: [0xff3b3b, 0xff9a1f, 0xffe14d, 0x4cd964, 0x4aa3ff, 0xa56bff],
     }).setDepth(4);
     // sombreado suave nos cantos da tela
-    if (this.cameras.main.postFX) this.cameras.main.postFX.addVignette(0.5, 0.5, 0.92, 0.28);
+    if (Settings.get('fx') !== 'leve' && this.cameras.main.postFX) this.cameras.main.postFX.addVignette(0.5, 0.5, 0.92, 0.28);
     // Plaquinha com o nome em cima do personagem (some depois de alguns segundos)
     this.nameTag = this.add.text(0, 0, PLAYER_NAME, textStyle(14, '#ffd23f')).setOrigin(0.5, 1).setDepth(6);
     this.tweens.add({ targets: this.nameTag, alpha: 0, delay: 3500, duration: 800 });
@@ -297,7 +297,7 @@ class GameScene extends Phaser.Scene {
     if (theme.rain) {
       this.add.particles(0, -20, 'px', {
         x: { min: 0, max: WIDTH + 100 }, lifespan: 1100, speedY: { min: 520, max: 640 }, speedX: { min: -90, max: -60 },
-        scaleX: 0.25, scaleY: 1.6, alpha: 0.35, tint: 0xd5dde8, frequency: 12, quantity: 2,
+        scaleX: 0.25, scaleY: 1.6, alpha: 0.35, tint: 0xd5dde8, frequency: Settings.get('fx') === 'leve' ? 34 : 12, quantity: 2,
       }).setScrollFactor(0).setDepth(50);
     }
 
@@ -337,7 +337,7 @@ class GameScene extends Phaser.Scene {
   // theme.ambient: 'neblina', 'poeira', 'folhas' ou 'vagalumes' (a chuva é o theme.rain)
   addAmbient(theme) {
     const a = theme.ambient;
-    if (!a) return;
+    if (!a || Settings.get('fx') === 'leve') return;          // clima só no modo de efeitos completo
     const fix = (e) => e.setScrollFactor(0).setDepth(45);
     if (a === 'neblina') {
       this.fog = [0, 1].map((i) => this.add.tileSprite(0, 200 + i * 70, WIDTH, 240, 'fog').setOrigin(0)
@@ -489,28 +489,54 @@ class GameScene extends Phaser.Scene {
   }
 
   createTouchControls() {
-    if (!this.sys.game.device.input.touch) return;
-    this.input.addPointer(2);
-    const button = (x, label, onDown, onUp) => {
-      const c = this.add.circle(x, HEIGHT - 70, 46, 0xffffff, 0.18).setScrollFactor(0).setDepth(200).setInteractive();
-      this.add.text(x, HEIGHT - 70, label, textStyle(30)).setOrigin(0.5).setScrollFactor(0).setDepth(201).setAlpha(0.8);
-      c.on('pointerdown', onDown);
-      c.on('pointerup', onUp);
-      c.on('pointerout', onUp);
-    };
-    button(80, '◀', () => { this.touch.left = true; }, () => { this.touch.left = false; });
-    button(195, '▶', () => { this.touch.right = true; }, () => { this.touch.right = false; });
-    button(WIDTH - 80, '▲', () => { this.touch.jump = true; this.touch.jumpPressed = true; }, () => { this.touch.jump = false; });
-    // botão de pausa (canto de cima, abaixo do tempo)
-    const pause = this.add.circle(WIDTH - 40, 104, 26, 0xffffff, 0.22).setScrollFactor(0).setDepth(200).setInteractive();
-    this.add.text(WIDTH - 40, 104, 'II', textStyle(22)).setOrigin(0.5).setScrollFactor(0).setDepth(201);
+    if (!IS_TOUCH) return;
+    this.input.addPointer(3);
+    // Botões grandes. O jogo confere onde está CADA dedo a cada quadro, então dá pra deslizar o dedo de um botão pro outro.
+    this.touchBtns = [
+      { key: 'left', x: 92, y: 456, r: 54, label: '◀' },
+      { key: 'right', x: 224, y: 456, r: 54, label: '▶' },
+      { key: 'jump', x: WIDTH - 100, y: 450, r: 64, label: '▲' },
+    ].map((b) => {
+      b.circle = this.add.circle(b.x, b.y, b.r, 0xffffff, 0.2).setStrokeStyle(3, 0xffffff, 0.45).setScrollFactor(0).setDepth(200);
+      b.text = this.add.text(b.x, b.y, b.label, textStyle(34)).setOrigin(0.5).setScrollFactor(0).setDepth(201).setAlpha(0.85);
+      return b;
+    });
+    // toque mais curto que um quadro não seria visto pelo polling: o pulo também é registrado no instante em que o dedo encosta
+    this.input.on('pointerdown', (ptr) => {
+      if (!this.touchBtns) return;
+      const j = this.touchBtns[2];
+      if (Phaser.Math.Distance.Between(ptr.x, ptr.y, j.x, j.y) <= j.r * 1.3) this.touch.jumpPressed = true;
+    });
+    // botão de pausa
+    const pause =this.add.circle(WIDTH - 46, 112, 30, 0xffffff, 0.22).setStrokeStyle(2, 0xffffff, 0.4).setScrollFactor(0).setDepth(200).setInteractive();
+    this.pauseIcon = this.add.text(WIDTH - 46, 112, 'II', textStyle(24)).setOrigin(0.5).setScrollFactor(0).setDepth(201);
+    this.pauseBtn = pause;
     pause.on('pointerdown', () => this.pauseGame());
+    // notebook com tela de toque: os botões somem assim que alguém usar o teclado
+    this.input.keyboard.once('keydown', () => {
+      if (!this.touchBtns) return;
+      this.touchBtns.forEach((b) => { b.circle.destroy(); b.text.destroy(); });
+      this.touchBtns = null; this.pauseBtn.destroy(); this.pauseIcon.destroy();
+      this.touch.left = this.touch.right = this.touch.jump = false;
+    });
+  }
+
+  pollTouch() {
+    const down = { left: false, right: false, jump: false };
+    for (const ptr of this.input.manager.pointers) {
+      if (!ptr.isDown) continue;
+      for (const b of this.touchBtns) if (Phaser.Math.Distance.Between(ptr.x, ptr.y, b.x, b.y) <= b.r * 1.3) down[b.key] = true;
+    }
+    if (down.jump && !this.touch.jump) this.touch.jumpPressed = true;     // acabou de apertar o pulo
+    this.touch.left = down.left; this.touch.right = down.right; this.touch.jump = down.jump;
+    this.touchBtns.forEach((b) => b.circle.setFillStyle(0xffffff, down[b.key] ? 0.42 : 0.2));
   }
 
   // ---------------------------------------------------------------- Loop principal
 
   update(time, delta) {
     const dt = Math.min(delta, 50) / 1000;
+    if (this.touchBtns) this.pollTouch();
     this.backdrop.update(this.cameras.main.scrollX, time);
     if (this.fog) this.fog.forEach((f, i) => { f.tilePositionX = time * 0.012 * (i + 1) + this.cameras.main.scrollX * (0.35 + i * 0.25); });
     this.updateEnemies(Math.min(delta, 50) / 1000);

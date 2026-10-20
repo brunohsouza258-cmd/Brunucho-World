@@ -37,7 +37,9 @@ class VoiceScene extends Phaser.Scene {
     this.msg = this.add.text(WIDTH / 2, 462, '', { ...textStyle(18, '#ffe9a0'), align: 'center', wordWrap: { width: 880 } }).setOrigin(0.5);
     this.meterBg = this.add.rectangle(WIDTH / 2, 494, 420, 10, 0x2b2b3a).setStrokeStyle(1, 0x555566);
     this.meter = this.add.rectangle(WIDTH / 2 - 210, 494, 0, 8, 0x8aff8a).setOrigin(0, 0.5);
-    this.add.text(WIDTH / 2, 520, '↑↓ escolher · ENTER gravar/parar · P ouvir · I importar arquivo · X apagar · ESC voltar', textStyle(13)).setOrigin(0.5).setAlpha(0.85);
+    this.add.text(WIDTH / 2, 520, hint('↑↓ escolher · ENTER gravar/parar · P ouvir · I importar arquivo · X apagar · ESC voltar', 'toque nos botões: ● gravar · ▶ ouvir · 📁 arquivo · ✖ apagar'), textStyle(13)).setOrigin(0.5).setAlpha(0.85);
+    const back = this.add.text(WIDTH - 16, 30, '◀ VOLTAR', { ...textStyle(20), backgroundColor: '#2b2b3a', padding: { x: 12, y: 6 } }).setOrigin(1, 0.5).setInteractive({ useHandCursor: true });
+    back.on('pointerdown', () => this.time.delayedCall(1, () => this.close()));
 
     const kb = this.input.keyboard;
     kb.on('keydown-UP', () => this.move(-1));

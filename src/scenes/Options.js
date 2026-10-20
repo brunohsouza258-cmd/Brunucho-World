@@ -34,6 +34,8 @@ class OptionsScene extends Phaser.Scene {
       { label: () => `Usar a minha voz: ${Settings.get('myVoice') ? 'SIM' : 'NÃO'}  (${Voices.count()}/${VOICE_LINES.length} falas gravadas)`,
         side: () => this.toggle('myVoice'), act: () => this.toggle('myVoice') },
       { label: () => '🎤 GRAVAR MINHA VOZ', act: () => this.openVoice() },
+      { label: () => `Efeitos visuais: ${Settings.get('fx') === 'leve' ? 'LEVE (mais rápido no celular)' : 'COMPLETO'}`,
+        side: () => this.toggleFx(), act: () => this.toggleFx() },
       { label: () => `Tela cheia: ${this.scale.isFullscreen ? 'SIM' : 'NÃO'}`,
         side: () => this.toggleFullscreen(), act: () => this.toggleFullscreen() },
       { label: () => `Todas as fases liberadas: ${Settings.get('allLevels') ? 'SIM' : 'NÃO'}`,
@@ -44,12 +46,12 @@ class OptionsScene extends Phaser.Scene {
     ];
 
     this.texts = this.items.map((it, i) => {
-      const t = this.add.text(WIDTH / 2, 100 + i * 37, '', textStyle(20)).setOrigin(0.5).setInteractive({ useHandCursor: true });
+      const t = this.add.text(WIDTH / 2, 92 + i * 33, '', textStyle(19)).setOrigin(0.5).setInteractive({ useHandCursor: true });
       t.on('pointerover', () => { this.sel = i; this.refresh(); });
       t.on('pointerdown', () => { this.sel = i; this.activate(); });
       return t;
     });
-    this.add.text(WIDTH / 2, 505, '↑↓ escolher  ·  ←→ ajustar  ·  ENTER mudar  ·  ESC voltar', textStyle(16)).setOrigin(0.5).setAlpha(0.85);
+    this.add.text(WIDTH / 2, 505, hint('↑↓ escolher  ·  ←→ ajustar  ·  ENTER mudar  ·  ESC voltar', 'toque numa opção para mudar'), textStyle(16)).setOrigin(0.5).setAlpha(0.85);
 
     const kb = this.input.keyboard;
     kb.on('keydown-UP', () => this.move(-1));
@@ -69,6 +71,9 @@ class OptionsScene extends Phaser.Scene {
 
   toggle(key) { Settings.set(key, !Settings.get(key)); }
 
+  // Leve: sem clima (neblina, poeira...), sem sombreado nos cantos. Vale a partir da próxima fase.
+  toggleFx() { Settings.set('fx', Settings.get('fx') === 'leve' ? 'completo' : 'leve'); }
+
   openVoice() {
     this.scene.pause();
     this.scene.launch('Voice');
@@ -76,7 +81,10 @@ class OptionsScene extends Phaser.Scene {
 
   toggleFullscreen() {
     if (this.scale.isFullscreen) this.scale.stopFullscreen();
-    else this.scale.startFullscreen();
+    else {
+      this.scale.startFullscreen();
+      try { if (screen.orientation && screen.orientation.lock) screen.orientation.lock('landscape').catch(() => {}); } catch (e) { /* sem trava */ }
+    }
     this.time.delayedCall(300, () => this.refresh());
   }
 

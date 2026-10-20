@@ -15,14 +15,19 @@ Dê dois cliques em `index.html`. **Funciona sem internet** (o Phaser fica na pa
 | M | ligar/desligar som |
 | O | opções (no menu e na pausa) |
 
-**No celular:** setas e botão de pular na tela, e o botão **II** (canto de cima) pausa.
-Nas Opções dá pra ativar a **tela cheia**.
+**No celular:** setas e botão de pular na tela (dá pra deslizar o dedo de ◀ para ▶, e andar + pular com dois dedos),
+e o botão **II** (canto de cima) pausa. Deixe o aparelho **deitado**: em pé aparece um aviso e o jogo pausa.
+Nas Opções dá pra ativar a **tela cheia** e o modo de efeitos **leve** (já vem ligado no celular, pra rodar mais liso).
+Pra jogar no celular, hospede a pasta (qualquer servidor estático / GitHub Pages) e use "Adicionar à tela inicial"
+(o jogo tem `manifest.webmanifest` e ícones). O microfone só funciona em https; na tela *Minha voz* use **importar arquivo**.
 
 **Com controle de videogame** (Xbox, PlayStation...): direcional/analógico anda, **A/X** pula e confirma,
 **B/○** volta, **Start** pausa.
 
-No menu, aperte **C** (ou toque no Brunucho) para trocar de roupa: **Praia** (blusa preta, bermuda rosa,
-óculos na cabeça e chinelo) ou **Diesel** (blusa azul e bermuda de moletom). As cores ficam em `OUTFITS`, no `src/config.js`.
+No menu, escolha **ROUPA** (ou aperte **C**, ou toque no Brunucho) para abrir o **guarda-roupa** com 10 looks:
+**Praia**, **Diesel**, **Cueca** (só de cueca e meia), **Terno** (com gravata), **Palmeiras** (camisa, calção e meiões verdes, chuteira),
+**Seleção**, **Pijama** (com gorro), **Herói** (capa e máscara), **Academia** e **Capivara** (capuz). As roupas ficam em `OUTFITS`,
+no `src/config.js`, e o desenho em `drawPlayer`, no `src/textures.js`. Vestir todas dá a conquista *Closet Infinito*.
 
 ### Menu
 
@@ -68,7 +73,7 @@ música da intro, de vitória e de game over. As notas ficam em `SONGS` e dá pr
 
 ### Conquistas
 
-**54 conquistas**, como *Fugiu da Chinelada*, *Mogador Serial*, *Haja Coração!*, *Foi Pênalti?*, *Sigma do Combo*,
+**55 conquistas**, como *Fugiu da Chinelada*, *Mogador Serial*, *Haja Coração!*, *Foi Pênalti?*, *Sigma do Combo*,
 *Atropelamento 67*, *A Andreia Te Achou* e *Modo Andreia* (zerar no Difícil). Aparece um aviso na tela quando desbloqueia
 e dá pra ver todas no menu. A lista fica em `src/achievements.js`.
 

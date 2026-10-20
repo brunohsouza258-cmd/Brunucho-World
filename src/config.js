@@ -6,6 +6,9 @@ const TILE = 32;
 const GROUND_Y = 14 * TILE; // altura do topo do chão (linha 14 do mapa)
 const FONT = '"Trebuchet MS", Verdana, sans-serif';
 const PLAYER_NAME = 'Brunucho';
+// Aparelho de toque (celular, tablet): botões na tela, letras maiores e efeitos mais leves
+const IS_TOUCH = ('ontouchstart' in window) || (navigator.maxTouchPoints || 0) > 0;
+function hint(teclado, toque) { return IS_TOUCH ? toque : teclado; }
 const GAME_TITLE = `SUPER ${PLAYER_NAME.toUpperCase()}`;
 const GAME_SUBTITLE = 'A Lenda da Aura Infinita';
 
@@ -35,7 +38,7 @@ const COINS_PER_LIFE = 100;
 
 // ---- Opções do jogador (tela de Opções) ----
 const Settings = {
-  defaults: { music: 0.5, sfx: 0.8, voices: true, myVoice: true, shake: true, difficulty: 'normal', allLevels: false },
+  defaults: { music: 0.5, sfx: 0.8, voices: true, myVoice: true, fx: IS_TOUCH ? 'leve' : 'completo', shake: true, difficulty: 'normal', allLevels: false },
   all() { return { ...this.defaults, ...Storage.get('pp_settings', {}) }; },
   get(key) { return this.all()[key]; },
   set(key, value) {
@@ -118,20 +121,66 @@ const Ranking = {
 
 function formatScore(n) { return String(Math.max(0, Math.round(n))).padStart(7, '0'); }
 
-// Roupas do Brunucho (troca no menu com a tecla C). Mude as cores à vontade.
+// Roupas do Brunucho (escolha no menu: ROUPA ou tecla C). Mude as cores à vontade!
+// Opções de cada roupa: tank (regata) · longSleeves · pants (calça comprida) · socks/socksStripe (meiões) ·
+// shoes ('tenis', 'chinelo', 'social', 'chuteira', 'pantufa', 'bota', 'meia') · collar/trim/badge (camisa de time) ·
+// vneck (terno) · cape · mask · belt · hood/orange (capivara) · headband · nightcap · sleepy · sunglasses · boxers...
 const HAIR = { hair: 0xc9a25e, hairDark: 0x8e6a35, hairLight: 0xe6c88a }; // loiro escuro
+const SKIN = { skin: 0xf3c9a4, skinDark: 0xdcaa82 };
 const OUTFITS = {
   praia: {
-    name: 'Praia',
-    colors: { ...HAIR, skin: 0xf3c9a4, skinDark: 0xdcaa82,
-      shirt: 0x22222a, shirtDark: 0x111116, shorts: 0xf27a8a, shortsDark: 0xd65a6d },
+    name: 'Praia', desc: 'Blusa preta, bermuda rosa, óculos na cabeça e chinelo (igual na foto).',
+    colors: { ...HAIR, ...SKIN, shirt: 0x22222a, shirtDark: 0x111116, shorts: 0xf27a8a, shortsDark: 0xd65a6d },
     longSleeves: true, sunglasses: true, shoes: 'chinelo',
   },
   diesel: {
-    name: 'Diesel',
+    name: 'Diesel', desc: 'Blusa azul da Diesel e bermuda de moletom azul-clara.',
     colors: { ...HAIR, skin: 0xffdcc4, skinDark: 0xf0bfa0,
       shirt: 0x1e3f8f, shirtDark: 0x152d68, shorts: 0x6a98e0, shortsDark: 0x4f7cc4 },
     chestBadge: true, drawstring: true, shoes: 'tenis',
+  },
+  cueca: {
+    name: 'Cueca Lendária', desc: 'Regata, cueca de bolinhas e meiões. Sem vergonha nenhuma.',
+    colors: { ...HAIR, ...SKIN, shirt: 0xf2f2f2, shirtDark: 0xcfcfcf, shorts: 0xe53935, shortsDark: 0xb71c1c },
+    tank: true, boxers: { waist: 0xffffff, dot: 0xffffff }, shoes: 'meia', socks: 0xf5f5f5,
+  },
+  terno: {
+    name: 'Terno', desc: 'Pronto para a reunião mais importante da vida.',
+    colors: { ...HAIR, ...SKIN, shirt: 0x20242e, shirtDark: 0x14171e, shorts: 0x20242e, shortsDark: 0x14171e },
+    longSleeves: true, pants: true, vneck: { shirt: 0xffffff, tie: 0xd62828 }, shoes: 'social',
+  },
+  palmeiras: {
+    name: 'Palmeiras', desc: 'Conjunto completo: camisa, calção e meiões verdes. Avanti!',
+    colors: { ...HAIR, ...SKIN, shirt: 0x0a7a40, shirtDark: 0x075f31, shorts: 0xffffff, shortsDark: 0xd8d8d8 },
+    collar: 0xffffff, trim: 0xffffff, badge: { bg: 0xffffff, fg: 0x0a7a40, letter: 'P' },
+    socks: 0x0a7a40, socksStripe: 0xffffff, shoes: 'chuteira',
+  },
+  selecao: {
+    name: 'Seleção', desc: 'Camisa amarela, calção azul e meião branco. Rumo ao hexa!',
+    colors: { ...HAIR, ...SKIN, shirt: 0xffd814, shirtDark: 0xd9b400, shorts: 0x1f4fb3, shortsDark: 0x173c8a },
+    collar: 0x0f8a3c, trim: 0x0f8a3c, badge: { bg: 0x0f8a3c, fg: 0xffd814, letter: null },
+    socks: 0xffffff, socksStripe: 0x1f4fb3, shoes: 'chuteira',
+  },
+  pijama: {
+    name: 'Pijama', desc: 'Listrado, com touca e pantufa. Com muito sono.',
+    colors: { ...HAIR, ...SKIN, shirt: 0x8fc1f2, shirtDark: 0x6aa1da, shorts: 0x8fc1f2, shortsDark: 0x6aa1da },
+    longSleeves: true, pants: true, shirtStripes: 0xffffff, stripes: 0xffffff, nightcap: 0x4a7ac8, sleepy: true, shoes: 'pantufa',
+  },
+  heroi: {
+    name: 'Super-Brunucho', desc: 'Capa, máscara e o emblema B. Aura nível máximo.',
+    colors: { ...HAIR, ...SKIN, shirt: 0x1e4fa8, shirtDark: 0x153a80, shorts: 0x1e4fa8, shortsDark: 0x153a80 },
+    longSleeves: true, pants: true, cape: 0xd62828, capeDark: 0x9a1b1b, mask: 0x1b1b2a, belt: 0xffd23f,
+    badge: { bg: 0xffd23f, fg: 0xd62828, letter: 'B' }, shoes: 'bota', shoeColor: 0xd62828,
+  },
+  academia: {
+    name: 'Sigma da Academia', desc: 'Regata, bandana e muito foco. Hoje é dia de perna.',
+    colors: { ...HAIR, ...SKIN, shirt: 0x1b1b22, shirtDark: 0x0f0f14, shorts: 0x4a4a52, shortsDark: 0x34343a },
+    tank: true, headband: 0xd62828, sideStripe: 0xd62828, shoes: 'tenis',
+  },
+  capivara: {
+    name: 'Fantasia de Capivara', desc: 'Capuz de capivara, com a laranja na cabeça, claro.',
+    colors: { ...HAIR, ...SKIN, shirt: 0x8a6142, shirtDark: 0x6b4a30, shorts: 0x6b4a30, shortsDark: 0x4f361f },
+    longSleeves: true, hood: 0x8a6142, hoodDark: 0x6b4a30, orange: true, pocket: 0x6b4a30, shoes: 'bota', shoeColor: 0x4f361f,
   },
 };
 const OUTFIT_KEYS = Object.keys(OUTFITS);
@@ -247,6 +296,7 @@ const Storage = {
 };
 
 function textStyle(size, color = '#ffffff') {
+  if (IS_TOUCH && size < 18) size = Math.round(size * 1.3);   // no celular a tela é pequena: letra miúda não dá pra ler
   return { fontFamily: FONT, fontSize: `${size}px`, color, stroke: '#1b1b2a', strokeThickness: Math.max(3, size / 6) };
 }
 

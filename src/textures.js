@@ -99,7 +99,7 @@ function generateTextures(scene) {
   // (um quadro por pose: player_praia, player_praia_walk1, player_praia_walk2, player_praia_jump)
   for (const [key, outfit] of Object.entries(OUTFITS)) {
     for (const pose of POSE_KEYS) {
-      make(`player_${key}${pose === 'idle' ? '' : '_' + pose}`, 26, 36, (g) => drawPlayer(g, outfit, pose));
+      make(`player_${key}${pose === 'idle' ? '' : '_' + pose}`, 34, 40, (g) => drawPlayer(g, outfit, pose));
     }
   }
 
@@ -779,52 +779,126 @@ const POSES = {
 };
 const POSE_KEYS = Object.keys(POSES);
 
-// Desenha o Brunucho com as cores/acessórios de uma roupa (veja OUTFITS em config.js).
+// Desenha o Brunucho com a roupa escolhida (veja OUTFITS em config.js).
+// O quadro tem 34x40: o desenho é empurrado 4px pra dentro pra sobrar espaço pra capa, orelhas e touca.
+const LETTERS = { P: ['XXX', 'X.X', 'XXX', 'X..', 'X..'], B: ['XX.', 'X.X', 'XX.', 'X.X', 'XX.'] };
 function drawPlayer(g, o, pose = 'idle') {
+  g.translateCanvas(4, 4);
   const c = o.colors;
   const P = POSES[pose];
-  const sleeve = o.longSleeves ? c.shirt : c.skin;
-  const sleeveBack = o.longSleeves ? c.shirtDark : c.skinDark;
-  const A = (x, y, w, h) => g.fillRect(x + P.a[0], y + P.a[1], w, h);
-  const B = (x, y, w, h) => g.fillRect(x + P.b[0], y + P.b[1], w, h);
+  const A = (x, y, w, h) => g.fillRect(x + P.a[0], y + P.a[1], w, h);   // perna de trás
+  const B = (x, y, w, h) => g.fillRect(x + P.b[0], y + P.b[1], w, h);   // perna da frente
+  const upper = o.tank ? c.skin : c.shirt, upperBack = o.tank ? c.skinDark : c.shirtDark;
+  const lower = o.longSleeves ? c.shirt : c.skin, lowerBack = o.longSleeves ? c.shirtDark : c.skinDark;
+
+  // capa (atrás de tudo) e capuz (atrás da cabeça)
+  if (o.cape) {
+    const f = pose === 'jump' ? -3 : 0;
+    g.fillStyle(o.capeDark); g.fillTriangle(6, 17, 11, 19, -4 + f, 38);
+    g.fillStyle(o.cape); g.fillTriangle(5, 16, 10, 18, -5 + f, 35); g.fillTriangle(10, 18, 9, 33, -5 + f, 35);
+  }
+  if (o.hood) {
+    g.fillStyle(o.hood); g.fillRoundedRect(2, 0, 24, 19, 7);
+    g.fillStyle(o.hoodDark); g.fillRect(2, 12, 4, 7);
+  }
 
   // braço de trás
-  g.fillStyle(c.shirtDark); g.fillRect(2, 18 - P.arm, 5, 4);
-  g.fillStyle(sleeveBack); g.fillRect(2, 22 - P.arm, 5, 3);
+  g.fillStyle(upperBack); g.fillRect(2, 18 - P.arm, 5, 4);
+  g.fillStyle(lowerBack); g.fillRect(2, 22 - P.arm, 5, 3);
   g.fillStyle(c.skinDark); g.fillRect(2, 25 - P.arm, 4, 3);
-  // pernas
-  g.fillStyle(c.skin); A(7, 30, 4, 4); B(15, 30, 4, 4);
-  if (o.shoes === 'chinelo') {
+
+  // pernas, meiões e sapatos
+  g.fillStyle(o.pants ? c.shorts : c.skin); A(7, 30, 4, 4); B(15, 30, 4, 4);
+  if (o.socks && !o.pants) {
+    g.fillStyle(o.socks); A(7, 30, 4, 4); B(15, 30, 4, 4);
+    if (o.socksStripe) { g.fillStyle(o.socksStripe); A(7, 31, 4, 1); B(15, 31, 4, 1); }
+  }
+  const shoe = o.shoes || 'tenis';
+  if (shoe === 'chinelo') {
     g.fillStyle(c.skin); A(6, 33, 6, 2); B(15, 33, 7, 2);
     g.fillStyle(0xf5f5f5); A(6, 35, 6, 1); B(14, 35, 8, 1);
     g.fillStyle(0xdddddd); A(9, 33, 1, 2); B(18, 33, 1, 2);
-  } else {
+  } else if (shoe === 'social') {
+    g.fillStyle(0x15151a); A(6, 33, 6, 3); B(14, 33, 8, 3);
+    g.fillStyle(0x4a4a55); A(6, 33, 6, 1); B(14, 33, 8, 1);
+  } else if (shoe === 'chuteira') {
+    g.fillStyle(0x1b1b22); A(6, 32, 6, 3); B(14, 32, 8, 3);
+    g.fillStyle(0xffffff); A(7, 33, 3, 1); B(16, 33, 3, 1);
+    g.fillStyle(0x6a6a70); A(6, 35, 6, 1); B(14, 35, 8, 1);
+  } else if (shoe === 'pantufa') {
+    g.fillStyle(0xf2a5c8); A(5, 32, 8, 4); B(14, 32, 9, 4);
+    g.fillStyle(0xffd0e4); A(6, 32, 6, 1); B(15, 32, 7, 1);
+    g.fillStyle(0xc77a9c); A(5, 35, 8, 1); B(14, 35, 9, 1);
+  } else if (shoe === 'bota') {
+    g.fillStyle(o.shoeColor || 0xd62828); A(6, 29, 6, 7); B(14, 29, 8, 7);
+    g.fillStyle(0x15151a); A(6, 35, 6, 1); B(14, 35, 8, 1);
+  } else if (shoe === 'meia') {
+    g.fillStyle(o.socks || 0xf5f5f5); A(6, 30, 6, 6); B(14, 30, 8, 6);
+    g.fillStyle(0xc9c9c9); A(6, 35, 6, 1); B(14, 35, 8, 1);
+  } else {                                   // tênis branco
     g.fillStyle(0xf5f5f5); A(6, 32, 6, 3); B(14, 32, 8, 3);
     g.fillStyle(0x9a9a9a); A(6, 35, 6, 1); B(14, 35, 8, 1);
   }
-  // bermuda
-  g.fillStyle(c.shorts); g.fillRect(5, 25, 16, 6);
-  g.fillStyle(c.shortsDark); g.fillRect(5, 25, 16, 1); g.fillRect(12, 28, 2, 3);
-  if (o.drawstring) { g.fillStyle(0xffffff); g.fillRect(11, 26, 1, 3); g.fillRect(14, 26, 1, 3); }
-  // blusa
+
+  // bermuda / calça / cueca
+  if (o.boxers) {
+    g.fillStyle(c.shorts); g.fillRect(5, 25, 16, 5);
+    g.fillStyle(c.shortsDark); g.fillRect(5, 29, 16, 1);
+    g.fillStyle(o.boxers.waist); g.fillRect(5, 25, 16, 2);
+    g.fillStyle(o.boxers.dot); [[7, 28], [10, 27], [13, 28], [16, 27], [19, 28], [9, 29]].forEach(([x, y]) => g.fillRect(x, y, 2, 1));
+  } else {
+    g.fillStyle(c.shorts); g.fillRect(5, 25, 16, 6);
+    g.fillStyle(c.shortsDark); g.fillRect(5, 25, 16, 1); g.fillRect(12, 28, 2, 3);
+    if (o.drawstring) { g.fillStyle(0xffffff); g.fillRect(11, 26, 1, 3); g.fillRect(14, 26, 1, 3); }
+    if (o.stripes) { g.fillStyle(o.stripes); for (let x = 6; x < 21; x += 3) g.fillRect(x, 26, 1, 5); }
+    if (o.sideStripe) { g.fillStyle(o.sideStripe); g.fillRect(5, 26, 1, 5); g.fillRect(20, 26, 1, 5); }
+  }
+
+  // blusa / camisa / paletó
   g.fillStyle(c.shirt); g.fillRoundedRect(4, 16, 18, 10, 3);
   g.fillStyle(c.shirtDark); g.fillRect(4, 24, 18, 2);
+  if (o.shirtStripes) { g.fillStyle(o.shirtStripes); for (let x = 6; x < 21; x += 3) g.fillRect(x, 17, 1, 8); }
+  if (o.pocket) { g.fillStyle(o.pocket); g.fillRect(8, 21, 10, 4); }
+  if (o.vneck) {                                       // terno: camisa branca em V + gravata
+    g.fillStyle(o.vneck.shirt); g.fillTriangle(11, 16, 20, 16, 15, 25);
+    g.fillStyle(o.vneck.tie); g.fillRect(14, 17, 3, 2); g.fillTriangle(14, 19, 17, 19, 15.5, 25);
+    g.fillStyle(c.shirtDark); g.fillRect(11, 16, 1, 6); g.fillRect(19, 16, 1, 5);
+  }
+  if (o.collar) { g.fillStyle(o.collar); g.fillRect(11, 16, 8, 2); g.fillRect(12, 18, 6, 1); g.fillRect(13, 19, 4, 1); }
   if (o.chestBadge) {
     g.fillStyle(0xd62828); g.fillRect(14, 19, 5, 3);
     g.fillStyle(0xffffff); g.fillRect(15, 20, 3, 1);
   }
+  if (o.badge) {
+    g.fillStyle(o.badge.bg); g.fillRect(14, 18, 5, 7);
+    g.fillStyle(o.badge.fg);
+    if (o.badge.letter) LETTERS[o.badge.letter].forEach((row, r) => [...row].forEach((ch, k) => { if (ch === 'X') g.fillRect(15 + k, 19 + r, 1, 1); }));
+    else { g.fillRect(15, 20, 3, 3); }
+  }
+  if (o.belt) { g.fillStyle(o.belt); g.fillRect(4, 24, 18, 2); g.fillStyle(0xfff3b0); g.fillRect(12, 24, 3, 2); }
+
   // braço da frente
-  g.fillStyle(c.shirt); g.fillRect(19, 17 + P.arm, 5, 4);
-  g.fillStyle(sleeve); g.fillRect(19, 21 + P.arm, 5, 3);
+  g.fillStyle(upper); g.fillRect(19, 17 + P.arm, 5, 4);
+  g.fillStyle(lower); g.fillRect(19, 21 + P.arm, 5, 3);
+  if (o.trim) { g.fillStyle(o.trim); g.fillRect(19, 20 + P.arm, 5, 1); }       // barrinha na ponta da manga
   g.fillStyle(c.skin); g.fillRect(20, 24 + P.arm, 4, 3);
+
   // cabeça
   g.fillStyle(c.skin); g.fillRoundedRect(5, 3, 18, 14, 4);
-  g.fillStyle(c.skinDark); g.fillRect(8, 9, 2, 3); // orelha
-  // olhos, sobrancelhas e sorriso
-  g.fillStyle(0x1b1b2a); g.fillRect(15, 9, 2, 3); g.fillRect(20, 9, 2, 3);
-  g.fillStyle(c.hairDark); g.fillRect(14, 7, 4, 1); g.fillRect(19, 7, 3, 1);
+  g.fillStyle(c.skinDark); g.fillRect(8, 9, 2, 3);                              // orelha
+  if (o.mask) {
+    g.fillStyle(o.mask); g.fillRect(12, 7, 11, 5);
+    g.fillStyle(0xffffff); g.fillRect(15, 9, 2, 2); g.fillRect(20, 9, 2, 2);
+  } else if (o.sleepy) {
+    g.fillStyle(0x1b1b2a); g.fillRect(15, 10, 3, 1); g.fillRect(20, 10, 3, 1);  // olhos fechadinhos
+    g.fillStyle(c.hairDark); g.fillRect(14, 8, 4, 1); g.fillRect(19, 8, 3, 1);
+  } else {
+    g.fillStyle(0x1b1b2a); g.fillRect(15, 9, 2, 3); g.fillRect(20, 9, 2, 3);
+    g.fillStyle(c.hairDark); g.fillRect(14, 7, 4, 1); g.fillRect(19, 7, 3, 1);
+  }
   g.fillStyle(0xb5634a); g.fillRect(17, 14, 4, 1);
   g.fillStyle(0xff8a8a, 0.5); g.fillRect(12, 12, 3, 2);
+
   // cabelo curto com topete para frente
   g.fillStyle(c.hair);
   g.fillRoundedRect(4, 0, 19, 7, 3);
@@ -832,7 +906,23 @@ function drawPlayer(g, o, pose = 'idle') {
   g.fillTriangle(14, 1, 26, 4, 14, 7);
   g.fillStyle(c.hairDark); g.fillRect(4, 6, 4, 2); g.fillRect(10, 5, 6, 1);
   g.fillStyle(c.hairLight); g.fillRect(9, 1, 8, 2);
-  // óculos escuros apoiados na cabeça
+
+  // acessórios na cabeça
+  if (o.hood) {                                        // frente do capuz (cobre o cabelo) + orelhas + laranja
+    g.fillStyle(o.hood); g.fillRoundedRect(3, -1, 22, 7, 4); g.fillRect(2, 2, 4, 13);
+    g.fillStyle(o.hoodDark); g.fillRect(2, 14, 4, 2); g.fillRect(24, 4, 2, 10);
+    [8, 20].forEach((x) => { g.fillStyle(o.hood); g.fillCircle(x, 0, 3.5); g.fillStyle(0xd9a77a); g.fillCircle(x, 0, 1.6); });
+  }
+  if (o.headband) { g.fillStyle(o.headband); g.fillRect(4, 4, 20, 2); g.fillRect(2, 5, 3, 3); }
+  if (o.nightcap) {
+    g.fillStyle(o.nightcap); g.fillTriangle(5, 4, 22, 3, -2, 15); g.fillRoundedRect(4, 1, 19, 5, 2);
+    g.fillStyle(0xffffff); g.fillRect(4, 4, 19, 2); g.fillCircle(-2, 16, 3);
+  }
+  if (o.orange) {
+    g.fillStyle(0xff9a1f); g.fillCircle(14, -1, 4);
+    g.fillStyle(0xffc060); g.fillCircle(13, -2, 1.5);
+    g.fillStyle(0x3fa34d); g.fillRect(14, -5, 3, 2);
+  }
   if (o.sunglasses) {
     g.fillStyle(0x1b1b2a); g.fillRect(8, 2, 16, 2);
     g.fillRoundedRect(12, 1, 5, 3, 1); g.fillRoundedRect(19, 1, 5, 3, 1);

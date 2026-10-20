@@ -98,8 +98,7 @@ const Sfx = {
   powerUp()    { [392, 523, 659, 784, 1047].forEach((f, i) => this.tone(f, 0.1, { vol: 0.07, delay: i * 0.05 })); },
 };
 
-window.addEventListener('keydown', () => Sfx.unlock());
-window.addEventListener('pointerdown', () => Sfx.unlock());
+['keydown', 'pointerdown', 'touchend', 'click'].forEach((ev) => window.addEventListener(ev, () => Sfx.unlock()));
 
 // ---------------------------------------------------------------- Minha voz
 // As falas do jogo. "tts" é a voz do computador (usada quando não tem gravação); null = só toca se você gravar.
