@@ -45,7 +45,7 @@ liberar todas as fases e apagar o progresso.
 ### 🎤 Minha voz (narração)
 
 Em **Opções → 🎤 Gravar minha voz** você grava a sua voz em cada fala do jogo: *Six seven!*, *Moggado!*, *Moggados!*,
-*Olhar de mil jardas*, *Anjo caído*, *Aura!* e *Ai, mãe!*. Onde você gravar, o jogo usa a **sua** voz; onde não gravar,
+*Olhar de mil jardas*, *Anjo caído*, *Churros!*, *Aura!* e *Ai, mãe!*. Onde você gravar, o jogo usa a **sua** voz; onde não gravar,
 usa a voz do computador (*Aura!* e *Ai, mãe!* só tocam se você gravar).
 
 | Tecla | O que faz |
@@ -68,7 +68,7 @@ música da intro, de vitória e de game over. As notas ficam em `SONGS` e dá pr
 
 ### Conquistas
 
-**50 conquistas**, como *Fugiu da Chinelada*, *Mogador Serial*, *Haja Coração!*, *Foi Pênalti?*, *Sigma do Combo*,
+**54 conquistas**, como *Fugiu da Chinelada*, *Mogador Serial*, *Haja Coração!*, *Foi Pênalti?*, *Sigma do Combo*,
 *Atropelamento 67*, *A Andreia Te Achou* e *Modo Andreia* (zerar no Difícil). Aparece um aviso na tela quando desbloqueia
 e dá pra ver todas no menu. A lista fica em `src/achievements.js`.
 
@@ -132,10 +132,25 @@ As falas e a velocidade ficam em `FAMOUS`, no `config.js`.
 
 Ficam em `MEMES`, no `config.js` (no mapa são letras minúsculas: `b p c l r`).
 
+### Memes clássicos da internet
+
+| Meme | O que faz |
+|---|---|
+| 🚽 Skibidi Toilet | fica parado e **cospe 3 jatos d'água** em arco |
+| 🐕 Doge | se agacha ("Much wow!") e **dispara na sua direção** |
+| 🐱 Nyan Cat | **voa em ondas** deixando um arco-íris; pise nele de cima |
+| 💪 Gigachad | lento, mas **aguenta 3 pisões** (grandão derruba em 1) |
+| 😵 Nazaré Confusa | solta uma onda de contas e **inverte seus controles por 2 segundos** |
+
+No mapa: `s d y g z`. Moggar os 5 dá a conquista **Rei dos Memes**. São 85 espalhados pelas fases, mais nas mais difíceis.
+
 ### Poderes
 
 - **67**: modo *six seven* por **6,7 segundos**: invencível, mais rápido, pula mais alto e derruba inimigo só de encostar.
 - **Aura**: escudo brilhante que aguenta **um golpe**.
+- **Churros** 🍬: o Brunucho fica **grandão (1,5×)** e ganha **1 golpe extra**: se for atingido, ele só encolhe (e fica uns
+  2 segundos invencível) em vez de perder uma vida. Grandão também **derruba inimigo duro numa pisada só**. Cair no
+  buraco continua matando. Tem pelo menos 1 em cada fase (2 nas mais longas).
 - **Coxinha** 🍗: +1 vida.
 - **Tênis de Mola** 👟: **pulo duplo** até o fim da fase (aperte pular de novo no ar).
 - **Ímã de Aura** 🧲: puxa as moedas por perto durante 12 segundos.
@@ -193,6 +208,7 @@ src/textures.js     desenhos (gerados por código)
 src/scenery.js      cenários (Rio, SP, Bahia, Escola Zacarias) e enfeites
 src/estados.js      cartões-postais, fundo dos buracos, clima e temas dos estados
 tools/gerar_fases.py  gerador e verificador das fases dos estados
+tools/colocar_extras.py  coloca churros e memes novos nas fases (rode depois de regerar as fases)
 src/audio.js        efeitos sonoros e vozes (gerados por código)
 src/gamepad.js      suporte a controle de videogame
 src/phaser-fix.js   correção de teclas repetidas no Phaser
@@ -220,6 +236,7 @@ X  plataforma que cai
 b  Bombardiro       p  Patapim          c  Bananini
 l  Lirilì Larilà    r  Ballerina Cappuccina
 L  poste de luz     S  Escola Zacarias (enfeite)
+U  churros          s d y g z  memes clássicos (Skibidi, Doge, Nyan, Gigachad, Nazaré)
 N  Neymar           V  Galvão Bueno
 J  Casimiro         D  Ednaldo Pereira
 ```

@@ -34,6 +34,10 @@ class GameScene extends Phaser.Scene {
     this.airJumps = 0;
     this.magnetTime = 0;        // Ímã de Aura
     this.mogsIn67 = 0;
+    this.big = false;           // Churros: grandão (aguenta 1 golpe)
+    this.bigScale = 1;
+    this.confused = 0;          // Nazaré Confusa: controles invertidos (segundos que faltam)
+    this.confuseTexts = [];
     this.stareTime = 0;         // Olhar de Mil Jardas (tempo parado)
     this.hasWings = false;      // Anjo Caído: planar
     this.haloAvailable = false; // Anjo Caído: salva de uma queda
@@ -145,7 +149,7 @@ class GameScene extends Phaser.Scene {
           this.tweens.add({ targets: e, angle: { from: -5, to: 5 }, duration: 300, yoyo: true, repeat: -1 });
           break;
         }
-        case 'b': case 'p': case 'c': case 'l': case 'r': { // memes brainrot
+        case 'b': case 'p': case 'c': case 'l': case 'r': case 's': case 'd': case 'y': case 'g': case 'z': { // memes brainrot
           const m = MEMES[o.ch];
           const e = this.spawnEnemy(m.key, cx, bottom, m);
           e.famous = m;   // reaproveita as falas
@@ -156,8 +160,12 @@ class GameScene extends Phaser.Scene {
             e.body.setAllowGravity(false);
             e.startX = cx; e.range = 6 * TILE;
             e.play('bombardiro_fly');
-          } else if (m.behavior === 'walker') {
+          } else if (m.behavior === 'walker' && m.key !== 'gigachad') {
             this.tweens.add({ targets: e, angle: { from: -4, to: 4 }, duration: 260, yoyo: true, repeat: -1 });
+          } else if (m.behavior === 'nyan') {
+            e.body.setAllowGravity(false);
+            e.setCollideWorldBounds(false);
+            e.startX = cx; e.baseY = e.y; e.phase = Math.random() * 6;
           }
           break;
         }
@@ -185,8 +193,8 @@ class GameScene extends Phaser.Scene {
           if (p.kind === 'aura') this.tweens.add({ targets: p, scale: 1.15, alpha: 0.8, duration: 400, yoyo: true, repeat: -1 });
           break;
         }
-        case 'H': case 'T': case 'M': case 'Q': case 'W': { // coxinha, tênis, ímã, olhar de mil jardas, anjo caído
-          const kind = { H: 'coxinha', T: 'tenis', M: 'ima', Q: 'olhar', W: 'anjo' }[o.ch];
+        case 'H': case 'T': case 'M': case 'Q': case 'W': case 'U': { // coxinha, tênis, ímã, olhar, anjo caído, churros
+          const kind = { H: 'coxinha', T: 'tenis', M: 'ima', Q: 'olhar', W: 'anjo', U: 'churros' }[o.ch];
           const tex = { olhar: 'pw_olhar', anjo: 'pw_anjo' }[kind] || kind;
           const p = this.powerups.create(cx, cy, tex);
           p.kind = kind;
@@ -229,6 +237,11 @@ class GameScene extends Phaser.Scene {
     this.fxFeather = this.add.particles(0, 0, 'pena', {
       lifespan: 900, speed: { min: 20, max: 80 }, gravityY: 60, rotate: { min: 0, max: 360 }, alpha: { start: 1, end: 0 }, emitting: false,
     }).setDepth(6);
+    // rastro de arco-íris do Nyan Cat
+    this.fxRainbow = this.add.particles(0, 0, 'px', {
+      lifespan: 520, speed: 0, scale: { start: 2.4, end: 0.5 }, alpha: { start: 0.9, end: 0 }, emitting: false,
+      tint: [0xff3b3b, 0xff9a1f, 0xffe14d, 0x4cd964, 0x4aa3ff, 0xa56bff],
+    }).setDepth(4);
     // sombreado suave nos cantos da tela
     if (this.cameras.main.postFX) this.cameras.main.postFX.addVignette(0.5, 0.5, 0.92, 0.28);
     // Plaquinha com o nome em cima do personagem (some depois de alguns segundos)
@@ -241,7 +254,7 @@ class GameScene extends Phaser.Scene {
 
     // --- Colisões ---
     this.physics.add.collider(this.player, this.layer);
-    this.physics.add.collider(this.enemies, this.layer);
+    this.physics.add.collider(this.enemies, this.layer, null, (e) => e.behavior !== 'nyan', this);   // o Nyan Cat voa por cima de tudo
     this.physics.add.overlap(this.player, this.coins, this.collectCoin, null, this);
     this.physics.add.overlap(this.player, this.spikes, () => this.die('espinho'), null, this);
     this.physics.add.overlap(this.player, this.powerups, this.collectPower, null, this);
@@ -445,6 +458,8 @@ class GameScene extends Phaser.Scene {
     if (this.magnetTime > 0) status.push(`🧲 ímã ${this.magnetTime.toFixed(0)}s`);
     if (this.stareTime > 0) status.push(`👁️ ${this.stareTime.toFixed(0)}s`);
     if (this.hasWings) status.push(this.haloAvailable ? '😇 asas + auréola' : '🪽 asas');
+    if (this.big) status.push('🍬 grandão (aguenta 1 golpe)');
+    if (this.confused > 0) status.push('😵 CONFUSO!');
     this.auraText.setText(status.join('   '));
     this.powerText.setText(this.powerTime > 0 && !this.finished ? `SIX SEVEN! ${this.powerTime.toFixed(1)}s` : '');
   }
@@ -520,8 +535,11 @@ class GameScene extends Phaser.Scene {
 
     const p = this.player;
     const b = p.body;
-    const left = k.LEFT.isDown || k.A.isDown || this.touch.left;
-    const right = k.RIGHT.isDown || k.D.isDown || this.touch.right;
+    const rawLeft = k.LEFT.isDown || k.A.isDown || this.touch.left;
+    const rawRight = k.RIGHT.isDown || k.D.isDown || this.touch.right;
+    if (this.confused > 0) this.confused -= dt;
+    const left = this.confused > 0 ? rawRight : rawLeft;      // Nazaré: esquerda e direita trocadas
+    const right = this.confused > 0 ? rawLeft : rawRight;
     const jumpHeld = k.SPACE.isDown || k.UP.isDown || k.W.isDown || this.touch.jump;
     const jumpPressed = this.jumpQueued || this.touch.jumpPressed;
     this.jumpQueued = false;
@@ -664,10 +682,10 @@ class GameScene extends Phaser.Scene {
     }
     this.playerGfx
       .setPosition(b.x + b.halfWidth, b.y + b.height)
-      .setScale(1 - s * 0.6, 1 + s)
+      .setScale((1 - s * 0.6) * this.bigScale, (1 + s) * this.bigScale)
       .setFlipX(this.facing < 0)
       .setAngle(b.blocked.down ? 0 : Phaser.Math.Clamp(b.velocity.x * 0.02, -6, 6));
-    this.nameTag.setPosition(this.playerGfx.x, this.playerGfx.y - 40).setVisible(this.playerGfx.visible);
+    this.nameTag.setPosition(this.playerGfx.x, this.playerGfx.y - 40 * this.bigScale).setVisible(this.playerGfx.visible);
     // sombra no chão logo abaixo (fica menor quanto mais alto ele está)
     let groundY = null;
     for (let y = b.bottom; y < b.bottom + 8 * TILE && y < this.mapH; y += 8) {
@@ -676,20 +694,29 @@ class GameScene extends Phaser.Scene {
     }
     if (groundY !== null && this.playerGfx.visible) {
       const k = Phaser.Math.Clamp(1 - (groundY - b.bottom) / (6 * TILE), 0.3, 1);
-      this.shadow.setVisible(true).setPosition(b.center.x, groundY).setScale(k).setAlpha(k);
+      this.shadow.setVisible(true).setPosition(b.center.x, groundY).setScale(k * this.bigScale).setAlpha(k);
     } else {
       this.shadow.setVisible(false);
     }
-    this.auraGlow.setPosition(this.playerGfx.x, this.playerGfx.y - 18).setVisible(this.hasAura && this.playerGfx.visible);
+    this.auraGlow.setPosition(this.playerGfx.x, this.playerGfx.y - 18 * this.bigScale).setVisible(this.hasAura && this.playerGfx.visible);
     const gx = this.playerGfx.x, gy = this.playerGfx.y, vis = this.playerGfx.visible;
     // asas: batem quando está no ar
-    this.wings.setVisible(this.hasWings && vis).setPosition(gx, gy - 20);
+    this.wings.setVisible(this.hasWings && vis).setPosition(gx, gy - 20 * this.bigScale).setScale(this.bigScale);
     if (this.hasWings && vis && !b.blocked.down) { if (!this.wings.anims.isPlaying) this.wings.play('asas_flap'); }
     else { this.wings.anims.stop(); this.wings.setTexture('asas_2'); }
-    this.haloImg.setVisible(this.haloAvailable && vis).setPosition(gx, gy - 41 + Math.sin(time * 0.005) * 2);
+    this.haloImg.setVisible(this.haloAvailable && vis).setPosition(gx, gy - 41 * this.bigScale + Math.sin(time * 0.005) * 2).setScale(this.bigScale);
     // cara de olhar vazio por cima do rosto
-    this.stareFace.setVisible(this.stareTime > 0 && vis).setFlipX(this.facing < 0)
-      .setPosition(this.facing < 0 ? gx - 13 : gx + 1, gy - 28);
+    const K = this.bigScale;
+    this.stareFace.setVisible(this.stareTime > 0 && vis).setFlipX(this.facing < 0).setScale(K)
+      .setPosition(this.facing < 0 ? gx - 13 * K : gx + 1 * K, gy - 28 * K);
+    // símbolos de conta girando na cabeça de quem está confuso
+    if (this.confuseTexts.length) {
+      if (this.confused <= 0) this.clearConfuse();
+      else this.confuseTexts.forEach((t, i) => {
+        const a = time * 0.006 + (i * Math.PI * 2) / this.confuseTexts.length;
+        t.setPosition(gx + Math.cos(a) * 24, gy - 44 * K + Math.sin(a) * 7);
+      });
+    }
   }
 
   spawnEnemy(key, cx, bottom, cfg) {
@@ -745,6 +772,73 @@ class GameScene extends Phaser.Scene {
         return;
       }
 
+      // ---- memes clássicos ----
+      const dyAbs = Math.abs(pb.center.y - b.center.y);
+      if (e.behavior === 'sprayer') {                    // Skibidi: cospe 3 jatos em arco
+        e.setVelocityX(0);
+        e.dir = dx > 0 ? 1 : -1;
+        e.setFlipX(e.dir > 0);
+        e.timer -= dt;
+        if (e.state === 'windup') {
+          e.setScale(1 + Math.sin(this.time.now * 0.04) * 0.07);
+          if (e.timer <= 0) { e.setScale(1); this.spray(e); e.state = 'walk'; e.timer = 2.4; }
+        } else if (e.timer <= 0 && Math.abs(dx) < 420 && dyAbs < 220 && !this.dead) {
+          e.state = 'windup'; e.timer = 0.45;
+          this.speech(e, Phaser.Utils.Array.GetRandom(e.famous.lines));
+        }
+        return;
+      }
+      if (e.behavior === 'charger') {                    // Doge: se agacha, avisa e dispara na sua direção
+        e.timer -= dt;
+        if (e.state === 'windup') {
+          e.setVelocityX(0);
+          if (e.timer <= 0) { e.state = 'dash'; e.timer = 1.0; e.dir = dx > 0 ? 1 : -1; }
+        } else if (e.state === 'dash') {
+          e.setVelocityX(e.dir * 300 * difficulty().enemySpeed);
+          if (b.blocked.left || b.blocked.right || this.atLedge(e) || e.timer <= 0) { e.state = 'rest'; e.timer = 1.4; e.setVelocityX(0); }
+        } else if (e.state === 'rest') {
+          e.setVelocityX(0);
+          if (e.timer <= 0) { e.state = 'walk'; e.timer = 0.8; }
+        } else {
+          if (b.blocked.left) e.dir = 1;
+          else if (b.blocked.right) e.dir = -1;
+          else if (b.blocked.down && this.atLedge(e)) e.dir *= -1;
+          e.setVelocityX(e.dir * e.speed);
+          if (e.timer <= 0 && Math.abs(dx) < 230 && dyAbs < 90 && !this.dead) {
+            e.state = 'windup'; e.timer = 0.55; e.dir = dx > 0 ? 1 : -1;
+            this.speech(e, Phaser.Utils.Array.GetRandom(e.famous.lines));
+          }
+        }
+        e.setFlipX(e.dir > 0);
+        return;
+      }
+      if (e.behavior === 'nyan') {                       // Nyan Cat: voa em ondas deixando um arco-íris
+        const t = this.time.now / 1000 + e.phase;
+        const R = 7 * TILE;
+        e.setPosition(e.startX + Math.sin(t * 0.8) * R, e.baseY + Math.sin(t * 2) * 26);
+        e.setVelocity(0, 0);
+        const right = Math.cos(t * 0.8) > 0;
+        e.setFlipX(right);
+        if (Math.random() < 0.6) this.fxRainbow.emitParticleAt(e.x + (right ? -20 : 20), e.y + Phaser.Math.Between(-8, 8));
+        return;
+      }
+      if (e.behavior === 'confuser') {                   // Nazaré: onda de confusão (inverte os controles)
+        e.setVelocityX(0);
+        e.dir = dx > 0 ? 1 : -1;
+        e.setFlipX(e.dir > 0);
+        e.timer -= dt;
+        if (e.state === 'windup') {
+          e.setScale(1 + Math.sin(this.time.now * 0.03) * 0.08);
+          if (e.timer <= 0) { e.setScale(1); e.state = 'walk'; e.timer = 5; this.confuse(e); }
+        } else if (e.timer <= 0 && Math.abs(dx) < 300 && dyAbs < 160 && !this.dead && this.confused <= 0) {
+          e.state = 'windup'; e.timer = 0.7;
+          this.speech(e, Phaser.Utils.Array.GetRandom(e.famous.lines));
+          const ring = this.add.circle(e.x, e.y - 12, 10).setStrokeStyle(3, 0xff8ad8).setDepth(7);
+          this.tweens.add({ targets: ring, scale: 30, alpha: 0, duration: 700, onComplete: () => ring.destroy() });
+          Sfx.tone(520, 0.6, { type: 'sine', to: 260, vol: 0.06 });
+        }
+        return;
+      }
       if (e.behavior === 'bomber') {
         // Bombardiro: voa reto e solta bomba quando passa por cima do Brunucho
         if (e.x > e.startX + e.range || b.blocked.right) e.dir = -1;
@@ -915,13 +1009,13 @@ class GameScene extends Phaser.Scene {
       this.defeatEnemy(enemy, true);
     } else if (pb.velocity.y > 0 && pb.bottom <= eb.top + 12) {
       // Caindo e vindo de cima = pisou no inimigo
-      if (enemy.hp > 1) {
+      if (enemy.hp > 1 && !this.big) {   // grandão derruba inimigo duro numa pisada só
         // inimigo duro (Lirilì): perde uma vida, pisca e o Brunucho quica
         if (this.time.now < (enemy.hurtUntil || 0)) return;
         enemy.hp--;
         enemy.hurtUntil = this.time.now + 400;
-        enemy.setTexture(`${enemy.texture.key}_hit`);
-        this.time.delayedCall(120, () => enemy.active && enemy.setTexture(enemy.famous.key));
+        enemy.setTintFill(0xffffff);
+        this.time.delayedCall(120, () => enemy.active && enemy.clearTint());
         player.setVelocityY(-PHYS.stomp);
         this.squash = 0.3;
         this.speech(enemy, 'Ai! Mais uma!');
@@ -929,6 +1023,7 @@ class GameScene extends Phaser.Scene {
         return;
       }
       this.defeatEnemy(enemy, false);
+      if (this.big && enemy.famous && enemy.famous.key === 'gigachad') Achievements.unlock('esmagador');
       const held = this.keys.SPACE.isDown || this.keys.UP.isDown || this.keys.W.isDown || this.touch.jump;
       player.setVelocityY(held ? -PHYS.jump : -PHYS.stomp); // segurando pulo = quique mais alto
       this.jumping = held;
@@ -969,11 +1064,15 @@ class GameScene extends Phaser.Scene {
     if (f === 'ednaldo') Achievements.unlock('ednaldo');
     if (f === 'neymar' && (enemy.state === 'roll' || enemy.state === 'fallen')) Achievements.unlock('neymar');
     if (f === 'caze' && !enemy.body.blocked.down) Achievements.unlock('caze');
-    if (enemy.famous && Object.values(MEMES).some((m) => m.key === f)) {
-      const seen = new Set(Storage.get('pp_brainrot', []));
+    const meme = Object.values(MEMES).find((m) => m.key === f);
+    if (enemy.famous && meme) {
+      // um conjunto salvo por grupo: os 5 brainrot e os 5 memes clássicos
+      const store = meme.group === 'brainrot' ? 'pp_brainrot' : 'pp_memes';
+      const seen = new Set(Storage.get(store, []));
       seen.add(f);
-      Storage.set('pp_brainrot', [...seen]);
-      if (seen.size >= Object.keys(MEMES).length) Achievements.unlock('brainrot');
+      Storage.set(store, [...seen]);
+      const total = Object.values(MEMES).filter((m) => m.group === meme.group).length;
+      if (seen.size >= total) Achievements.unlock(meme.group === 'brainrot' ? 'brainrot' : 'memes_all');
     }
   }
 
@@ -1048,6 +1147,78 @@ class GameScene extends Phaser.Scene {
     });
   }
 
+  // ---- Churros: grandão ----
+  // Muda o tamanho do corpo (1 = normal, 1.5 = grandão) mantendo os pés no mesmo lugar
+  setPlayerSize(k) {
+    const b = this.player.body;
+    const bottom = b.bottom;
+    this.bigScale = k;
+    b.setSize(20 * k, 28 * k, true);
+    this.player.setY(bottom - (28 * k) / 2);
+    b.updateFromGameObject();
+  }
+
+  grow(x, y) {
+    if (this.big) { this.addScore(500, x, y - 20, '+500'); Sfx.coin(); return; }   // já está grande: vira pontos
+    this.big = true;
+    this.setPlayerSize(1.5);
+    this.squash = 0.5;
+    this.addScore(500);
+    this.fxAura.explode(24, x, y);
+    this.cameras.main.flash(150, 255, 200, 120);
+    this.floatText(x, y - 28, 'CHURROS! GRANDÃO! (aguenta 1 golpe)', '#ffb35c', 20);
+    Sfx.powerUp();
+    Sfx.voice('churros');
+    Achievements.unlock('churros');
+    this.updateHud();
+  }
+
+  // Levou um golpe estando grande: encolhe (e fica um tempo invencível)
+  hurtBig() {
+    this.big = false;
+    this.setPlayerSize(1);
+    this.invuln = 1.8;
+    this.player.setVelocityY(-300);
+    const b = this.player.body;
+    this.fxHit.explode(18, b.center.x, b.center.y);
+    this.floatText(b.center.x, b.top - 14, 'o churros acabou!', '#ffd9a0', 18);
+    this.shake(120, 0.006);
+    Sfx.auraBreak();
+    this.updateHud();
+  }
+
+  // ---- Memes novos ----
+  // Skibidi cospe 3 jatos d'água em arco
+  spray(e) {
+    [[90, -430], [150, -470], [215, -510]].forEach(([vx, vy]) => {
+      const d = this.shots.create(e.x + e.dir * 10, e.y - 10, 'gota');
+      d.body.setAllowGravity(true);
+      d.body.setSize(8, 10);
+      d.setVelocity(e.dir * vx, vy);
+      d.setAngularVelocity(e.dir * 300);
+      this.time.delayedCall(3200, () => d.active && d.destroy());
+    });
+    Sfx.tone(500, 0.12, { type: 'sine', to: 900, vol: 0.06 });
+  }
+
+  // Nazaré inverte esquerda e direita por uns 2 segundos
+  confuse(e) {
+    const pb = this.player.body;
+    if (this.dead || Math.abs(pb.center.x - e.x) > 340) return;       // você saiu do alcance a tempo
+    if (this.confused <= 0) {
+      this.confuseTexts = ['+', '−', '×', '÷', '=', '?'].map((t) => this.add.text(0, 0, t, textStyle(20, '#ff8ad8')).setOrigin(0.5).setDepth(8));
+    }
+    this.confused = 2.4;
+    Sfx.tone(300, 0.5, { type: 'sawtooth', to: 120, vol: 0.08 });
+    this.floatText(pb.center.x, pb.top - 20, 'CONFUSO!', '#ff8ad8', 22);
+    Achievements.unlock('confuso');
+  }
+
+  clearConfuse() {
+    this.confuseTexts.forEach((t) => t.destroy());
+    this.confuseTexts = [];
+  }
+
   gainLife(x, y, label = '+1 VIDA!') {
     this.stats.lives++;
     this.floatText(x, y - 30, label, '#ff9aae', 22);
@@ -1099,6 +1270,8 @@ class GameScene extends Phaser.Scene {
       Sfx.voice('anjo');
       this.floatText(p.x, p.y - 20, 'ANJO CAÍDO! segure pular no ar para planar', '#ffffff', 18);
       Achievements.unlock('anjo_pegou');
+    } else if (p.kind === 'churros') {
+      this.grow(p.x, p.y);
     } else if (p.kind === 'coxinha') {
       this.gainLife(p.x, p.y, 'COXINHA! +1 VIDA');
       Achievements.unlock('coxinha');
@@ -1148,6 +1321,7 @@ class GameScene extends Phaser.Scene {
     if (cause !== 'queda') {
       if (this.powerTime > 0 || this.invuln > 0) return;
       if (this.hasAura) { this.breakAura(); return; }
+      if (this.big) { this.hurtBig(); return; }          // o churros leva o golpe no seu lugar
     }
     if (cause === 'queda' && this.haloAvailable && this.lastSafe) {
       this.angelRescue();
@@ -1166,6 +1340,8 @@ class GameScene extends Phaser.Scene {
     this.powerTime = 0;
     this.hasAura = false;
     this.invuln = 0;
+    this.big = false; this.confused = 0; this.clearConfuse();
+    if (this.bigScale !== 1) this.setPlayerSize(1);
     this.playerGfx.clearTint().setAlpha(1);
     this.updateHud();
     const b = this.player.body;

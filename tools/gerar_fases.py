@@ -14,7 +14,7 @@ H = 17
 BASE = 14                 # linha do topo do chão normal
 SOLID = set('#=R')
 LEVELS_JS = 'C:/Users/Bruno/OneDrive/Desktop/Projeto2.0/src/levels.js'
-ENEMY_CHARS = 'ENVJDFbpclr'
+ENEMY_CHARS = 'ENVJDFbpclrsdygz'
 
 # ---------------------------------------------------------------- verificador
 def check_level(rows):

@@ -109,6 +109,7 @@ const VOICE_LINES = [
   { id: 'moggados', label: 'Moggados!', when: 'ao vencer o chefão', tts: ['moggados!', { rate: 1.1, pitch: 1.2 }] },
   { id: 'olhar', label: 'Olhar de mil jardas', when: 'ao parar o tempo', tts: ['olhar de mil jardas', { rate: 0.8, pitch: 0.7 }] },
   { id: 'anjo', label: 'Anjo caído', when: 'ao pegar as asas', tts: ['anjo caído', { rate: 1, pitch: 0.9 }] },
+  { id: 'churros', label: 'Churros!', when: 'ao pegar o churros', tts: ['churros!', { rate: 1.1, pitch: 1.1 }] },
   { id: 'aura', label: 'Aura!', when: 'ao pegar o escudo de aura', tts: null },
   { id: 'gameover', label: 'Ai, mãe!', when: 'quando acabam as vidas', tts: null },
 ];

@@ -20,8 +20,8 @@ class VoiceScene extends Phaser.Scene {
       { txt: '✖', color: '#ffb0b0', tip: 'apagar', act: (i) => this.erase(i) },
     ];
     this.rows = VOICE_LINES.map((ln, i) => {
-      const y = 122 + i * 46;
-      const bg = this.add.rectangle(WIDTH / 2, y, 900, 40, 0x1b1b2a, 0.9).setStrokeStyle(2, 0x444455).setInteractive({ useHandCursor: true });
+      const y = 118 + i * 42;
+      const bg = this.add.rectangle(WIDTH / 2, y, 900, 36, 0x1b1b2a, 0.9).setStrokeStyle(2, 0x444455).setInteractive({ useHandCursor: true });
       bg.on('pointerdown', () => { this.sel = i; this.refresh(); });
       this.add.text(50, y, ln.label, textStyle(22)).setOrigin(0, 0.5);
       this.add.text(290, y, ln.when, textStyle(13, '#b5b5c8')).setOrigin(0, 0.5);

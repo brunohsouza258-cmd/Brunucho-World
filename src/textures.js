@@ -310,6 +310,106 @@ function generateTextures(scene) {
     g.fillStyle(0xf2c6a0); g.fillRect(2, 18, 6, 2); g.fillRect(18, 16, 6, 2); // braços abertos
   });
 
+  // ================= MEMES CLÁSSICOS DA INTERNET (olhando para a esquerda) =================
+  // Skibidi Toilet: cabeça cantando saindo do vaso
+  make('skibidi', 32, 38, (g) => {
+    g.fillStyle(0xbfc6d0); g.fillRect(9, 30, 14, 8);                                  // base
+    g.fillStyle(0xe8eef4); g.fillRoundedRect(17, 4, 14, 22, 3);                       // caixa acoplada
+    g.fillStyle(0xcfd8e2); g.fillRect(17, 4, 14, 3);
+    g.fillStyle(0x9aa7b8); g.fillRect(14, 8, 4, 2);                                   // alavanca
+    g.fillStyle(0xf4f7fa); g.fillEllipse(15, 28, 30, 14);                             // vaso
+    g.fillStyle(0xcfd8e2); g.fillEllipse(15, 31, 26, 8);
+    g.fillStyle(0x9aa7b8); g.fillRect(2, 26, 26, 2);                                  // aro
+    g.fillStyle(0xf2c6a0); g.fillCircle(13, 14, 9);                                   // cabeça
+    g.fillStyle(0xd9a882); g.fillRect(4, 14, 3, 4);
+    g.fillStyle(0x2a1d14); g.fillRect(6, 7, 14, 3);                                   // franja
+    g.fillStyle(0xffffff); g.fillRect(8, 12, 4, 3); g.fillRect(14, 12, 4, 3);
+    g.fillStyle(0x1b1b2a); g.fillRect(9, 13, 2, 2); g.fillRect(15, 13, 2, 2);
+    g.fillStyle(0x2a1d14); g.fillRect(7, 10, 5, 1); g.fillRect(14, 10, 5, 1);
+    g.fillStyle(0x8a2a2a); g.fillRoundedRect(9, 17, 8, 4, 2);                         // boca cantando
+    g.fillStyle(0xffffff); g.fillRect(10, 17, 6, 1);
+  });
+  // Doge: shiba desconfiado
+  make('doge', 36, 28, (g) => {
+    const T = 0xe0a050, TD = 0xb87a30, C = 0xfff0d0;
+    g.fillStyle(TD); g.fillRect(10, 20, 4, 8); g.fillRect(28, 20, 4, 8);
+    g.fillStyle(T); g.fillRoundedRect(8, 10, 26, 13, 5);
+    g.fillStyle(C); g.fillRect(12, 19, 18, 4);
+    g.fillStyle(T); g.fillRect(8, 20, 4, 8); g.fillRect(24, 20, 4, 8);
+    g.fillStyle(T); g.fillCircle(33, 9, 4); g.fillStyle(C); g.fillCircle(33, 9, 2);   // rabo enrolado
+    g.fillStyle(T); g.fillRoundedRect(0, 3, 16, 14, 5);
+    g.fillStyle(TD); g.fillTriangle(2, 5, 4, 0, 8, 5); g.fillTriangle(9, 5, 13, 0, 15, 6);
+    g.fillStyle(C); g.fillRoundedRect(0, 9, 10, 8, 3);
+    g.fillStyle(0x1b1b2a); g.fillRect(0, 10, 3, 3);
+    g.fillRect(6, 7, 3, 2); g.fillRect(11, 7, 3, 2);
+    g.fillStyle(0xffffff); g.fillRect(6, 7, 1, 1); g.fillRect(11, 7, 1, 1);
+  });
+  // Nyan Cat: gato-torta com arco-íris
+  make('nyan', 46, 27, (g) => {
+    [0xff3b3b, 0xff9a1f, 0xffe14d, 0x4cd964, 0x4aa3ff, 0xa56bff].forEach((c, i) => { g.fillStyle(c); g.fillRect(30, 4 + i * 3, 16, 3); });
+    g.fillStyle(0xf2d6a0); g.fillRect(10, 3, 22, 20);                                 // torta
+    g.fillStyle(0xff9ad0); g.fillRect(12, 5, 18, 16);
+    g.fillStyle(0xe0508f); [[15, 8], [22, 7], [26, 12], [17, 14], [23, 17], [14, 19]].forEach(([x, y]) => g.fillRect(x, y, 2, 2));
+    g.fillStyle(0x9a9aa8); g.fillRect(0, 8, 14, 13);                                  // cabeça
+    g.fillTriangle(1, 9, 2, 3, 6, 9); g.fillTriangle(8, 9, 12, 3, 13, 9);
+    g.fillStyle(0x1b1b2a); g.fillRect(3, 12, 2, 3); g.fillRect(9, 12, 2, 3);
+    g.fillStyle(0xffffff); g.fillRect(3, 12, 1, 1); g.fillRect(9, 12, 1, 1);
+    g.fillStyle(0xff9ad0); g.fillRect(1, 16, 3, 2); g.fillRect(10, 16, 3, 2);
+    g.fillStyle(0x1b1b2a); g.fillRect(5, 17, 4, 1);
+    g.fillStyle(0x9a9aa8); [[12, 23], [18, 23], [24, 23], [29, 23]].forEach(([x, y]) => g.fillRect(x, y, 4, 4));   // patinhas
+  });
+  // Gigachad: queixo quadrado e braços enormes
+  make('gigachad', 36, 48, (g) => {
+    const SK = 0xe3b48f, SKD = 0xc79570;
+    g.fillStyle(0x23272f); g.fillRect(9, 36, 7, 10); g.fillRect(20, 36, 7, 10);
+    g.fillStyle(0x111111); g.fillRect(7, 45, 10, 3); g.fillRect(19, 45, 10, 3);
+    g.fillStyle(0xf0f0f0); g.fillRoundedRect(5, 17, 26, 21, 4);
+    g.fillStyle(SK); g.fillCircle(3, 24, 6); g.fillCircle(33, 24, 6);
+    g.fillStyle(SKD); g.fillRect(0, 28, 6, 8); g.fillRect(30, 28, 6, 8);
+    g.fillStyle(SK); g.fillRoundedRect(0, 30, 7, 9, 3); g.fillRoundedRect(29, 30, 7, 9, 3);
+    g.fillRect(11, 14, 14, 5);
+    g.fillRect(9, 2, 18, 15); g.fillRect(8, 8, 20, 9);                                // cabeça e mandíbula
+    g.fillStyle(SKD); g.fillRect(8, 15, 20, 2);
+    g.fillStyle(0x15151c); g.fillRect(8, 0, 20, 5); g.fillRect(7, 3, 4, 7);           // cabelo
+    g.fillRect(11, 8, 6, 2); g.fillRect(19, 8, 6, 2);                                 // sobrancelhas
+    g.fillRect(12, 10, 4, 2); g.fillRect(20, 10, 4, 2);                               // olhar sério
+    g.fillStyle(0xb06a50); g.fillRect(14, 15, 8, 1);
+  });
+  // Nazaré Confusa: cabelão, olhos arregalados e colar de pérolas
+  make('nazare', 30, 40, (g) => {
+    const SK = 0xf3c9a4;
+    g.fillStyle(0x6a2c91); g.fillRect(5, 22, 20, 14);
+    g.fillStyle(0x4a1f6a); g.fillRect(5, 32, 20, 4);
+    g.fillStyle(SK); g.fillRect(8, 36, 4, 4); g.fillRect(18, 36, 4, 4);
+    g.fillStyle(0xffffff); g.fillRect(6, 38, 6, 2); g.fillRect(17, 38, 7, 2);
+    g.fillStyle(SK); g.fillRect(1, 12, 4, 10); g.fillRect(25, 12, 4, 10);             // mãos pro alto
+    g.fillStyle(0x8a3a1f); g.fillEllipse(15, 10, 28, 20);
+    g.fillStyle(0xb5532e); g.fillEllipse(10, 6, 12, 8); g.fillEllipse(21, 8, 10, 8);
+    g.fillStyle(SK); g.fillRoundedRect(8, 8, 14, 15, 5);
+    g.fillStyle(0xffffff); g.fillRect(9, 12, 5, 5); g.fillRect(16, 12, 5, 5);
+    g.fillStyle(0x1b1b2a); g.fillRect(11, 14, 2, 2); g.fillRect(18, 14, 2, 2);
+    g.fillStyle(0x6a2c2c); g.fillRect(9, 11, 5, 1); g.fillRect(16, 11, 5, 1);
+    g.fillStyle(0x8a2a2a); g.fillEllipse(15, 20, 4, 3);
+    g.fillStyle(0xe8e0f0); [[8, 22], [11, 23], [15, 24], [19, 23], [22, 22]].forEach(([x, y]) => g.fillCircle(x, y, 1));
+  });
+  // Gota do Skibidi
+  make('gota', 10, 12, (g) => {
+    g.fillStyle(0x4aa3ff); g.fillTriangle(5, 0, 1, 7, 9, 7); g.fillCircle(5, 8, 4);
+    g.fillStyle(0xcfe8ff); g.fillCircle(4, 7, 1.5);
+  });
+  // CHURROS: ele deixa o Brunucho grandão
+  make('churros', 30, 30, (g) => {
+    g.lineStyle(10, 0xb8742a); g.lineBetween(6, 24, 22, 8);
+    g.lineStyle(7, 0xdd9b45); g.lineBetween(6, 24, 22, 8);
+    g.lineStyle(2, 0xf3c47a); g.lineBetween(4, 21, 20, 5);
+    g.lineStyle(2, 0x8f5a1a);
+    for (let t = 0.1; t < 0.95; t += 0.16) { const x = 6 + 16 * t, y = 24 - 16 * t; g.lineBetween(x - 3, y - 3, x + 3, y + 3); }
+    g.lineStyle(10, 0x3a2010); g.lineBetween(18, 12, 23, 7);
+    g.lineStyle(7, 0x5a3318); g.lineBetween(18, 12, 23, 7);
+    g.fillStyle(0xffffff); [[8, 20], [12, 17], [16, 14], [10, 23], [14, 20]].forEach(([x, y]) => g.fillRect(x, y, 2, 2));
+    g.fillStyle(0xfff3b0); g.fillRect(24, 4, 2, 2);
+  });
+
   // ================= ELEMENTOS DE FASE =================
   // Plataforma que se move (prancha com hélices nas pontas)
   make('plataforma', 96, 18, (g) => {
@@ -601,7 +701,7 @@ function generateTextures(scene) {
 const OUTLINE_PREFIXES = ['player_', 'neymar', 'galvao', 'caze', 'ednaldo', 'lula', 'flavio', 'mae', 'caramelo',
   'capivara', 'tralalero', 'tungtung', 'slime', 'crab', 'pombo', 'bombardiro', 'patapim', 'bananini', 'lirili',
   'ballerina', 'coin', 'coxinha', 'tenis', 'ima', 'heart', 'gol_ball', 'picanha', 'ovo', 'bomba', 'pw_olhar', 'pw_anjo',
-  'goal', 'cp_', 'mola', 'chinelo', 'plataforma', 'cacto'];
+  'goal', 'cp_', 'mola', 'chinelo', 'plataforma', 'cacto', 'skibidi', 'doge', 'nyan', 'gigachad', 'nazare', 'gota', 'churros'];
 
 function outlineSprites(scene) {
   for (const key of scene.textures.getTextureKeys()) {

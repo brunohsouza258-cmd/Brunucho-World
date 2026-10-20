@@ -76,7 +76,7 @@ const Progress = {
   starCount(i) { const s = this.data().stars[i]; return s ? (s.done ? 1 : 0) + (s.noDeath ? 1 : 0) + (s.allCoins ? 1 : 0) : 0; },
   saveRun(level, stats) { const d = this.data(); d.save = { level, stats }; this.write(d); },
   clearRun() { const d = this.data(); d.save = null; this.write(d); },
-  reset() { Storage.set('pp_progress', {}); Storage.set('pp_achievements', {}); Storage.set('pp_counters', {}); Storage.set('pp_ranking', []); Storage.set('pp_brainrot', []); Storage.set('pp_ufs', []); },
+  reset() { Storage.set('pp_progress', {}); Storage.set('pp_achievements', {}); Storage.set('pp_counters', {}); Storage.set('pp_ranking', []); Storage.set('pp_brainrot', []); Storage.set('pp_memes', []); Storage.set('pp_ufs', []); },
 };
 
 // ---- Inimigos famosos (letra no mapa → tipo) ----
@@ -89,13 +89,20 @@ const FAMOUS = {
 };
 
 // ---- Memes brainrot (letra minúscula no mapa → tipo) ----
-// behavior: 'bomber' voa e solta bomba · 'hopper' anda pulando · 'walker' anda · 'dancer' gira e avança
+// behavior: 'bomber' voa e solta bomba · 'hopper' anda pulando · 'walker' anda · 'dancer' gira e avança ·
+// 'sprayer' cospe jatos · 'charger' dispara na sua direção · 'nyan' voa em ondas · 'confuser' inverte seus controles
 const MEMES = {
-  b: { key: 'bombardiro', name: 'Bombardiro Crocodilo',  behavior: 'bomber', speed: 85, lines: ['BOMBARDIRO CROCODILO!', 'Bombas a caminho!'] },
-  p: { key: 'patapim',    name: 'Brr Brr Patapim',       behavior: 'hopper', speed: 110, lines: ['Brr brr patapim!', 'Patapim!'] },
-  c: { key: 'bananini',   name: 'Chimpanzini Bananini',  behavior: 'walker', speed: 115, lines: ['Chimpanzini bananini!', 'Bananini!'] },
-  l: { key: 'lirili',     name: 'Lirilì Larilà',         behavior: 'walker', speed: 35, hp: 2, lines: ['Lirilì larilà!', 'Sou duro de moggar!'] },
-  r: { key: 'ballerina',  name: 'Ballerina Cappuccina',  behavior: 'dancer', speed: 0, lines: ['Ballerina Cappuccina!', 'Mi mi mi!'] },
+  b: { key: 'bombardiro', group: 'brainrot', name: 'Bombardiro Crocodilo', behavior: 'bomber', speed: 85, lines: ['BOMBARDIRO CROCODILO!', 'Bombas a caminho!'] },
+  p: { key: 'patapim', group: 'brainrot', name: 'Brr Brr Patapim', behavior: 'hopper', speed: 110, lines: ['Brr brr patapim!', 'Patapim!'] },
+  c: { key: 'bananini', group: 'brainrot', name: 'Chimpanzini Bananini', behavior: 'walker', speed: 115, lines: ['Chimpanzini bananini!', 'Bananini!'] },
+  l: { key: 'lirili', group: 'brainrot', name: 'Lirilì Larilà', behavior: 'walker', speed: 35, hp: 2, lines: ['Lirilì larilà!', 'Sou duro de moggar!'] },
+  r: { key: 'ballerina', group: 'brainrot', name: 'Ballerina Cappuccina', behavior: 'dancer', speed: 0, lines: ['Ballerina Cappuccina!', 'Mi mi mi!'] },
+  // memes clássicos da internet
+  s: { key: 'skibidi', group: 'meme', name: 'Skibidi Toilet', behavior: 'sprayer', speed: 0, lines: ['Skibidi dop dop!', 'Dop dop yes yes!'] },
+  d: { key: 'doge', group: 'meme', name: 'Doge', behavior: 'charger', speed: 38, lines: ['Much wow!', 'Such enemy!', 'Very jump!'] },
+  y: { key: 'nyan', group: 'meme', name: 'Nyan Cat', behavior: 'nyan', speed: 0, lines: ['Nyan nyan nyan!'] },
+  g: { key: 'gigachad', group: 'meme', name: 'Gigachad', behavior: 'walker', speed: 32, hp: 3, lines: ['Yes.', 'Sigma.', 'Chad.'] },
+  z: { key: 'nazare', group: 'meme', name: 'Nazaré Confusa', behavior: 'confuser', speed: 0, lines: ['Quanto é 2 + 2?', 'Eu não entendo!', 'Mas... como?'] },
 };
 
 // Ranking dos 5 melhores (salvo no navegador)

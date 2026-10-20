@@ -32,6 +32,10 @@ const ACHIEVEMENTS = [
   { id: 'neymar',      icon: '⚽', name: 'Foi Pênalti?',          desc: 'Moggar o Neymar enquanto ele rola' },
   { id: 'caze',        icon: '🎧', name: 'VAMO!',                 desc: 'Moggar o Casimiro no ar' },
   { id: 'ednaldo',     icon: '🎤', name: 'Vale Tudo',             desc: 'Moggar o Ednaldo Pereira' },
+  { id: 'memes_all',   icon: '👑', name: 'Rei dos Memes',         desc: 'Moggar Skibidi, Doge, Nyan Cat, Gigachad e Nazaré' },
+  { id: 'churros',     icon: '🍬', name: 'Grandão',               desc: 'Comer o churros e ficar gigante' },
+  { id: 'esmagador',   icon: '🦍', name: 'Esmagador de Chad',     desc: 'Derrubar o Gigachad com uma pisada enquanto está grande' },
+  { id: 'confuso',     icon: '😵', name: 'Quanto é 2 + 2?',       desc: 'Ser confundido pela Nazaré' },
   { id: 'brainrot',    icon: '🐊', name: 'Brainrot Completo',     desc: 'Moggar os 5 memes brainrot (Bombardiro, Patapim, Bananini, Lirilì, Ballerina)' },
   // --- poderes ---
   { id: 'sixseven',    icon: '6️⃣', name: 'SIX SEVEN!',            desc: 'Pegar o poder 67' },
