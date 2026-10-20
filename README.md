@@ -209,7 +209,7 @@ No celular aparecem botões na tela.
 ### Amigos (personagens jogáveis)
 
 No guarda-roupa (**ROUPA** no menu) há duas abas: **ROUPAS** (os 10 looks do Brunucho) e **AMIGOS**, com personagens jogáveis feitos a partir
-de fotos de amigos, com o nome aparecendo em cima deles. O Brunucho continua sendo o protagonista da história. Amigos atuais: **Stanley**, **Biel** (Gabriel Silva, corpo magrinho) , **Yan** e **Pedro** (o doutor média, de cowboy).
+de fotos de amigos, com o nome aparecendo em cima deles. O Brunucho continua sendo o protagonista da história. Amigos atuais: **Stanley**, **Biel** (Gabriel Silva, corpo magrinho) , **Yan** e **Pedro** (de cowboy).
 Pra adicionar um amigo, crie uma entrada em `FRIENDS`, no `src/config.js` (cores, `hairStyle`, `beard`, `glasses`, `cap`, `thickBrows`, `slim`, `pants`, `smile`, `hoodie`, `cowboy`, `plaid`...).
 As fotos **não** vão pro repositório, só o desenho pixelado.
 ### Telas de vários tamanhos

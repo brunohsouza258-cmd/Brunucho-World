@@ -217,7 +217,7 @@ const FRIENDS = {
     hoodie: { cord: 0xe0e0e0, print: 0x2a2b30 }, pants: true, shoes: 'tenis',
   },
   pedro: {
-    name: 'Pedro', who: 'Pedro', desc: 'O doutor média! Chapéu de cowboy, camisa xadrez e bota. Cowboy vai te pegar!',
+    name: 'Pedro', who: 'Pedro', desc: 'Estatura média, chapéu de cowboy, camisa xadrez e bota. Cowboy vai te pegar!',
     colors: { hair: 0x17110d, hairDark: 0x0d0907, hairLight: 0x2c211a, skin: 0xc48e66, skinDark: 0xa27048,
       shirt: 0xb9b5b4, shirtDark: 0x8f8c8f, shorts: 0x1d1d22, shortsDark: 0x121216 },
     hairStyle: 'cacheado', thickBrows: true, longSleeves: true, pants: true, shoes: 'bota', shoeColor: 0x4a3020,
