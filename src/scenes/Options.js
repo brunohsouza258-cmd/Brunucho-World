@@ -38,8 +38,9 @@ class OptionsScene extends Phaser.Scene {
         side: () => this.toggleFx(), act: () => this.toggleFx() },
       { label: () => `Cenas dos poderes: ${Settings.get('cenas') ? 'SIM' : 'NÃO'}`,
         side: () => this.toggle('cenas'), act: () => this.toggle('cenas') },
-      { label: () => `Tela cheia: ${this.scale.isFullscreen ? 'SIM' : 'NÃO'}`,
-        side: () => this.toggleFullscreen(), act: () => this.toggleFullscreen() },
+      { label: () => (FS.standalone() ? 'Tela cheia: já está (modo app)'
+          : !FS.available(this.scale) ? 'Tela cheia: veja a dica (toque aqui)' : `Tela cheia: ${this.scale.isFullscreen ? 'SIM' : 'NÃO'}`),
+        side: () => this.toggleFullscreen(), act: () => this.toggleFullscreen(), onUp: true },
       { label: () => `Todas as fases liberadas: ${Settings.get('allLevels') ? 'SIM' : 'NÃO'}`,
         side: () => this.toggle('allLevels'), act: () => this.toggle('allLevels') },
       { label: () => (this.confirmReset ? 'TEM CERTEZA? Aperte de novo para APAGAR TUDO' : 'Apagar progresso, conquistas e ranking'),
@@ -50,7 +51,7 @@ class OptionsScene extends Phaser.Scene {
     this.texts = this.items.map((it, i) => {
       const t = this.add.text(WIDTH / 2, 92 + i * 31, '', textStyle(19)).setOrigin(0.5).setInteractive({ useHandCursor: true });
       t.on('pointerover', () => { this.sel = i; this.refresh(); });
-      t.on('pointerdown', () => { this.sel = i; this.activate(); });
+      t.on(it.onUp ? 'pointerup' : 'pointerdown', () => { this.sel = i; this.activate(); });   // tela cheia só vale no pointerup
       return t;
     });
     this.add.text(WIDTH / 2, 505, hint('↑↓ escolher  ·  ←→ ajustar  ·  ENTER mudar  ·  ESC voltar', 'toque numa opção para mudar'), textStyle(16)).setOrigin(0.5).setAlpha(0.85);
@@ -82,11 +83,9 @@ class OptionsScene extends Phaser.Scene {
   }
 
   toggleFullscreen() {
-    if (this.scale.isFullscreen) this.scale.stopFullscreen();
-    else {
-      this.scale.startFullscreen();
-      try { if (screen.orientation && screen.orientation.lock) screen.orientation.lock('landscape').catch(() => {}); } catch (e) { /* sem trava */ }
-    }
+    if (FS.standalone()) return;
+    if (FS.available(this.scale)) FS.toggle(this.scale);
+    else this.items[this.sel].label = () => 'iPhone: Compartilhar > Adicionar à Tela de Início';      // iPhone: explica como instalar
     this.time.delayedCall(300, () => this.refresh());
   }
 

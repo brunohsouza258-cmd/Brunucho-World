@@ -364,3 +364,18 @@ function createBackdrop(scene, theme, full = false) {
     },
   };
 }
+
+// ---- Tela cheia no celular ----
+// O Chrome só aceita tela cheia no "levantar o dedo" (pointerup), nunca no "encostar" (pointerdown).
+// iPhone/Safari não tem tela cheia para jogos: lá o jeito é "Adicionar à Tela de Início" (o jogo vira app).
+const FS = {
+  standalone: () => (window.matchMedia && matchMedia('(display-mode: fullscreen), (display-mode: standalone)').matches) || window.navigator.standalone === true,
+  available: (scale) => !!(scale.fullscreen && scale.fullscreen.available),
+  toggle(scale) {
+    if (scale.isFullscreen) { scale.stopFullscreen(); return true; }
+    scale.startFullscreen();
+    try { if (screen.orientation && screen.orientation.lock) screen.orientation.lock('landscape').catch(() => {}); } catch (e) { /* sem trava de tela */ }
+    return true;
+  },
+  iosTip: 'No iPhone: toque em Compartilhar (□↑) e "Adicionar à Tela de Início". Aí o jogo abre em tela cheia.',
+};

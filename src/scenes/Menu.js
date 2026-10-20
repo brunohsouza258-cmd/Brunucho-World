@@ -116,15 +116,17 @@ class MenuScene extends Phaser.Scene {
     const best = Ranking.list()[0];
     if (best) panel.add(this.add.text(WIDTH - 16, 16, `Recorde: ${formatScore(best.score)}`, textStyle(16, '#9ff0ff')).setOrigin(1, 0));
     panel.add(this.add.text(16, 16, `${hint('↑↓ escolher · ENTER confirmar · O opções', 'toque numa opção')}\nDificuldade: ${difficulty().name}`, textStyle(14)).setAlpha(0.85));
-    // tela cheia (Android): esconde a barra do navegador e trava o celular deitado
-    if (IS_TOUCH && this.scale.fullscreen.available) {
+    // tela cheia: Android usa a API; no iPhone mostra como instalar o jogo como app (nenhum dos dois aparece se já está em tela cheia)
+    if (IS_TOUCH && !FS.standalone()) {
       const fs = this.add.text(WIDTH - 16, 46, '⛶ TELA CHEIA', { ...textStyle(16), backgroundColor: '#2b2b3a', padding: { x: 10, y: 5 } })
         .setOrigin(1, 0).setInteractive({ useHandCursor: true });
-      fs.on('pointerdown', () => {
-        this.scale.toggleFullscreen();
-        try { if (screen.orientation && screen.orientation.lock) screen.orientation.lock('landscape').catch(() => {}); } catch (e) { /* sem trava de tela */ }
+      const dica = this.add.text(WIDTH / 2, HEIGHT - 70, FS.iosTip, { ...textStyle(16, '#ffe9a0'), backgroundColor: '#1b1b2a', padding: { x: 12, y: 8 },
+        align: 'center', wordWrap: { width: 700 } }).setOrigin(0.5).setDepth(50).setVisible(false);
+      fs.on('pointerup', () => {                       // pointerup: só aqui o navegador aceita pedir tela cheia
+        if (FS.available(this.scale)) FS.toggle(this.scale);
+        else { dica.setVisible(true); this.time.delayedCall(5000, () => dica.setVisible(false)); }
       });
-      panel.add(fs);
+      panel.add([fs, dica]);
     }
     this.refreshMain();
     return panel;
