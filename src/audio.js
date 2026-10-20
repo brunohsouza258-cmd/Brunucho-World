@@ -26,8 +26,28 @@ const Sfx = {
       this.applyVolumes();
       Voices.load();   // carrega as vozes gravadas pelo jogador
     }
+    this.iosPlayback();
     if (this.ctx.state === 'suspended') this.ctx.resume();
     if (typeof Music !== 'undefined') Music.resume();
+  },
+
+  // iPhone: com a chavinha lateral no silencioso, o Web Audio fica mudo. Tocar um <audio> "de verdade" (mudo, em loop)
+  // muda a sessão de áudio para "reprodução", e o som do jogo passa a sair mesmo no silencioso.
+  iosPlayback() {
+    if (this.iosDone) return;
+    this.iosDone = true;
+    try { if (navigator.audioSession) navigator.audioSession.type = 'playback'; } catch (e) { /* iOS antigo */ }
+    try {
+      const n = 800, sr = 8000, b = new DataView(new ArrayBuffer(44 + n));      // 0,1 s de silêncio, WAV 8 bits
+      const w = (o, s) => [...s].forEach((c, i) => b.setUint8(o + i, c.charCodeAt(0)));
+      w(0, 'RIFF'); b.setUint32(4, 36 + n, true); w(8, 'WAVEfmt '); b.setUint32(16, 16, true); b.setUint16(20, 1, true);
+      b.setUint16(22, 1, true); b.setUint32(24, sr, true); b.setUint32(28, sr, true); b.setUint16(32, 1, true); b.setUint16(34, 8, true);
+      w(36, 'data'); b.setUint32(40, n, true);
+      for (let i = 0; i < n; i++) b.setUint8(44 + i, 128);
+      const el = new Audio(URL.createObjectURL(new Blob([b.buffer], { type: 'audio/wav' })));
+      el.loop = true; el.volume = 0.01; el.setAttribute('playsinline', '');
+      el.play().catch(() => { this.iosDone = false; });
+    } catch (e) { /* sem suporte: segue sem */ }
   },
 
   applyVolumes() {
