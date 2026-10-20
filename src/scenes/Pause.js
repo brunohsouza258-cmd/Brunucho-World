@@ -19,7 +19,7 @@ class PauseScene extends Phaser.Scene {
     this.texts = this.items.map((it, i) => {
       const y = 215 + i * 62;
       const bg = this.add.rectangle(WIDTH / 2, y, 380, 50, 0x1b1b2a, 0.9).setStrokeStyle(2, 0xffffff).setInteractive({ useHandCursor: true });
-      const t = this.add.text(WIDTH / 2, y, it.label, textStyle(24)).setOrigin(0.5);
+      const t = this.add.text(WIDTH / 2, y, IS_TOUCH ? it.label.replace(/\s*\(.\)\s*$|\s*\(ESC\)\s*$/, '') : it.label, textStyle(24)).setOrigin(0.5);
       bg.on('pointerover', () => { this.sel = i; this.refresh(); });
       bg.on('pointerdown', () => { this.sel = i; this.refresh(); it.act(); });
       return { bg, t };

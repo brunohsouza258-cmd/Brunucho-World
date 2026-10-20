@@ -98,7 +98,11 @@ class OptionsScene extends Phaser.Scene {
 
   side(d) { const it = this.items[this.sel]; if (it.side) { it.side(d); this.refresh(); } }
 
-  activate() { this.items[this.sel].act(); Sfx.select(); this.refresh(); }
+  activate() {
+    const it = this.items[this.sel];
+    if (!it.danger) this.confirmReset = false;      // tocou em outra coisa: cancela o "tem certeza?" do apagar progresso
+    it.act(); Sfx.select(); this.refresh();
+  }
 
   resetProgress() {
     if (!this.confirmReset) { this.confirmReset = true; return; }
