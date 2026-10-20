@@ -36,6 +36,8 @@ class OptionsScene extends Phaser.Scene {
       { label: () => '🎤 GRAVAR MINHA VOZ', act: () => this.openVoice() },
       { label: () => `Efeitos visuais: ${Settings.get('fx') === 'leve' ? 'LEVE (mais rápido no celular)' : 'COMPLETO'}`,
         side: () => this.toggleFx(), act: () => this.toggleFx() },
+      { label: () => `Cenas dos poderes: ${Settings.get('cenas') ? 'SIM' : 'NÃO'}`,
+        side: () => this.toggle('cenas'), act: () => this.toggle('cenas') },
       { label: () => `Tela cheia: ${this.scale.isFullscreen ? 'SIM' : 'NÃO'}`,
         side: () => this.toggleFullscreen(), act: () => this.toggleFullscreen() },
       { label: () => `Todas as fases liberadas: ${Settings.get('allLevels') ? 'SIM' : 'NÃO'}`,
@@ -46,7 +48,7 @@ class OptionsScene extends Phaser.Scene {
     ];
 
     this.texts = this.items.map((it, i) => {
-      const t = this.add.text(WIDTH / 2, 92 + i * 33, '', textStyle(19)).setOrigin(0.5).setInteractive({ useHandCursor: true });
+      const t = this.add.text(WIDTH / 2, 92 + i * 31, '', textStyle(19)).setOrigin(0.5).setInteractive({ useHandCursor: true });
       t.on('pointerover', () => { this.sel = i; this.refresh(); });
       t.on('pointerdown', () => { this.sel = i; this.activate(); });
       return t;

@@ -24,6 +24,19 @@ function parseLevel(rows, theme = {}) {
   return { width, height, tiles, objects };
 }
 
+// Cenas rápidas ao pegar um poder (≈1 segundo): ícone, título, legenda engraçada e uma pequena gag de emojis.
+// gag: 'chuva' (caem do alto) · 'sobe' (sobem) · 'suga' (voam até o ícone) · 'maos' (mãozinhas 6-7 nos lados)
+const POWER_SCENES = {
+  '67':     { icon: '🤙', title: 'SIX SEVEN!', color: '#ffb000', ray: 0xffb000, sub: 'ninguém sabe o que significa. nem a gente.', gag: 'maos', gagIcons: ['✋', '🤚'] },
+  aura:     { icon: '😎', title: 'AURA!', color: '#7ff6ff', ray: 0x29d3ff, sub: '+1000 de aura. sigma detectado.', gag: 'chuva', gagIcons: ['✨', '💠'] },
+  olhar:    { icon: '👁️', title: 'OLHAR DE MIL JARDAS', color: '#e8e8e8', ray: 0x888888, sub: 'desvia até de boleto.', gag: 'suga', gagIcons: ['👀', '💀'] },
+  anjo:     { icon: '😇', title: 'ANJO CAÍDO', color: '#fff3b0', ray: 0xfff3b0, sub: 'caiu do céu... de novo.', gag: 'sobe', gagIcons: ['🪽', '☁️'] },
+  churros:  { icon: '🍫', title: 'CHURROS!', color: '#ffb35c', ray: 0xff9a3c, sub: 'nham nham... ficou GRANDÃO.', gag: 'chuva', gagIcons: ['🍫', '🥖'] },
+  coxinha:  { icon: '🍗', title: 'COXINHA!', color: '#ff9aae', ray: 0xff6b8b, sub: '+1 vida. a mamãe aprova.', gag: 'sobe', gagIcons: ['❤️', '🍗'] },
+  tenis:    { icon: '👟', title: 'TÊNIS DE MOLA', color: '#ff3df2', ray: 0xff3df2, sub: 'a gravidade tirou folga.', gag: 'chuva', gagIcons: ['🦘', '👟'] },
+  ima:      { icon: '🧲', title: 'ÍMÃ DE AURA', color: '#ff6b6b', ray: 0xff4444, sub: 'até a moeda do vizinho vem.', gag: 'suga', gagIcons: ['🪙', '💰'] },
+};
+
 class GameScene extends Phaser.Scene {
   constructor() { super('Game'); }
 
@@ -317,6 +330,7 @@ class GameScene extends Phaser.Scene {
     this.input.keyboard.on('keydown-P', () => this.pauseGame());
     this.input.keyboard.on('keydown-M', () => Sfx.toggle());
     // O pulo é registrado no evento da tecla: assim nem um toque rapidinho se perde
+    this.sceneT = 0;                    // > 0: cena de poder rolando (jogo congelado)
     this.jumpQueued = false;
     ['SPACE', 'UP', 'W'].forEach((k) => this.input.keyboard.on(`keydown-${k}`, (ev) => { if (!ev.repeat) this.jumpQueued = true; }));    this.createTouchControls();
 
@@ -537,6 +551,13 @@ class GameScene extends Phaser.Scene {
   update(time, delta) {
     const dt = Math.min(delta, 50) / 1000;
     if (this.touchBtns) this.pollTouch();
+    if (this.sceneT > 0) {                  // cena de poder: o jogo fica parado por um instante
+      this.sceneT -= dt;
+      if (this.sceneT <= 0) this.physics.world.resume();
+      this.backdrop.update(this.cameras.main.scrollX, time);
+      this.syncPlayerGfx(time);
+      return;
+    }
     this.backdrop.update(this.cameras.main.scrollX, time);
     if (this.fog) this.fog.forEach((f, i) => { f.tilePositionX = time * 0.012 * (i + 1) + this.cameras.main.scrollX * (0.35 + i * 0.25); });
     this.updateEnemies(Math.min(delta, 50) / 1000);
@@ -1115,7 +1136,7 @@ class GameScene extends Phaser.Scene {
   }
 
   // ---- Olhar de Mil Jardas ----
-  startStare() {
+  startStare(cena = false) {
     this.stareTime = 8;
     this.shots.clear(true, true);
     if (this.bossShots) this.bossShots.clear(true, true);
@@ -1125,9 +1146,11 @@ class GameScene extends Phaser.Scene {
     if (Sfx.musicGain) Sfx.musicGain.gain.value = Settings.get('music') * 0.25;   // música abafada
     Sfx.tone(110, 1.2, { type: 'sine', to: 55, vol: 0.2 });
     Sfx.voice('olhar');
-    const t = this.add.text(WIDTH / 2, HEIGHT / 2 - 40, 'OLHAR DE MIL JARDAS', { ...textStyle(48, '#e8e8e8'), strokeThickness: 8 })
-      .setOrigin(0.5).setScrollFactor(0).setDepth(130).setAlpha(0);
-    this.tweens.add({ targets: t, alpha: 1, duration: 500, hold: 900, yoyo: true, onComplete: () => t.destroy() });
+    if (!cena) {
+      const t = this.add.text(WIDTH / 2, HEIGHT / 2 - 40, 'OLHAR DE MIL JARDAS', { ...textStyle(48, '#e8e8e8'), strokeThickness: 8 })
+        .setOrigin(0.5).setScrollFactor(0).setDepth(130).setAlpha(0);
+      this.tweens.add({ targets: t, alpha: 1, duration: 500, hold: 900, yoyo: true, onComplete: () => t.destroy() });
+    }
     Achievements.unlock('olhar');
   }
 
@@ -1256,11 +1279,84 @@ class GameScene extends Phaser.Scene {
     if (Settings.get('shake')) this.cameras.main.shake(duration, intensity);
   }
 
+  // ---- Cena rápida ao pegar um poder ----
+  // Devolve true se a cena foi exibida (nas Opções dá pra desligar).
+  powerScene(kind) {
+    const d = POWER_SCENES[kind];
+    if (!d || !Settings.get('cenas') || this.sceneT > 0) return false;
+    this.sceneT = 1.0;
+    this.physics.world.pause();
+    this.jumpQueued = false;
+    this.squash = 0.45;
+    const cx = WIDTH / 2, cy = HEIGHT / 2 - 36;
+    const all = [];
+    const add = (o) => { all.push(o); return o.setScrollFactor(0).setDepth(140); };
+    const out = (targets, delay = 1000) => this.tweens.add({ targets, alpha: 0, delay, duration: 280 });
+
+    // faixas de cinema
+    const top = add(this.add.rectangle(WIDTH / 2, -30, WIDTH, 60, 0x000000, 0.85));
+    const bot = add(this.add.rectangle(WIDTH / 2, HEIGHT + 30, WIDTH, 60, 0x000000, 0.85));
+    this.tweens.add({ targets: top, y: 30, duration: 160 });
+    this.tweens.add({ targets: bot, y: HEIGHT - 30, duration: 160 });
+    this.tweens.add({ targets: [top, bot], alpha: 0, delay: 1000, duration: 280 });
+
+    // raios girando atrás do ícone
+    const rays = add(this.add.graphics()).setPosition(cx, cy).setDepth(139).setAlpha(0);
+    rays.fillStyle(d.ray, 0.5);
+    for (let i = 0; i < 14; i++) {
+      const a = (i / 14) * Math.PI * 2, w = Math.PI / 14;
+      rays.beginPath(); rays.moveTo(0, 0);
+      rays.lineTo(Math.cos(a) * 520, Math.sin(a) * 520); rays.lineTo(Math.cos(a + w) * 520, Math.sin(a + w) * 520);
+      rays.closePath(); rays.fillPath();
+    }
+    this.tweens.add({ targets: rays, alpha: 0.55, duration: 160 });
+    this.tweens.add({ targets: rays, angle: 50, duration: 1300 });
+    out(rays);
+
+    // ícone gigante, título e legenda
+    const icon = add(this.add.text(cx, cy, d.icon, { fontSize: '96px' })).setOrigin(0.5).setScale(0.1).setAngle(-25);
+    this.tweens.add({ targets: icon, scale: 1, angle: 0, duration: 300, ease: 'Back.out' });
+    this.tweens.add({ targets: icon, angle: { from: -6, to: 6 }, delay: 320, duration: 120, yoyo: true, repeat: 3 });
+    const title = add(this.add.text(cx, cy + 82, d.title, { ...textStyle(44, d.color), strokeThickness: 8 })).setOrigin(0.5).setScale(0.2);
+    this.tweens.add({ targets: title, scale: 1, duration: 280, delay: 90, ease: 'Back.out' });
+    const sub = add(this.add.text(cx, cy + 126, d.sub, { ...textStyle(20, '#ffffff'), strokeThickness: 5 })).setOrigin(0.5).setAlpha(0);
+    this.tweens.add({ targets: sub, alpha: 1, y: sub.y - 6, duration: 260, delay: 260 });
+    out([icon, title, sub], 980);
+
+    // gag de emojis (poucos, só pra dar graça)
+    const n = Settings.get('fx') === 'leve' ? 6 : 12;
+    for (let i = 0; i < n; i++) {
+      const e = d.gagIcons[i % d.gagIcons.length];
+      const t = add(this.add.text(0, 0, e, { fontSize: '30px' })).setOrigin(0.5).setAlpha(0).setDepth(141);
+      const delay = 60 + i * 55, a = (i / n) * Math.PI * 2;
+      if (d.gag === 'chuva') {
+        t.setPosition(60 + Math.random() * (WIDTH - 120), 40);
+        this.tweens.add({ targets: t, alpha: 1, y: HEIGHT - 60, angle: 360, delay, duration: 700, ease: 'Quad.in' });
+      } else if (d.gag === 'sobe') {
+        t.setPosition(80 + Math.random() * (WIDTH - 160), HEIGHT - 40);
+        this.tweens.add({ targets: t, alpha: 1, y: 60 + Math.random() * 120, delay, duration: 750, ease: 'Sine.out' });
+      } else if (d.gag === 'suga') {
+        t.setPosition(cx + Math.cos(a) * 420, cy + Math.sin(a) * 240);
+        this.tweens.add({ targets: t, alpha: 1, x: cx, y: cy, scale: 0.4, delay, duration: 520, ease: 'Quad.in' });
+      } else {        // maos: mãozinhas 6-7 subindo e descendo dos dois lados
+        const left = i % 2 === 0;
+        t.setPosition(left ? 120 : WIDTH - 120, cy + 90 + (Math.floor(i / 2) % 3) * 30);
+        this.tweens.add({ targets: t, alpha: 1, y: t.y - 90, delay, duration: 220, yoyo: true, repeat: 1 });
+      }
+      this.tweens.add({ targets: t, alpha: 0, delay: 1000, duration: 280 });
+    }
+
+    this.cameras.main.flash(160, 255, 255, 255);
+    this.time.delayedCall(1300, () => all.forEach((o) => o.destroy()));
+    return true;
+  }
+
   collectPower(player, p) {
     if (this.dead) return;
     p.disableBody(false, false);
     this.tweens.killTweensOf(p);
     this.tweens.add({ targets: p, scale: 2, alpha: 0, duration: 250, onComplete: () => p.destroy() });
+    const cena = this.powerScene(p.kind);      // true: a cena já mostra o título (sem os letreiros antigos)
 
     if (p.kind === '67') {
       this.powerTime = 6.7;
@@ -1273,12 +1369,14 @@ class GameScene extends Phaser.Scene {
       Achievements.count('p67');
       this.cameras.main.flash(200, 255, 176, 0);
       // "SIX SEVEN!" gigante na tela, com as mãozinhas subindo e descendo
+      if (!cena) {
       const big = this.add.text(WIDTH / 2, HEIGHT / 2 - 40, 'SIX SEVEN!', { ...textStyle(64, '#ffb000'), strokeThickness: 10 })
         .setOrigin(0.5).setScrollFactor(0).setDepth(130).setScale(0.3);
       this.tweens.add({ targets: big, scale: 1, duration: 250, ease: 'Back.out' });
       this.tweens.add({ targets: big, alpha: 0, y: big.y - 40, delay: 900, duration: 400, onComplete: () => big.destroy() });
       ['6', '7', '6', '7'].forEach((n, i) => this.time.delayedCall(i * 180, () =>
         this.floatText(this.playerGfx.x + (i % 2 ? 18 : -18), this.playerGfx.y - 40, n, '#ffd23f', 26)));
+      }
     } else if (p.kind === 'aura') {
       this.hasAura = true;
       this.addScore(SCORE.aura);
@@ -1287,7 +1385,7 @@ class GameScene extends Phaser.Scene {
       this.fxAura.explode(30, p.x, p.y);
       this.floatText(p.x, p.y - 20, '+1000 AURA', '#7ff6ff', 24);
     } else if (p.kind === 'olhar') {
-      this.startStare();
+      this.startStare(cena);
     } else if (p.kind === 'anjo') {
       this.hasWings = true;
       this.haloAvailable = true;

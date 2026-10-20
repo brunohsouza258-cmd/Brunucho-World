@@ -18,8 +18,11 @@ Dê dois cliques em `index.html`. **Funciona sem internet** (o Phaser fica na pa
 **No celular:** setas e botão de pular na tela (dá pra deslizar o dedo de ◀ para ▶, e andar + pular com dois dedos),
 e o botão **II** (canto de cima) pausa. Deixe o aparelho **deitado**: em pé aparece um aviso e o jogo pausa.
 Nas Opções dá pra ativar a **tela cheia** e o modo de efeitos **leve** (já vem ligado no celular, pra rodar mais liso).
-Pra jogar no celular, hospede a pasta (qualquer servidor estático / GitHub Pages) e use "Adicionar à tela inicial"
-(o jogo tem `manifest.webmanifest` e ícones). O microfone só funciona em https; na tela *Minha voz* use **importar arquivo**.
+**Jogar no celular:** no computador, dê dois cliques em **`jogar-no-celular.bat`** (precisa do Python). Ele mostra dois endereços
+para digitar no navegador do celular (mesmo Wi-Fi): o `http://` joga normal; o `https://` também deixa **gravar a voz** com o microfone
+(o celular vai avisar que o certificado não é seguro: *Avançado > Continuar*, é um certificado feito em casa e nada sai da sua rede).
+Depois, menu do navegador > **Adicionar à tela inicial** instala o jogo como app. Se não tiver `openssl` (vem com o Git) só o `http://` abre,
+e na tela *Minha voz* dá pra usar **importar arquivo**.
 
 **Com controle de videogame** (Xbox, PlayStation...): direcional/analógico anda, **A/X** pula e confirma,
 **B/○** volta, **Start** pausa.
@@ -203,6 +206,12 @@ As falas ficam em `INTRO_SCRIPT`, no `src/scenes/Intro.js`. (Escolher uma fase d
 Pise nos inimigos para derrotá-los, desvie dos espinhos, pegue as moedas e chegue na bandeira verde.
 No celular aparecem botões na tela.
 
+### Cenas dos poderes
+
+Ao pegar um poder o jogo congela por **1 segundo** numa ceninha: faixas de cinema, raios girando, ícone gigante, título e uma
+legenda engraçada, com emojis caindo/subindo/sendo sugados (*Six Seven*, *Aura*, *Olhar de Mil Jardas*, *Anjo Caído*, *Churros*,
+*Coxinha*, *Tênis de Mola* e *Ímã*). Dá pra desligar em Opções > *Cenas dos poderes*. Os textos ficam em `POWER_SCENES`, no `src/scenes/Game.js`.
+
 ## Estrutura
 
 ```
@@ -220,6 +229,7 @@ src/phaser-fix.js   correção de teclas repetidas no Phaser
 lib/phaser.min.js   o Phaser (para jogar sem internet)
 src/music.js        trilha sonora (músicas em notas)
 src/achievements.js lista de conquistas
+servidor.py          servidor local (HTTP + HTTPS) pra jogar no celular; jogar-no-celular.bat abre ele
 src/boss.js         chefão final (Lula & Flávio)
 src/scenes/         telas: Menu, Intro (conversa com a mãe), Ending (cena final), Game (o jogo), Pause, Options, GameOver, End, Toast (avisos)
 ```

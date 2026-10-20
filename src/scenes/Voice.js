@@ -54,7 +54,9 @@ class VoiceScene extends Phaser.Scene {
     kb.on('keydown-ESC', () => this.close());
     kb.on('keydown-BACKSPACE', () => this.close());
 
-    this.setMsg(Voices.count() ? `${Voices.count()} de ${VOICE_LINES.length} falas com a sua voz.` : 'Escolha uma fala e aperte ENTER para gravar (o navegador vai pedir o microfone).');
+    const semMic = !window.isSecureContext || !navigator.mediaDevices;
+    if (semMic && location.protocol !== 'file:') this.setMsg('Aviso: aqui o microfone não funciona (precisa de https). Use "importar arquivo" (📁).', '#ff9a6b');
+    else this.setMsg(Voices.count() ? `${Voices.count()} de ${VOICE_LINES.length} falas com a sua voz.` : 'Escolha uma fala e aperte ENTER para gravar (o navegador vai pedir o microfone).');
     this.refresh();
   }
 
@@ -111,7 +113,10 @@ class VoiceScene extends Phaser.Scene {
     } catch (e) {
       this.rec = null; this.busy = false;
       Sfx.applyVolumes(); this.setLevel(0);
-      this.setMsg(e && e.name === 'NotAllowedError'
+      const semMic = !window.isSecureContext || !navigator.mediaDevices;
+      this.setMsg(semMic
+        ? 'O microfone só funciona em endereço seguro (https). Abra pelo servidor do jogo (jogar-no-celular.bat) ou use "importar arquivo".'
+        : e && e.name === 'NotAllowedError'
         ? 'O navegador bloqueou o microfone. Permita o acesso (ícone perto do endereço) e tente de novo.'
         : 'Não consegui usar o microfone neste aparelho. Tente "importar arquivo" (tecla I).', '#ff6b6b');
     }
