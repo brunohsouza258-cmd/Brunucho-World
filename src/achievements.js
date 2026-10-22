@@ -66,6 +66,7 @@ const ACHIEVEMENTS = [
   { id: 'roupa',       icon: '👕', name: 'Fashionista',           desc: 'Trocar de roupa no menu' },
   { id: 'amigo_pisado', icon: '🤝', name: 'Só de Brincadeira',    desc: 'Pisar num amigo (ele aguenta)' },
   { id: 'turma_toda',  icon: '🧑‍🤝‍🧑', name: 'A Turma Toda',          desc: 'Pisar em todos os amigos (de brincadeira)' },
+  { id: 'saia',        icon: '🌀', name: 'Gira, Gira!',           desc: 'Derrubar um inimigo de longe com a rajada da saia da Lara' },
   { id: 'escola_entrou', icon: '🏫', name: 'Aluno Pontual',        desc: 'Entrar na Escola Zacarias' },
   { id: 'terceiro_d',  icon: '🚪', name: 'Terceiro D',            desc: 'Chegar na sala do 3º D, no fim do corredor' },
   { id: 'eva',         icon: '📝', name: 'Nota Dez',              desc: 'Derrotar a professora Eva na sala de aula' },

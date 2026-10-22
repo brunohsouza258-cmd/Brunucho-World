@@ -618,6 +618,15 @@ function generateTextures(scene) {
     g.fillStyle(0xff7a9a); g.fillRect(8, 16, 2, 2);
     g.lineStyle(1, 0x6b3a1f); g.lineBetween(14, 8, 21, 2); g.lineBetween(0, 17, 5, 17);
   });
+  // Rajada da saia (poder da Lara): a saia vista de cima, girando, com babadinhos
+  make('saia_rajada', 28, 28, (g) => {
+    g.fillStyle(0xe0314b); g.fillCircle(14, 14, 13);
+    for (let i = 0; i < 8; i++) { const a = (i / 8) * Math.PI * 2; g.fillStyle(0xffd23f); g.fillCircle(14 + Math.cos(a) * 11.5, 14 + Math.sin(a) * 11.5, 3); }
+    g.fillStyle(0xffd23f); g.fillCircle(14, 14, 8.5);
+    g.fillStyle(0x2ecc71); g.fillCircle(14, 14, 6);
+    g.fillStyle(0xe0314b); g.fillCircle(14, 14, 3.5);
+    g.fillStyle(0xffffff); g.fillRect(12, 4, 4, 2);
+  });
   // Dardo de espuma (projétil da pistola de brinquedo do Paraíba)
   make('dardo', 16, 6, (g) => {
     g.fillStyle(0xff7a1a); g.fillRoundedRect(3, 1, 12, 4, 2);
@@ -847,7 +856,7 @@ const OUTLINE_PREFIXES = ['player_', 'neymar', 'galvao', 'caze', 'ednaldo', 'lul
   'capivara', 'tralalero', 'tungtung', 'slime', 'crab', 'pombo', 'bombardiro', 'patapim', 'bananini', 'lirili',
   'ballerina', 'coin', 'coxinha', 'tenis', 'ima', 'heart', 'gol_ball', 'picanha', 'ovo', 'bomba', 'pw_olhar', 'pw_anjo',
   'goal', 'cp_', 'mola', 'chinelo', 'plataforma', 'cacto', 'skibidi', 'doge', 'nyan', 'gigachad', 'nazare', 'gota', 'churros',
-  'rato', 'troll', 'pilili', 'cappuccino', 'trippi', 'paraiba_moto', 'dardo', 'eva', 'giz', 'errado'];
+  'rato', 'troll', 'pilili', 'cappuccino', 'trippi', 'paraiba_moto', 'dardo', 'eva', 'giz', 'errado', 'saia_rajada'];
 
 function outlineSprites(scene) {
   for (const key of scene.textures.getTextureKeys()) {
@@ -987,8 +996,17 @@ function drawPlayer(g, o, pose = 'idle') {
     g.fillStyle(0x9a9a9a); A(6, 35, 6, 1); B(14, 35, 8, 1);
   }
 
-  // bermuda / calça / cueca
-  if (o.boxers) {
+  // bermuda / calça / cueca / saia
+  if (o.skirt) {                                       // saia rodada de carimbó: larga, com fitas e babadinho, balança com o passo
+    const k = o.skirt, swing = (P.a[0] + P.b[0]) * 0.3;
+    const edge = (y) => [5 - (y - 25) * 0.8 + swing * ((y - 25) / 8), 21 + (y - 25) * 0.8 + swing * ((y - 25) / 8)];
+    const [l0, r0] = edge(25), [l1, r1] = edge(33);
+    g.fillStyle(k.color); g.beginPath(); g.moveTo(l0, 25); g.lineTo(r0, 25); g.lineTo(r1, 33); g.lineTo(l1, 33); g.closePath(); g.fillPath();
+    g.fillStyle(k.ribbon1); { const [l, r] = edge(28); g.fillRect(l, 28, r - l, 1.5); }
+    g.fillStyle(k.ribbon2); { const [l, r] = edge(30.5); g.fillRect(l, 30.5, r - l, 1.5); }
+    g.fillStyle(k.hem); for (let x = l1; x < r1; x += 4) g.fillCircle(x + 2, 33, 2);
+    g.fillStyle(0x000000, 0.12); g.fillTriangle(13, 25, l1 + 8, 33, r1 - 8, 33);
+  } else if (o.boxers) {
     g.fillStyle(c.shorts); g.fillRect(5, 25, 16, 5);
     g.fillStyle(c.shortsDark); g.fillRect(5, 29, 16, 1);
     g.fillStyle(o.boxers.waist); g.fillRect(5, 25, 16, 2);
@@ -1109,9 +1127,20 @@ function drawPlayer(g, o, pose = 'idle') {
     g.fillRect(2, 3, 6, 19); g.fillRoundedRect(2, 18, 6, 6, 2);
     g.fillStyle(c.hairDark); g.fillRect(3, 8, 2, 12); g.fillRect(9, 5, 9, 1);
     g.fillStyle(c.hairLight); g.fillRect(9, 0, 8, 2);
+  } else if (hs === 'coque') {                         // cabelo preso num coque no alto, com cachinhos soltos na frente
+    g.fillStyle(c.hair);
+    g.fillRoundedRect(4, 0, 19, 7, 3); g.fillRect(4, 4, 4, 8);
+    g.fillCircle(8, -1, 5.5);                                                       // o coque
+    g.fillStyle(c.hairDark); g.fillRect(4, 6, 4, 2); g.fillCircle(8, 0, 2);
+    g.fillStyle(c.hair); g.fillCircle(22, 5, 2.2); g.fillCircle(23, 9, 1.8); g.fillCircle(9, 12, 1.8);   // cachinhos
+    g.fillStyle(c.hairLight); g.fillRect(11, 1, 7, 2); g.fillCircle(6, -3, 1.5);
   } else if (hs === 'careca') {                        // sem cabelo: só um brilhinho
     g.fillStyle(c.skinDark); g.fillRect(5, 3, 18, 1);
     g.fillStyle(0xffffff, 0.35); g.fillRect(9, 3, 6, 1);
+  }
+  if (o.hairFlower) {                                  // flor no cabelo (carimbó)
+    g.fillStyle(o.hairFlower); [[12, -1], [10, 1], [14, 1], [12, 3], [11, 0]].forEach(([x, y]) => g.fillCircle(x, y, 2));
+    g.fillStyle(0xffd23f); g.fillCircle(12, 1, 1.2);
   }
   if (o.earbuds) {                                     // fone de ouvido com fio
     g.fillStyle(0xffffff); g.fillRect(7, 10, 3, 3);

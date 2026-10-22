@@ -4,6 +4,7 @@
 //
 //   A / X (PlayStation: X / □) ...... Espaço  (pular / confirmar)
 //   B (PlayStation: ○) .............. Backspace (voltar nos menus)
+//   Y / RB (PlayStation: △ / R1) .... X (poder do amigo, ex.: a saia da Lara)
 //   Start / Options ................. ESC (pausar / voltar)
 //   Direcional e analógico esquerdo . Setas
 
@@ -16,9 +17,10 @@
     down: ['ArrowDown', 'ArrowDown', 40],
     left: ['ArrowLeft', 'ArrowLeft', 37],
     right: ['ArrowRight', 'ArrowRight', 39],
+    power: ['x', 'KeyX', 88],
   };
   // número do botão no padrão "standard" dos navegadores → tecla
-  const BUTTONS = { 0: 'space', 2: 'space', 1: 'back', 9: 'esc', 12: 'up', 13: 'down', 14: 'left', 15: 'right' };
+  const BUTTONS = { 0: 'space', 2: 'space', 1: 'back', 3: 'power', 5: 'power', 9: 'esc', 12: 'up', 13: 'down', 14: 'left', 15: 'right' };
 
   const down = {};      // fonte (botão/eixo) → apertado?
   const keyCount = {};  // tecla → quantas fontes estão segurando

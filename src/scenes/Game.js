@@ -56,6 +56,8 @@ class GameScene extends Phaser.Scene {
     this.perk = { speed: (fp.speed || 1) * sp.speed, jump: (fp.jump || 1) * sp.jump, coin: (fp.coin || 1) * sp.coin,
       magnet: Math.max(fp.magnet || 0, sp.magnet), respawnInvuln: (fp.respawnInvuln || 0) + sp.respawnInvuln };
     this.heroK = heroScale();                          // boneco alto (Arthur): o desenho aumenta, a colisão não
+    this.ability = OUTFITS[currentOutfit()].ability || null;   // poder ATIVO do amigo (ex.: a Saia Rodada da Lara), usado com X ou o botão 🌀
+    this.abilityCd = 0; this.abilityQueued = false; this.twirlUntil = 0;
     // Consumíveis comprados valem para esta fase (no reinício da fase eles voltam, sem gastar de novo)
     this.buffs = data.buffs || Shop.takeBuffs();
     if (!data.buffs && this.buffs.includes('coxinha')) this.stats.lives++;
@@ -98,7 +100,7 @@ class GameScene extends Phaser.Scene {
     this.powerTime = 0;   // tempo restante do modo 67
     this.hasAura = false; // escudo de aura ativo
     this.invuln = 0;      // segundos piscando depois de perder a aura
-    this.touch ={ left: false, right: false, jump: false, jumpPressed: false };
+    this.touch ={ left: false, right: false, jump: false, jumpPressed: false, ability: false, abilityPressed: false };
   }
 
   create() {
@@ -315,6 +317,11 @@ class GameScene extends Phaser.Scene {
     this.spawnMoto(def);                                  // vilão da moto (fase da Paraíba)
     if (this.room === 'sala') this.setupEva();            // a professora Eva (sala do 3º D)
     this.physics.add.overlap(this.player, this.enemies, this.hitEnemy, null, this);
+    // rajada da saia (Lara): acerta inimigos de longe e desvia os tiros inimigos
+    this.skirtShots = this.physics.add.group({ allowGravity: false });
+    this.physics.add.overlap(this.skirtShots, this.enemies, this.skirtHit, null, this);
+    this.physics.add.overlap(this.skirtShots, this.shots, (s, sh) => { this.fxParty.explode(5, sh.x, sh.y); sh.destroy(); });
+    this.physics.add.collider(this.skirtShots, this.layer, (s) => { this.fxParty.explode(6, s.x, s.y); s.destroy(); });
     this.physics.add.overlap(this.player, this.shots, (pl, shot) => {
       if (this.powerTime > 0) { shot.destroy(); return; }
       shot.destroy();
@@ -370,6 +377,7 @@ class GameScene extends Phaser.Scene {
     this.sceneT = 0;                    // > 0: cena de poder rolando (jogo congelado)
     this.restartQueued = false;         // R: também pelo evento da tecla, pra batida rápida não se perder
     this.input.keyboard.on('keydown-R', (ev) => { if (!ev.repeat) this.restartQueued = true; });
+    ['X', 'Z', 'K'].forEach((k) => this.input.keyboard.on(`keydown-${k}`, (ev) => { if (!ev.repeat) this.abilityQueued = true; }));
     this.jumpQueued = false;
     ['SPACE', 'UP', 'W'].forEach((k) => this.input.keyboard.on(`keydown-${k}`, (ev) => { if (!ev.repeat) this.jumpQueued = true; }));    this.createTouchControls();
 
@@ -509,6 +517,7 @@ class GameScene extends Phaser.Scene {
     if (this.totalText) this.totalText.setText(`TOTAL  ${formatScore(this.shownScore)}`);
     this.livesText.setText(`x${this.stats.lives}`);
     const status = [];
+    if (this.ability) status.push(this.abilityCd > 0 ? `🌀 saia ${this.abilityCd.toFixed(1)}s` : `🌀 saia pronta (${IS_TOUCH ? 'botão 🌀' : 'X'})`);
     if (this.hasAura) status.push('✦ escudo de aura');
     if (this.hasDoubleJump) status.push('👟 pulo duplo');
     if (this.magnetTime > 0) status.push(`🧲 ímã ${this.magnetTime.toFixed(0)}s`);
@@ -559,11 +568,19 @@ class GameScene extends Phaser.Scene {
     jb.circle = this.add.circle(jb.x, jb.y, jb.r, 0xffffff, 0.2).setStrokeStyle(3, 0xffffff, 0.45).setScrollFactor(0).setDepth(200);
     jb.text = this.add.text(jb.x, jb.y, jb.label, textStyle(34)).setOrigin(0.5).setScrollFactor(0).setDepth(201).setAlpha(0.85);
     this.touchBtns = [jb];
+    if (this.ability) {                                    // botão do poder, do lado do pulo
+      const ab = { key: 'ability', x: VIEW_W - 236, y: 466, r: 44 };
+      ab.circle = this.add.circle(ab.x, ab.y, ab.r, 0xff9ad0, 0.3).setStrokeStyle(3, 0xffffff, 0.55).setScrollFactor(0).setDepth(200);
+      ab.text = this.add.text(ab.x, ab.y, '🌀', textStyle(34)).setOrigin(0.5).setScrollFactor(0).setDepth(201);
+      this.abilityBtn = ab;
+      this.touchBtns.push(ab);
+    }
     // o pulo é registrado no instante em que o dedo encosta (toque mais curto que um quadro não seria visto pelo polling)
     // e o joystick nasce onde o dedo encostou
     this.input.on('pointerdown', (ptr) => {
       if (!this.touchBtns) return;
       if (Phaser.Math.Distance.Between(ptr.x, ptr.y, jb.x, jb.y) <= jb.r * 1.3) { this.touch.jumpPressed = true; return; }
+      if (this.abilityBtn && Phaser.Math.Distance.Between(ptr.x, ptr.y, this.abilityBtn.x, this.abilityBtn.y) <= this.abilityBtn.r * 1.3) { this.touch.abilityPressed = true; return; }
       const j = this.joy;
       if (j.id === null && ptr.x < j.zoneX && ptr.y > 140) {
         j.id = ptr.id;
@@ -589,10 +606,11 @@ class GameScene extends Phaser.Scene {
 
   pollTouch() {
     const j = this.joy;
-    let jump = false, left = false, right = false, held = null;
+    let jump = false, left = false, right = false, held = null, ability = false;
     for (const ptr of this.input.manager.pointers) {
       if (!ptr.isDown) continue;
       const b = this.touchBtns[0];
+      if (this.abilityBtn && Phaser.Math.Distance.Between(ptr.x, ptr.y, this.abilityBtn.x, this.abilityBtn.y) <= this.abilityBtn.r * 1.3 && ptr.id !== j.id) ability = true;
       if (Phaser.Math.Distance.Between(ptr.x, ptr.y, b.x, b.y) <= b.r * 1.3 && ptr.id !== j.id) jump = true;
       if (ptr.id === j.id) held = ptr;
     }
@@ -612,6 +630,11 @@ class GameScene extends Phaser.Scene {
     if (jump && !this.touch.jump) this.touch.jumpPressed = true;     // acabou de apertar o pulo
     this.touch.left = left; this.touch.right = right; this.touch.jump = jump;
     this.touchBtns[0].circle.setFillStyle(0xffffff, jump ? 0.42 : 0.2);
+    if (this.abilityBtn) {
+      if (ability && !this.touch.ability) this.touch.abilityPressed = true;
+      this.touch.ability = ability;
+      this.abilityBtn.circle.setFillStyle(0xff9ad0, this.abilityCd > 0 ? 0.12 : (ability ? 0.6 : 0.3));   // apagadinho enquanto recarrega
+    }
   }
 
   // ---------------------------------------------------------------- Loop principal
@@ -655,6 +678,10 @@ class GameScene extends Phaser.Scene {
     const left = this.confused > 0 ? rawRight : rawLeft;      // Nazaré: esquerda e direita trocadas
     const right = this.confused > 0 ? rawLeft : rawRight;
     const jumpHeld = k.SPACE.isDown || k.UP.isDown || k.W.isDown || this.touch.jump;
+    // poder ativo do amigo (X / botão 🌀): precisa estar vivo, sem cena de poder rolando e fora do tempo de recarga
+    this.abilityCd = Math.max(0, this.abilityCd - dt);
+    if (this.ability && (this.abilityQueued || this.touch.abilityPressed) && this.abilityCd <= 0) this.useAbility();
+    this.abilityQueued = false; this.touch.abilityPressed = false;
     const jumpPressed = this.jumpQueued || this.touch.jumpPressed;
     this.jumpQueued = false;
     this.touch.jumpPressed = false;
@@ -801,6 +828,7 @@ class GameScene extends Phaser.Scene {
       .setScale((1 - s * 0.6) * this.bigScale * this.heroK, (1 + s) * this.bigScale * this.heroK)
       .setFlipX(this.facing < 0)
       .setAngle(b.blocked.down ? 0 : Phaser.Math.Clamp(b.velocity.x * 0.02, -6, 6));
+    if (time < this.twirlUntil) this.playerGfx.setAngle((1 - (this.twirlUntil - time) / 280) * 360 * (this.facing >= 0 ? 1 : -1));   // roda a saia
     this.nameTag.setPosition(this.playerGfx.x, this.playerGfx.y - 40 * this.bigScale * this.heroK).setVisible(this.playerGfx.visible);
     // sombra no chão logo abaixo (fica menor quanto mais alto ele está)
     let groundY = null;
@@ -894,7 +922,8 @@ class GameScene extends Phaser.Scene {
     used.add(currentOutfit());
     Storage.set('pp_jogou_com', [...used]);
     if (FRIEND_KEYS.every((k) => used.has(k))) Achievements.unlock('jogou_turma');
-    if (o.perk) this.time.delayedCall(1500, () => this.floatText(this.player.x, this.player.y - 60, `⚡ ${o.perk.name}: ${o.perk.desc}`, '#9ff0ff', 16));
+    const pk = o.perk || o.ability;
+    if (pk) this.time.delayedCall(1500, () => this.floatText(this.player.x, this.player.y - 60, `${o.ability ? '🌀' : '⚡'} ${pk.name}: ${pk.desc}`, '#9ff0ff', 16));
   }
 
   // Frase do amigo ao pegar um poder (espera a ceninha do poder acabar)
@@ -1103,6 +1132,37 @@ class GameScene extends Phaser.Scene {
     this.enemies.children.iterate((o) => {
       if (o && !o.dead && o !== e && (o.behavior === 'walker' || o.behavior === 'jumper') && Math.abs(o.x - e.x) < 220 && Math.abs(o.y - e.y) < 90) o.alert = Math.max(o.alert || 0, 1.6);
     });
+  }
+
+  // ---- Poder ativo: Saia Rodada da Lara. Gira e lança uma rajada (a saia) que acerta o inimigo de longe ----
+  useAbility() {
+    if (this.dead || this.finished || this.sceneT > 0) return;
+    this.abilityCd = this.ability.cooldown;
+    const dir = this.facing >= 0 ? 1 : -1;
+    const pb = this.player.body;
+    const s = this.skirtShots.create(pb.center.x + dir * 18, pb.center.y - 2, 'saia_rajada');
+    s.body.setCircle(11, 3, 3);
+    s.setVelocityX(dir * 420);
+    s.setAngularVelocity(dir * 900);
+    s.setDepth(8);
+    this.tweens.add({ targets: s, scale: { from: 0.5, to: 1.1 }, duration: 160 });
+    this.time.delayedCall(850, () => s.active && s.destroy());                       // alcance ≈ 350 px
+    this.twirlUntil = this.time.now + 280;
+    this.fxParty.explode(10, pb.center.x, pb.center.y);
+    Sfx.tone(520, 0.2, { type: 'sine', to: 980, vol: 0.07 });
+    Sfx.tone(780, 0.12, { type: 'triangle', vol: 0.05, delay: 0.05 });
+  }
+
+  skirtHit(shot, e) {
+    if (!shot.active || e.dead) return;
+    shot.destroy();
+    this.fxParty.explode(16, e.x, e.y);
+    if (e.moto || e.eva) { this.speech(e, 'Ei! Que vento é esse?!'); return; }       // chefões aguentam a saia
+    if (e.hp > 1) {                                                                  // inimigo duro perde uma vida e pisca
+      e.hp--; e.setTintFill(0xffffff); this.time.delayedCall(120, () => e.active && e.clearTint());
+      this.speech(e, 'Ai! Mais uma!');
+    } else this.defeatEnemy(e, true);
+    Achievements.unlock('saia');
   }
 
   spawnEnemy(key, cx, bottom, cfg) {

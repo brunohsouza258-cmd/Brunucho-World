@@ -24,7 +24,7 @@ para digitar no navegador do celular (mesmo Wi-Fi): o `http://` joga normal; o `
 Depois, menu do navegador > **Adicionar à tela inicial** instala o jogo como app. Se não tiver `openssl` (vem com o Git) só o `http://` abre,
 e na tela *Minha voz* dá pra usar **importar arquivo**.
 
-**Com controle de videogame** (Xbox, PlayStation...): direcional/analógico anda, **A/X** pula e confirma,
+**Com controle de videogame** (Xbox, PlayStation...): direcional/analógico anda, **A/X** pula e confirma, **Y/△** usa o poder do amigo (Lara),
 **B/○** volta, **Start** pausa.
 
 No menu, escolha **ROUPA** (ou aperte **C**, ou toque no Brunucho) para abrir o **guarda-roupa** com 10 looks (+3 à venda no Centro de Cotia):
@@ -76,7 +76,7 @@ música da intro, de vitória e de game over. As notas ficam em `SONGS` e dá pr
 
 ### Conquistas
 
-**67 conquistas**, como *Fugiu da Chinelada*, *Mogador Serial*, *Haja Coração!*, *Foi Pênalti?*, *Sigma do Combo*,
+**68 conquistas**, como *Fugiu da Chinelada*, *Mogador Serial*, *Haja Coração!*, *Foi Pênalti?*, *Sigma do Combo*,
 *Atropelamento 67*, *A Andreia Te Achou* e *Modo Andreia* (zerar no Difícil). Aparece um aviso na tela quando desbloqueia
 e dá pra ver todas no menu. A lista fica em `src/achievements.js`.
 
@@ -277,7 +277,7 @@ em `SHOPS` e `Shop`, no `src/shop.js`. Conquistas novas: *Turista em Cotia*, *Cl
 ### Amigos (personagens jogáveis)
 
 No guarda-roupa (**ROUPA** no menu) há duas abas: **ROUPAS** (os 10 looks do Brunucho) e **AMIGOS**, com personagens jogáveis feitos a partir
-de fotos de amigos, com o nome aparecendo em cima deles. O Brunucho continua sendo o protagonista da história. Amigos atuais: **Stanley**, **Biel** (Gabriel Silva, corpo magrinho) , **Yan**, **Pedro** (de cowboy) e **Arthur** (alto, de fone no ouvido e pulseira vermelha).
+de fotos de amigos, com o nome aparecendo em cima deles. O Brunucho continua sendo o protagonista da história. Amigos atuais: **Stanley**, **Biel** (Gabriel Silva, corpo magrinho) , **Yan**, **Pedro** (de cowboy), **Arthur** (alto, de fone no ouvido e pulseira vermelha) e **Lara** (a "irmã" do Brunucho: cabelo preso num coque, flor no cabelo e saia rodada de carimbó).
 Pra adicionar um amigo, crie uma entrada em `FRIENDS`, no `src/config.js` (cores, `hairStyle`, `beard`, `glasses`, `cap`, `thickBrows`, `slim`, `pants`, `smile`, `hoodie`, `cowboy`, `plaid`, `earbuds`, `bracelet`, `chestPrint`, `tall` (boneco mais alto)...).
 As fotos **não** vão pro repositório, só o desenho pixelado.
 
@@ -290,6 +290,11 @@ Cada amigo tem um **poder** (aparece no guarda-roupa e no começo da fase) e uma
 | Yan | **Sorrisão**: moedas valem 50% mais | "Sorria, você foi moggado!" |
 | Pedro | **Galope**: corre 10% mais rápido | "Cowboy vai te pegar!" |
 | Arthur | **Piadista**: +1 s de proteção ao renascer (todo mundo ri) | "Aqui de cima eu vejo tudo!" |
+| Lara | **Saia Rodada** (poder ativo, veja abaixo) | "Gira, gira, saia rodada!" |
+
+**Poder ativo da Lara — Saia Rodada:** aperte **X** (ou **Z/K**; no celular o botão **🌀** ao lado do pulo; no controle o botão Y/△ ou R1/RB).
+Ela gira e lança uma **rajada da saia** (vermelha, com fitas amarela e verde) que voa uns 350 px e derruba o inimigo de longe, além de apagar os tiros
+inimigos. Inimigos mais duros perdem 1 de vida; chefões (moto do Paraíba, Eva...) só levam um susto. Recarga de 1,3 s (aparece no painel). Conquista *Gira, Gira!*.
 
 A frase aparece num balão e é falada quando você pega um poder jogando com o amigo. **Dublagem:** em *Opções > Gravar minha voz*, a aba
 **Falas dos amigos** deixa gravar a fala de cada um (ou importar um áudio); sem gravação o jogo usa a voz do computador.
