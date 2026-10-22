@@ -14,13 +14,13 @@ const game = new Phaser.Game({
     arcade: { gravity: { y: PHYS.gravity }, debug: false },
   },
   // A ordem importa: quem vem depois aparece por cima (Toast = avisos de conquista, sempre no topo)
-  scene: [BootScene, MenuScene, IntroScene, EndingScene, CreditsScene, GameScene, PauseScene, EndScene, GameOverScene, OptionsScene, VoiceScene, WardrobeScene, ToastScene],
+  scene: [BootScene, MenuScene, IntroScene, EndingScene, CreditsScene, GameScene, PauseScene, EndScene, GameOverScene, OptionsScene, VoiceScene, WardrobeScene, CentroScene, ShopScene, ToastScene],
 });
 
 // Menus e telas por cima: o desenho de 960px fica centralizado (a câmera anda UI_OFF para o lado). Só a fase usa a tela toda.
 game.events.once('ready', () => {
   game.scene.scenes.forEach((s) => {
-    if (s.sys.settings.key === 'Game') return;
+    if (s.sys.settings.key === 'Game' || s.sys.settings.key === 'Centro') return;      // a fase e a rua usam a tela toda
     s.events.on('create', () => s.cameras.main.setScroll(-UI_OFF, 0));
   });
 });

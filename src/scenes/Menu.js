@@ -99,10 +99,11 @@ class MenuScene extends Phaser.Scene {
       { label: () => 'OPÇÕES', action: () => this.openOptions() },
       { label: () => 'CRÉDITOS', action: () => this.openCredits() },
       { label: () => (OUTFITS[currentOutfit()].friend ? `AMIGO: ${OUTFITS[currentOutfit()].name}` : `ROUPA: ${OUTFITS[currentOutfit()].name}`), action: () => this.openWardrobe(), side: () => this.openWardrobe() },
+      { label: () => `CENTRO DE COTIA  🪙 ${Wallet.get()}`, action: () => this.openCentro() },
     );
     this.selected = 0;
     this.optionTexts = this.options.map((opt, i) => {
-      const t = this.add.text(WIDTH / 2, 204 + i * 33, '', textStyle(23)).setOrigin(0.5).setInteractive({ useHandCursor: true });
+      const t = this.add.text(WIDTH / 2, 192 + i * 30, '', textStyle(23)).setOrigin(0.5).setInteractive({ useHandCursor: true });
       t.on('pointerover', () => { if (this.mode === 'main') { this.selected = i; this.refreshMain(); } });
       t.on('pointerdown', () => { if (this.mode === 'main') { this.selected = i; this.confirm(); } });
       panel.add(t);
@@ -313,6 +314,14 @@ class MenuScene extends Phaser.Scene {
       if (withIntro) this.scene.start('Intro');
       else this.scene.start('Game', { level, stats });
     });
+  }
+
+  openCentro() {
+    if (this.starting) return;
+    this.starting = true;
+    Sfx.select();
+    this.cameras.main.fadeOut(300);
+    this.cameras.main.once('camerafadeoutcomplete', () => this.scene.start('Centro'));
   }
 
   openCredits() {

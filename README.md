@@ -27,14 +27,14 @@ e na tela *Minha voz* dá pra usar **importar arquivo**.
 **Com controle de videogame** (Xbox, PlayStation...): direcional/analógico anda, **A/X** pula e confirma,
 **B/○** volta, **Start** pausa.
 
-No menu, escolha **ROUPA** (ou aperte **C**, ou toque no Brunucho) para abrir o **guarda-roupa** com 10 looks:
+No menu, escolha **ROUPA** (ou aperte **C**, ou toque no Brunucho) para abrir o **guarda-roupa** com 10 looks (+3 à venda no Centro de Cotia):
 **Praia**, **Diesel**, **Cueca** (só de cueca e meia), **Terno** (com gravata), **Palmeiras** (camisa, calção e meiões verdes, chuteira),
 **Seleção**, **Pijama** (com gorro), **Herói** (capa e máscara), **Academia** e **Capivara** (capuz). As roupas ficam em `OUTFITS`,
 no `src/config.js`, e o desenho em `drawPlayer`, no `src/textures.js`. Vestir todas dá a conquista *Closet Completo*.
 
 ### Menu
 
-**Continuar** (de onde parou), **Novo jogo**, **Escolher fase**, **Conquistas**, **Ranking**, **Opções** e **Roupa**.
+**Continuar** (de onde parou), **Novo jogo**, **Escolher fase**, **Conquistas**, **Ranking**, **Opções**, **Roupa** e **Centro de Cotia**.
 
 ### Vidas e progresso
 
@@ -76,7 +76,7 @@ música da intro, de vitória e de game over. As notas ficam em `SONGS` e dá pr
 
 ### Conquistas
 
-**58 conquistas**, como *Fugiu da Chinelada*, *Mogador Serial*, *Haja Coração!*, *Foi Pênalti?*, *Sigma do Combo*,
+**62 conquistas**, como *Fugiu da Chinelada*, *Mogador Serial*, *Haja Coração!*, *Foi Pênalti?*, *Sigma do Combo*,
 *Atropelamento 67*, *A Andreia Te Achou* e *Modo Andreia* (zerar no Difícil). Aparece um aviso na tela quando desbloqueia
 e dá pra ver todas no menu. A lista fica em `src/achievements.js`.
 
@@ -206,6 +206,24 @@ As falas ficam em `INTRO_SCRIPT`, no `src/scenes/Intro.js`. (Escolher uma fase d
 Pise nos inimigos para derrotá-los, desvie dos espinhos, pegue as moedas e chegue na bandeira verde.
 No celular aparecem botões na tela.
 
+### Centro de Cotia (lojas)
+
+No menu, **CENTRO DE COTIA** abre uma rua com **6 lojas** para gastar moedas. As moedas que você pega numa fase entram na **carteira (🪙)** quando
+você **chega na bandeira** (+10 se pegar todas), então reiniciar a fase não vira "farm". A carteira fica salva no navegador.
+Na rua: **← →** andam, **↑ / ENTER** entram na loja (quando aparece o aviso na porta), **ESC** volta. No celular/mouse: **toque no chão** para andar
+até lá, **toque numa loja** para entrar (e ◀ ▶ na tela seguram a caminhada). A Andreia e os amigos ficam passeando pela calçada.
+
+| Loja | O que vende |
+|---|---|
+| 🥖 **Padaria Pão Quente** | *consumíveis* (valem para a próxima fase): Coxinha (+1 vida), Pão de queijo (escudo de aura), Churros (começa grandão), Caldo de cana (ímã de moedas) |
+| 👟 **Sapataria Pé de Ouro** | *para sempre*: Tênis de Mola (pulo duplo), Chuteira Turbo (+6% velocidade), Palmilha Macia (+5% pulo) |
+| 🛒 **Mercadão da Aura** | Cartão Fidelidade (+1 vida inicial, até 3 níveis), Cesta de Moedas (+25% pontos por moeda), Ímã de Bolso |
+| 👕 **Moda Cotia** | roupas novas: Skatista, Doutor Brunucho e Cowboy Brunucho (aparecem com 🔒 no guarda-roupa até comprar) |
+| 💊 **Farmácia Saúde** | Vitamina C (+1 s de invencibilidade ao renascer), Energético (começa a fase com o poder SIX SEVEN) |
+| 🐶 **Pet Shop Caramelo** | companheiros que seguem você: Cachorro Caramelo e Pombo de estimação |
+
+Cada fase gasta **1 de cada consumível** que você tiver na mochila (no reinício da fase eles voltam sem gastar de novo). Os itens, preços e efeitos ficam
+em `SHOPS` e `Shop`, no `src/shop.js`. Conquistas novas: *Turista em Cotia*, *Cliente Fiel*, *Esbanjador* e *Rei das Compras*.
 ### Amigos (personagens jogáveis)
 
 No guarda-roupa (**ROUPA** no menu) há duas abas: **ROUPAS** (os 10 looks do Brunucho) e **AMIGOS**, com personagens jogáveis feitos a partir

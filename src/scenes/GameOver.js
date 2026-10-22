@@ -56,7 +56,7 @@ class GameOverScene extends Phaser.Scene {
 
   retry() {
     // Volta pro começo da fase com as vidas cheias (os pontos voltam ao início da fase)
-    const s = { ...this.data_.startStats, lives: difficulty().lives };
+    const s = { ...this.data_.startStats, lives: startLives() };
     this.scene.start('Game', { level: this.data_.level, stats: s });
   }
 

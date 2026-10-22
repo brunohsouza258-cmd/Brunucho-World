@@ -50,10 +50,16 @@ class GameScene extends Phaser.Scene {
 
   init(data) {
     this.levelIndex = data.level || 0;
-    this.stats = { coins: 0, deaths: 0, time: 0, score: 0, lives: difficulty().lives, lifeCoins: 0, ...data.stats };
-    this.perk = OUTFITS[currentOutfit()].perk || {};   // poder do amigo que está sendo jogado (veja FRIEND_EXTRA em config.js)
-    this.hasDoubleJump = false; // Tênis de Mola
-    this.airJumps = 0;
+    this.stats = { coins: 0, deaths: 0, time: 0, score: 0, lives: startLives(), lifeCoins: 0, ...data.stats };
+    // Poderes: do amigo que está sendo jogado (FRIEND_EXTRA em config.js) + compras permanentes no Centro de Cotia (shop.js)
+    const fp = OUTFITS[currentOutfit()].perk || {}, sp = Shop.perks();
+    this.perk = { speed: (fp.speed || 1) * sp.speed, jump: (fp.jump || 1) * sp.jump, coin: (fp.coin || 1) * sp.coin,
+      magnet: Math.max(fp.magnet || 0, sp.magnet), respawnInvuln: sp.respawnInvuln };
+    // Consumíveis comprados valem para esta fase (no reinício da fase eles voltam, sem gastar de novo)
+    this.buffs = data.buffs || Shop.takeBuffs();
+    if (!data.buffs && this.buffs.includes('coxinha')) this.stats.lives++;
+    this.hasDoubleJump = sp.doubleJump; // Tênis de Mola (comprado)
+    this.airJumps = sp.doubleJump ? 1 : 0;
     this.magnetTime = 0;        // Ímã de Aura
     this.mogsIn67 = 0;
     this.big = false;           // Churros: grandão (aguenta 1 golpe)
@@ -350,6 +356,8 @@ class GameScene extends Phaser.Scene {
 
     this.createHud(def);
     this.friendIntro();
+    this.applyBuffs();
+    this.pet = new PetFollower(this);
     if (this.bossSpawn) this.setupBoss(); // fase do chefão final (boss.js)
 
     // Modo de visualização: index.html?fase=1&mapa=1 mostra a fase inteira.
@@ -708,6 +716,7 @@ class GameScene extends Phaser.Scene {
     this.levelTime += dt;
     this.updateHud();
     this.syncPlayerGfx(time);
+    if (this.pet) this.pet.follow(this.player.x, this.player.body.bottom, time);
   }
 
   updatePowers(dt, time) {
@@ -844,6 +853,18 @@ class GameScene extends Phaser.Scene {
     seen.add(e.friendKey);
     Storage.set('pp_amigos_pisados', [...seen]);
     if (FRIEND_KEYS.every((k) => seen.has(k) || k === currentOutfit())) Achievements.unlock('turma_toda');
+  }
+
+  // Itens comprados no Centro de Cotia que valem só nesta fase
+  applyBuffs() {
+    const b = this.buffs || [];
+    const say = [];
+    if (b.includes('coxinha')) say.push('🍗 +1 vida');
+    if (b.includes('paodequeijo')) { this.hasAura = true; say.push('🧀 escudo de aura'); }
+    if (b.includes('churros')) { this.big = true; this.setPlayerSize(1.5); say.push('🍫 grandão'); }
+    if (b.includes('caldo')) { this.magnetTime = 12; say.push('🥤 ímã de moedas'); }
+    if (b.includes('energetico')) { this.powerTime = 6.7; this.mogsIn67 = 0; Music.play('poder67'); say.push('⚡ SIX SEVEN'); }
+    if (say.length) this.time.delayedCall(900, () => this.floatText(this.player.x, this.player.y - 70, say.join('  ·  '), '#ffe9a0', 16));
   }
 
   // Jogando com um amigo: anuncia o poder no começo e registra com quem você já jogou
@@ -1605,7 +1626,7 @@ class GameScene extends Phaser.Scene {
     this.jumpBuffer = 0;
     this.squash = -0.3;
     // Renasce protegido: 2 segundos invencível (piscando)...
-    this.invuln = 2;
+    this.invuln = 2 + (this.perk.respawnInvuln || 0);
     // ...e quem estiver em cima do ponto de renascer é empurrado pra longe
     this.enemies.children.iterate((e) => {
       if (!e || e.dead || !e.body) return;
@@ -1645,6 +1666,10 @@ class GameScene extends Phaser.Scene {
     const allCoins = this.levelCoins === this.totalCoins && this.totalCoins > 0;
     if (allCoins) bonuses.push(['Todas as moedas', SCORE.allCoins]);
 
+    // As moedas pegas viram dinheiro de verdade (carteira) para gastar no Centro de Cotia
+    const earned = this.levelCoins + (allCoins ? 10 : 0);
+    Wallet.add(earned);
+
     // Progresso (libera a próxima fase, estrelas) e conquistas da fase
     Progress.completeLevel(this.levelIndex, { noDeath: this.levelDeaths === 0, allCoins });
     if (this.powerTime > 0) Music.play(this.levelSong);
@@ -1679,6 +1704,7 @@ class GameScene extends Phaser.Scene {
     });
     const totalY = top + 80 + bonuses.length * 30 + 12;
     this.totalText = fixed(this.add.text(VIEW_W / 2, totalY, '', textStyle(26, '#ffffff')).setOrigin(0.5));
+    if (earned > 0) fixed(this.add.text(VIEW_W / 2, totalY + 36, `🪙 +${earned} na carteira  (total ${Wallet.get()})`, textStyle(18, '#ffe9a0')).setOrigin(0.5));
 
     this.time.delayedCall(1200 + bonuses.length * 450 + 1200, () => {
       this.cameras.main.fadeOut(400);
@@ -1696,7 +1722,7 @@ class GameScene extends Phaser.Scene {
 
   restartLevel() {
     // Moedas, tempo e VIDAS voltam ao que eram no início da fase; só o contador de mortes continua.
-    this.scene.restart({ level: this.levelIndex, stats: { ...this.startStats, deaths: this.stats.deaths } });
+    this.scene.restart({ level: this.levelIndex, stats: { ...this.startStats, deaths: this.stats.deaths }, buffs: this.buffs });
   }
 
   pauseGame() {

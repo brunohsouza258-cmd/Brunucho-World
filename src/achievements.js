@@ -66,6 +66,10 @@ const ACHIEVEMENTS = [
   { id: 'roupa',       icon: '👕', name: 'Fashionista',           desc: 'Trocar de roupa no menu' },
   { id: 'amigo_pisado', icon: '🤝', name: 'Só de Brincadeira',    desc: 'Pisar num amigo (ele aguenta)' },
   { id: 'turma_toda',  icon: '🧑‍🤝‍🧑', name: 'A Turma Toda',          desc: 'Pisar em todos os amigos (de brincadeira)' },
+  { id: 'cotia',       icon: '🏙️', name: 'Turista em Cotia',      desc: 'Visitar o Centro de Cotia' },
+  { id: 'cliente',     icon: '🛍️', name: 'Cliente Fiel',          desc: 'Fazer a primeira compra no Centro de Cotia' },
+  { id: 'esbanjador',  icon: '💸', name: 'Esbanjador',            desc: 'Gastar 1.000 moedas no Centro de Cotia' },
+  { id: 'rei_compras', icon: '👑', name: 'Rei das Compras',       desc: 'Comprar em todas as 6 lojas do Centro de Cotia' },
   { id: 'jogou_turma', icon: '🎮', name: 'Jogando em Turma',      desc: 'Jogar uma fase com cada amigo' },
 ];
 

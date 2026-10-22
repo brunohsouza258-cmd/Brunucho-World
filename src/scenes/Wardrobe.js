@@ -62,17 +62,21 @@ class WardrobeScene extends Phaser.Scene {
     this.cardObjs.forEach((o) => o.destroy());
     this.cardObjs = [];
     const keys = this.keysOf();
+    const compact = keys.length > 10;                                    // 3 fileiras quando tem muita roupa
     this.cards = keys.map((key, i) => {
       const col = i % 5, row = Math.floor(i / 5);
-      const x = 500 + col * 104, y = 188 + row * 150;
-      const bg = this.add.rectangle(x, y, 96, 138, 0x1b1b2a, 1).setStrokeStyle(2, 0x444455).setInteractive({ useHandCursor: true });
-      const spr = this.add.sprite(x, y + 30, `player_${key}`).setOrigin(0.5, 1).setScale(2);
-      const label = this.add.text(x, y + 47, OUTFITS[key].name, { ...textStyle(13), align: 'center', wordWrap: { width: 90 } }).setOrigin(0.5, 0.5);
+      const x = 500 + col * 104, y = (compact ? 168 : 188) + row * (compact ? 114 : 150);
+      const locked = !Shop.ownsOutfit(key);
+      const bg = this.add.rectangle(x, y, 96, compact ? 106 : 138, 0x1b1b2a, 1).setStrokeStyle(2, 0x444455).setInteractive({ useHandCursor: true });
+      const spr = this.add.sprite(x, y + (compact ? 24 : 30), `player_${key}`).setOrigin(0.5, 1).setScale(compact ? 1.6 : 2);
+      if (locked) spr.setTint(0x3a3a46);
+      const label = this.add.text(x, y + (compact ? 40 : 47), OUTFITS[key].name, { ...textStyle(13), align: 'center', wordWrap: { width: 90 } }).setOrigin(0.5, 0.5);
       let fs = parseInt(label.style.fontSize, 10);
-      while ((label.height > 36 || label.width > 92) && fs > 9) label.setFontSize(--fs);      // nome comprido encolhe até caber no cartão
-      const check = this.add.text(x - 40, y - 60, '✔', textStyle(18, '#8aff8a')).setOrigin(0, 0).setVisible(false);
+      while ((label.height > 30 || label.width > 92) && fs > 9) label.setFontSize(--fs);      // nome comprido encolhe até caber no cartão
+      const check = this.add.text(x - 40, y - (compact ? 48 : 60), '✔', textStyle(18, '#8aff8a')).setOrigin(0, 0).setVisible(false);
       bg.on('pointerdown', () => { if (this.sel === i && this.tapped === i) this.wear(); else { this.select(i); this.tapped = i; } });   // 1º toque mostra, 2º veste
       this.cardObjs.push(bg, spr, label, check);
+      if (locked) this.cardObjs.push(this.add.text(x, y - 8, '🔒', { fontSize: '26px' }).setOrigin(0.5), this.add.text(x, y - (compact ? 34 : 44), `🪙 ${OUTFITS[key].shop.price}`, textStyle(12, '#ffe9a0')).setOrigin(0.5));
       return { bg, label, check };
     });
     if (this.tab === 'amigos') {
@@ -107,8 +111,9 @@ class WardrobeScene extends Phaser.Scene {
     this.preview.play(`player_${key}_walk`);
     this.nameText.setText(o.name);
     this.descText.setText(o.desc);
-    this.perkText.setText(o.perk ? `⚡ ${o.perk.name}: ${o.perk.desc}` : '');
-    this.wearBtn.setText(key === this.worn ? '✔ VESTINDO' : (o.friend ? 'JOGAR COM ELE' : 'VESTIR'));
+    const locked = !Shop.ownsOutfit(key);
+    this.perkText.setText(locked ? `🔒 À venda na Moda Cotia (Centro de Cotia): 🪙 ${o.shop.price}` : (o.perk ? `⚡ ${o.perk.name}: ${o.perk.desc}` : ''));
+    this.wearBtn.setText(locked ? '🔒 BLOQUEADA' : (key === this.worn ? '✔ VESTINDO' : (o.friend ? 'JOGAR COM ELE' : 'VESTIR')));
     this.cards.forEach((c, k) => {
       c.bg.setStrokeStyle(k === i ? 4 : 2, k === i ? 0xffd23f : 0x444455);
       c.check.setVisible(keys[k] === this.worn);
@@ -119,7 +124,9 @@ class WardrobeScene extends Phaser.Scene {
 
   wear() {
     const key = this.keysOf()[this.sel];
-    Sfx.unlock(); Sfx.select();
+    Sfx.unlock();
+    if (!Shop.ownsOutfit(key)) { Sfx.tone(160, 0.25, { type: 'sawtooth', vol: 0.08 }); return; }      // roupa à venda: só depois de comprar
+    Sfx.select();
     Storage.set('pp_outfit', key);
     this.worn = key;
     const used = new Set(Storage.get('pp_outfits_used', []));

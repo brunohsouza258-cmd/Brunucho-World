@@ -190,6 +190,23 @@ const OUTFITS = {
     colors: { ...HAIR, ...SKIN, shirt: 0x8a6142, shirtDark: 0x6b4a30, shorts: 0x6b4a30, shortsDark: 0x4f361f },
     longSleeves: true, hood: 0x8a6142, hoodDark: 0x6b4a30, orange: true, pocket: 0x6b4a30, shoes: 'bota', shoeColor: 0x4f361f,
   },
+  // ---- À venda na loja Moda Cotia (Centro de Cotia): shop.price = moedas ----
+  skatista: {
+    name: 'Skatista', desc: 'Boné virado, moletom e tênis. Radical!',
+    colors: { ...HAIR, ...SKIN, shirt: 0x3b4a6b, shirtDark: 0x2a3550, shorts: 0x1f2430, shortsDark: 0x151922 },
+    cap: 0xd62828, capDark: 0x8c1a1a, hoodie: { cord: 0xffffff, print: 0xffd23f }, longSleeves: true, pants: true, shoes: 'tenis', shop: { price: 150 },
+  },
+  doutor: {
+    name: 'Doutor Brunucho', desc: 'Jaleco branco, óculos de grau e muita responsabilidade.',
+    colors: { ...HAIR, ...SKIN, shirt: 0xf6f6f8, shirtDark: 0xd4d6dc, shorts: 0x4a6fa5, shortsDark: 0x37557f },
+    glasses: 0x1b1b2a, longSleeves: true, pants: true, collar: 0xffffff, pocket: 0xe3e7ee, chestBadge: true, shoes: 'social', shop: { price: 200 },
+  },
+  cowboy: {
+    name: 'Cowboy Brunucho', desc: 'Chapéu, camisa xadrez e bota. Yeehaw!',
+    colors: { ...HAIR, ...SKIN, shirt: 0xb83a3a, shirtDark: 0x8c2a2a, shorts: 0x3a5a9a, shortsDark: 0x2a4274 },
+    cowboy: 0x4a2f1c, cowboyTop: 0x5d3b24, cowboyBand: 0xe6c88a, plaid: { v: 0x7a1c1c, h1: 0xe6c88a, h2: 0xffffff },
+    longSleeves: true, pants: true, collar: 0xf1e4cf, shoes: 'bota', shoeColor: 0x4a2f1c, shop: { price: 250 },
+  },
 };
 
 // ---- Amigos: personagens jogáveis (seção AMIGOS do guarda-roupa). O Brunucho continua sendo o protagonista da história.
