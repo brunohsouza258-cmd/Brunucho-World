@@ -76,7 +76,7 @@ música da intro, de vitória e de game over. As notas ficam em `SONGS` e dá pr
 
 ### Conquistas
 
-**62 conquistas**, como *Fugiu da Chinelada*, *Mogador Serial*, *Haja Coração!*, *Foi Pênalti?*, *Sigma do Combo*,
+**64 conquistas**, como *Fugiu da Chinelada*, *Mogador Serial*, *Haja Coração!*, *Foi Pênalti?*, *Sigma do Combo*,
 *Atropelamento 67*, *A Andreia Te Achou* e *Modo Andreia* (zerar no Difícil). Aparece um aviso na tela quando desbloqueia
 e dá pra ver todas no menu. A lista fica em `src/achievements.js`.
 
@@ -152,6 +152,32 @@ Ficam em `MEMES`, no `config.js` (no mapa são letras minúsculas: `b p c l r`).
 
 No mapa: `s d y g z`. Moggar os 5 dá a conquista **Rei dos Memes**. São 85 espalhados pelas fases, mais nas mais difíceis.
 
+### Memes virais de 2026
+
+Pesquisados na internet: aparecem no lugar de alguns memes que andam, **nas fases 5 a 30** (no `config.js`, tabela `VIRAIS`).
+
+| Meme | O que faz |
+|---|---|
+| 🐀 Ratinhos Dançantes ("Bichos Escrotos") | andam **dando pulinhos** |
+| 😏 Troll Face Realista | **pula do nada** ("Problema?") |
+| 🗳️ Pilili (mascote da urna eletrônica) | fica parado e **atira "votos"** mirando em você ("PILILI!") |
+| ☕ Cappuccino Assassino | xícara ninja que **avisa e dispara** na sua direção |
+| 🦐 Trippi Troppi | gato-camarão que **corre** atrás de você |
+
+Derrotar os 5 dá a conquista **Por Dentro da Internet**.
+
+### O Paraíba (vilão da fase da Paraíba)
+
+Na fase da **Paraíba** um amigo vira vilão: o **Paraíba**, de boné e blusa térmica, **em cima de uma moto**. Ele é agitado e imprevisível: corre de um lado
+pro outro, **para e solta uma rajada de 8 chinelos em todas as direções** (um mirado em você) ou **ronca e investe** em cima de você. Tem **3 de vida**
+(uma barra aparece em cima dele): cada pisada tira 1 (mesmo grandão), ele fica mais furioso a cada uma e a 3ª derruba (+2000 e a conquista **Moto Derrubada**).
+
+### Inimigos mais espertos
+
+Os inimigos que andam agora **percebem você** (campo de visão, sem parede no meio), mostram um **"!"**, **avisam os vizinhos** e **perseguem mais rápido**
+(mas sempre mais devagar que você; na dificuldade difícil eles veem de mais longe). Eles **pulam obstáculos baixos**, **param na beirada** em vez de cair,
+**não andam em espinho** e **perdem o interesse** depois de uns 2 segundos. O Galvão **mira o chute onde você vai estar** e recua se você chega perto, e o pombo
+**mergulha** em cima de quem passa embaixo.
 ### Poderes
 
 - **67**: modo *six seven* por **6,7 segundos**: invencível, mais rápido, pula mais alto e derruba inimigo só de encostar.

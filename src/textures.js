@@ -548,6 +548,103 @@ function generateTextures(scene) {
     g.fillStyle(0xffffff); g.fillRect(5, 2, 1, 4); g.fillRect(5, 3, 6, 1);
   });
 
+  // ================= MEMES VIRAIS DE 2026 =================
+  // Ratinhos dançantes ("Bichos Escrotos")
+  make('rato', 28, 26, (g) => {
+    const G = 0x8d8d9a, GD = 0x6a6a78, P = 0xf0a0b8, L = 0xd8d8e2;
+    g.fillStyle(P); g.fillRect(21, 21, 6, 2); g.fillRect(25, 17, 2, 5);                       // rabo
+    g.fillStyle(GD); g.fillRect(7, 22, 5, 4); g.fillRect(15, 22, 5, 4);                       // pés
+    g.fillStyle(G); g.fillRoundedRect(6, 10, 17, 14, 6);                                      // corpo
+    g.fillStyle(L); g.fillRoundedRect(8, 15, 10, 8, 4);                                       // barriga
+    g.fillStyle(G); g.fillRect(19, 9, 3, 6); g.fillRect(2, 11, 3, 5);                         // bracinhos pro alto (dançando)
+    g.fillStyle(G); g.fillRoundedRect(1, 3, 14, 12, 5);                                       // cabeça
+    g.fillStyle(P); g.fillCircle(3, 3, 3.5); g.fillCircle(12, 3, 3.5);                        // orelhas
+    g.fillStyle(0xe58aa8); g.fillCircle(3, 3, 1.6); g.fillCircle(12, 3, 1.6);
+    g.fillStyle(0x1b1b2a); g.fillRect(4, 8, 2, 2); g.fillRect(9, 8, 2, 2);                    // olhos
+    g.fillStyle(P); g.fillRect(0, 11, 3, 2);                                                  // focinho
+    g.fillStyle(0xffffff); g.fillRect(6, 13, 2, 1); g.fillRect(8, 13, 2, 1);                  // dentinhos
+  });
+  // Troll Face realista
+  make('troll', 34, 34, (g) => {
+    const S = 0xeab99a, SD = 0xcf9b7a;
+    g.fillStyle(S); g.fillRoundedRect(2, 2, 30, 30, 13);
+    g.fillStyle(SD); g.fillRect(6, 29, 22, 3);
+    g.fillStyle(0x2a1d14); g.fillTriangle(5, 10, 16, 6, 16, 10); g.fillTriangle(29, 10, 18, 6, 18, 10);   // sobrancelhas
+    g.fillStyle(0xffffff); g.fillRect(7, 11, 8, 6); g.fillRect(19, 11, 8, 6);
+    g.fillStyle(0x1b1b2a); g.fillRect(9, 12, 3, 4); g.fillRect(21, 12, 3, 4);
+    g.fillStyle(SD); g.fillRect(16, 15, 2, 6);                                                             // nariz
+    g.fillStyle(0x7a1f2a); g.fillRoundedRect(4, 21, 26, 9, 4);                                             // sorrisão
+    g.fillStyle(0xffffff); g.fillRect(6, 21, 22, 4);
+    g.fillStyle(0xd8d8d8); [11, 16, 21].forEach((x) => g.fillRect(x, 21, 1, 4));
+    g.fillStyle(SD); g.fillRect(3, 20, 2, 5); g.fillRect(29, 20, 2, 5);                                    // bochechas
+  });
+  // Pilili: o mascote da urna eletrônica
+  make('pilili', 30, 38, (g) => {
+    g.fillStyle(0x4a4d55); g.fillRect(5, 33, 7, 5); g.fillRect(18, 33, 7, 5);                 // pés
+    g.fillStyle(0xc9ccd4); g.fillRoundedRect(2, 6, 26, 29, 4);                                // corpo
+    g.fillStyle(0xa4a8b3); g.fillRect(2, 30, 26, 5);
+    g.fillStyle(0x1f2a24); g.fillRoundedRect(5, 9, 20, 12, 2);                                // tela
+    g.fillStyle(0x9ad6a0); g.fillRect(7, 11, 16, 8);
+    g.fillStyle(0x1b1b2a); g.fillRect(10, 13, 3, 4); g.fillRect(17, 13, 3, 4); g.fillRect(12, 17, 6, 1);   // carinha
+    g.fillStyle(0x5a5d66); [[6, 24], [10, 24], [14, 24], [6, 27], [10, 27], [14, 27]].forEach(([x, y]) => g.fillRect(x, y, 3, 2));  // teclado
+    g.fillStyle(0xe8892b); g.fillRect(19, 23, 7, 2);                                          // CORRIGE
+    g.fillStyle(0x2ecc71); g.fillRoundedRect(19, 27, 7, 5, 1);                                // CONFIRMA (pi-li-li!)
+  });
+  // Cappuccino Assassino: xícara ninja com duas katanas
+  make('cappuccino', 28, 40, (g) => {
+    g.lineStyle(2, 0xc9d1d9); g.lineBetween(2, 8, 24, 34); g.lineBetween(26, 8, 4, 34);       // katanas cruzadas
+    g.fillStyle(0x1b1b2a); g.fillRect(8, 34, 4, 6); g.fillRect(16, 34, 4, 6);                 // botas
+    g.fillStyle(0xf5f0e8); g.fillRoundedRect(5, 15, 18, 20, 5);                               // xícara
+    g.fillStyle(0xd9cfc0); g.fillRect(5, 30, 18, 5);
+    g.fillStyle(0xf5f0e8); g.fillRect(22, 20, 4, 3); g.fillRect(25, 20, 2, 9);                // alça
+    g.fillStyle(0x1b1b2a); g.fillRect(5, 20, 18, 7);                                          // máscara ninja
+    g.fillStyle(0xffffff); g.fillRect(8, 22, 4, 3); g.fillRect(16, 22, 4, 3);
+    g.fillStyle(0xd62828); g.fillRect(23, 21, 4, 2);                                          // faixa
+    g.fillStyle(0x6b4026); g.fillEllipse(14, 14, 20, 7);                                      // café
+    g.fillStyle(0xf0dcc0); g.fillEllipse(14, 13, 12, 4);                                      // espuma
+  });
+  // Trippi Troppi: gato com corpo de camarão
+  make('trippi', 38, 30, (g) => {
+    const O = 0xff8a3d, OD = 0xd9622a, Y = 0xffc38a;
+    g.fillStyle(OD); g.fillTriangle(30, 8, 38, 6, 36, 20); g.fillTriangle(30, 14, 38, 20, 32, 25);        // cauda de camarão
+    [[26, 18, 8], [20, 20, 9], [14, 21, 9]].forEach(([x, y, r]) => { g.fillStyle(O); g.fillCircle(x, y, r); g.fillStyle(OD); g.fillRect(x + r - 2, y - r + 3, 2, r * 2 - 5); });
+    g.fillStyle(Y); g.fillRect(12, 24, 20, 3);
+    g.fillStyle(OD); [[10, 27], [16, 28], [22, 28], [28, 27]].forEach(([x, y]) => g.fillRect(x, y, 2, 3));
+    g.fillStyle(0xffa860); g.fillRoundedRect(0, 7, 18, 15, 6);                                            // cabeça de gato
+    g.fillTriangle(1, 9, 3, 1, 8, 8); g.fillTriangle(10, 8, 15, 1, 17, 9);
+    g.fillStyle(0xffd0a0); g.fillTriangle(3, 8, 4, 4, 7, 8); g.fillTriangle(11, 8, 14, 4, 15, 8);
+    g.fillStyle(0x1b1b2a); g.fillRect(4, 12, 2, 3); g.fillRect(11, 12, 2, 3);
+    g.fillStyle(0xffffff); g.fillRect(4, 12, 1, 1); g.fillRect(11, 12, 1, 1);
+    g.fillStyle(0xff7a9a); g.fillRect(8, 16, 2, 2);
+    g.lineStyle(1, 0x6b3a1f); g.lineBetween(14, 8, 21, 2); g.lineBetween(0, 17, 5, 17);
+  });
+  // Paraíba na moto (vilão do cenário da Paraíba): boné, blusa térmica grossa, moto vermelha — de frente pra esquerda
+  make('paraiba_moto', 62, 44, (g) => {
+    const SK = 0xc98f64, SW = 0x4c6b7a, SWD = 0x3d5866;
+    // moto
+    g.fillStyle(0x1b1b22); g.fillCircle(13, 33, 10); g.fillCircle(49, 33, 10);                // pneus
+    g.fillStyle(0x9aa0aa); g.fillCircle(13, 33, 5); g.fillCircle(49, 33, 5);
+    g.fillStyle(0x2a2c33); g.fillCircle(13, 33, 2); g.fillCircle(49, 33, 2);
+    g.lineStyle(3, 0x9aa0aa); g.lineBetween(13, 33, 19, 17); g.lineBetween(19, 17, 25, 15);   // garfo e guidão
+    g.fillStyle(0xffe14d); g.fillCircle(10, 21, 3.5);                                         // farol
+    g.fillStyle(0x3a3d46); g.fillRect(16, 24, 36, 7);                                         // motor
+    g.fillStyle(0xd62828); g.fillRoundedRect(22, 16, 18, 9, 4); g.fillRoundedRect(42, 20, 14, 7, 3);   // tanque e paralama
+    g.fillStyle(0x15151a); g.fillRoundedRect(36, 17, 14, 5, 2);                               // banco
+    g.lineStyle(3, 0x7a7f8a); g.lineBetween(34, 31, 58, 32);                                  // escapamento
+    // piloto
+    g.fillStyle(0x1d1d22); g.fillRect(31, 23, 9, 6); g.fillRect(25, 27, 8, 5); g.fillStyle(0x4a3020); g.fillRect(22, 31, 9, 4);   // calça e bota
+    g.fillStyle(SW); g.fillRoundedRect(27, 10, 14, 15, 4);                                    // blusa térmica
+    g.fillStyle(SWD); [14, 17, 20, 23].forEach((y) => g.fillRect(28, y, 12, 1));              // gomos da térmica
+    g.fillRect(27, 10, 14, 2);                                                                // gola alta
+    g.fillStyle(SW); g.fillRoundedRect(19, 14, 12, 5, 2);                                     // braço no guidão
+    g.fillStyle(SK); g.fillRect(17, 15, 3, 4);
+    g.fillStyle(SK); g.fillCircle(26, 7, 6);                                                  // cabeça
+    g.fillStyle(0x15151a); g.fillRoundedRect(19, 0, 15, 6, 3); g.fillRect(14, 4, 9, 2);       // boné
+    g.fillStyle(0xffffff); g.fillRect(24, 1, 4, 2);
+    g.fillStyle(0x1b1b2a); g.fillRect(22, 7, 2, 2); g.fillRect(27, 7, 2, 2);                  // olhos arregalados
+    g.fillStyle(0x7a1f2a); g.fillRect(23, 11, 5, 2);                                          // gritando
+  });
+
   // ================= PODERES =================
 
   // --- 67: modo six seven ---
@@ -701,7 +798,8 @@ function generateTextures(scene) {
 const OUTLINE_PREFIXES = ['player_', 'neymar', 'galvao', 'caze', 'ednaldo', 'lula', 'flavio', 'mae', 'caramelo',
   'capivara', 'tralalero', 'tungtung', 'slime', 'crab', 'pombo', 'bombardiro', 'patapim', 'bananini', 'lirili',
   'ballerina', 'coin', 'coxinha', 'tenis', 'ima', 'heart', 'gol_ball', 'picanha', 'ovo', 'bomba', 'pw_olhar', 'pw_anjo',
-  'goal', 'cp_', 'mola', 'chinelo', 'plataforma', 'cacto', 'skibidi', 'doge', 'nyan', 'gigachad', 'nazare', 'gota', 'churros'];
+  'goal', 'cp_', 'mola', 'chinelo', 'plataforma', 'cacto', 'skibidi', 'doge', 'nyan', 'gigachad', 'nazare', 'gota', 'churros',
+  'rato', 'troll', 'pilili', 'cappuccino', 'trippi', 'paraiba_moto'];
 
 function outlineSprites(scene) {
   for (const key of scene.textures.getTextureKeys()) {

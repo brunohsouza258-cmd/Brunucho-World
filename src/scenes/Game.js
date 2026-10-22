@@ -133,6 +133,7 @@ class GameScene extends Phaser.Scene {
     this.crumbles = this.physics.add.staticGroup(); // plataformas que caem
     this.spawn = { x: 2 * TILE, y: 13 * TILE };
     this.cameoPlan = this.planCameos(level);
+    this.viralPlan = this.planViral(level);
 
     for (const o of level.objects) {
       const cx = o.x * TILE + TILE / 2;
@@ -181,6 +182,8 @@ class GameScene extends Phaser.Scene {
           break;
         }
         case 'b': case 'p': case 'c': case 'l': case 'r': case 's': case 'd': case 'y': case 'g': case 'z': { // memes brainrot
+          const viral = this.viralPlan.get(o);
+          if (viral) { this.spawnViral(viral, cx, bottom); break; }
           const m = MEMES[o.ch];
           const e = this.spawnEnemy(m.key, cx, bottom, m);
           e.famous = m;   // reaproveita as falas
@@ -295,6 +298,7 @@ class GameScene extends Phaser.Scene {
     this.physics.add.overlap(this.player, this.springs, this.bounceSpring, null, this);
     this.physics.add.collider(this.player, this.crumbles, this.stepCrumble,
       (pl, c) => c.state !== 'gone' && pl.body.velocity.y >= 0 && pl.body.bottom <= c.body.top + 10, this);
+    this.spawnMoto(def);                                  // vilão da moto (fase da Paraíba)
     this.physics.add.overlap(this.player, this.enemies, this.hitEnemy, null, this);
     this.physics.add.overlap(this.player, this.shots, (pl, shot) => {
       if (this.powerTime > 0) { shot.destroy(); return; }
@@ -889,6 +893,203 @@ class GameScene extends Phaser.Scene {
     });
   }
 
+  // ---- Memes virais de 2026 (VIRAIS em config.js): trocam alguns memes que andam nas fases 5 a 30 ----
+  planViral(level) {
+    const plan = new Map();
+    if (this.levelIndex < 4 || this.levelIndex > 29) return plan;
+    const ground = ['p', 'c', 'l', 'r', 'd', 'g', 'z', 's'];
+    const keys = Object.keys(VIRAIS);
+    let k = 0;
+    level.objects.forEach((o) => {
+      if (!ground.includes(o.ch)) return;
+      if ((k + this.levelIndex) % 3 === 0) plan.set(o, keys[(this.levelIndex + k) % keys.length]);
+      k++;
+    });
+    return plan;
+  }
+
+  spawnViral(key, cx, bottom) {
+    const v = VIRAIS[key];
+    const e = this.spawnEnemy(v.key, cx, bottom, v);
+    e.famous = { key: v.key, lines: v.lines };
+    e.viral = key;
+    e.hp = v.hp || 1;
+    e.timer = Phaser.Math.FloatBetween(1, 2.5);
+    e.talkTimer = Phaser.Math.FloatBetween(1, 5);
+    if (v.shot) e.shot = v.shot;
+    if (v.behavior !== 'shooter') this.tweens.add({ targets: e, angle: { from: -5, to: 5 }, duration: 260, yoyo: true, repeat: -1 });
+    return e;
+  }
+
+  // ---- Paraíba na moto: vilão da fase da Paraíba. Agitado e imprevisível, 3 pisadas derrubam ----
+  groundBottomAt(tx) {
+    for (let ty = 0; ty < this.mapH / TILE; ty++) {
+      const t = this.layer.getTileAt(tx, ty);
+      if (t && t.collides) return ty * TILE;
+    }
+    return null;
+  }
+
+  spawnMoto(def) {
+    if (def.name !== 'Paraíba' || !this.goal) return;
+    // procura um trecho de chão firme, mais ou menos 16 blocos antes da bandeira
+    let tx = Math.floor(this.goal.x / TILE) - 16, bottom = null;
+    for (; tx > 6; tx--) {
+      const a = this.groundBottomAt(tx);
+      if (a !== null && [-3, -2, -1, 1, 2, 3].every((d) => this.groundBottomAt(tx + d) === a)) { bottom = a; break; }
+    }
+    if (bottom === null) return;
+    const e = this.spawnEnemy('paraiba_moto', tx * TILE + TILE / 2, bottom, { behavior: 'moto', speed: 190 });
+    e.body.setSize(44, 32).setOffset(8, 11);
+    e.moto = true; e.hp = 3; e.maxHp = 3;
+    e.state = 'ride'; e.timer = 1.2; e.go = false; e.volleys = 0;
+    e.startX = e.x; e.range = 7 * TILE;
+    e.famous = { key: 'paraiba', lines: ['VRUUUM!', 'SAI DA FRENTE!', 'CADÊ MEU BONÉ?!', 'EU TÔ COM PRESSA!', 'PEGA, CHINELO!'] };
+    e.talkTimer = 2;
+    e.tag = this.add.text(e.x, e.y - 30, 'PARAÍBA', textStyle(14, '#ff8a8a')).setOrigin(0.5, 1).setDepth(6);
+    e.tagOffset = 12;
+    e.bar = this.add.graphics().setDepth(6);
+    this.moto = e;
+  }
+
+  updateMoto(e, dt) {
+    const b = e.body, pb = this.player.body;
+    const dx = pb.center.x - b.center.x;
+    const rage = 1 + (e.maxHp - e.hp) * 0.28;                       // fica mais furioso a cada pisada
+    e.timer -= dt;
+    if (e.state === 'stun') {
+      e.setVelocityX(0);
+      e.setAngle(Math.sin(this.time.now * 0.05) * 6);
+      if (e.timer <= 0) { e.setAngle(0); e.state = 'ride'; e.timer = 0.6; }
+    } else if (e.state === 'burst') {                               // para, o motor ronca e solta uma rajada de chinelos
+      e.setVelocityX(0);
+      e.setAngle(Math.sin(this.time.now * 0.09) * 4);          // motor roncando
+      if (e.timer <= 0) {
+        this.motoVolley(e);
+        if (--e.volleys <= 0) { e.state = 'ride'; e.setAngle(0); e.timer = Phaser.Math.FloatBetween(0.7, 1.4); } else e.timer = 0.42;
+      }
+    } else if (e.state === 'dash') {                                // avisa (ronca) e dispara em cima do jogador
+      if (!e.go) {
+        e.setVelocityX(0);
+        e.setAngle(Math.sin(this.time.now * 0.09) * 4);          // motor roncando
+        if (e.timer <= 0) {
+          e.go = true; e.timer = 0.9; e.dir = dx > 0 ? 1 : -1; e.setAngle(0);
+          this.speech(e, 'VRUUUM!');
+          Sfx.tone(120, 0.5, { type: 'sawtooth', to: 260, vol: 0.08 });
+        }
+      } else {
+        e.setVelocityX(e.dir * 360 * rage);
+        const wall = (e.dir > 0 && b.blocked.right) || (e.dir < 0 && b.blocked.left);
+        if (wall || this.atLedge(e) || e.timer <= 0) { e.go = false; e.state = 'ride'; e.timer = 1; e.setVelocityX(0); }
+      }
+    } else {                                                        // passeia correndo de um lado pro outro
+      if (e.x > e.startX + e.range) e.dir = -1; else if (e.x < e.startX - e.range) e.dir = 1;
+      if ((e.dir > 0 && b.blocked.right) || (e.dir < 0 && b.blocked.left) || (b.blocked.down && this.atLedge(e))) e.dir *= -1;
+      e.setVelocityX(e.dir * 190 * rage);
+      if (e.timer <= 0) this.motoDecide(e, Math.random(), dx);       // muda de ideia do nada
+    }
+    e.setFlipX(e.dir > 0);
+    e.bar.clear();
+    const bx = e.x - 24, by = e.y - e.displayHeight / 2 - 12;
+    e.bar.fillStyle(0x1b1b2a); e.bar.fillRect(bx, by, 48, 7);
+    e.bar.fillStyle(0xff4f6d); e.bar.fillRect(bx + 1, by + 1, 46 * Math.max(0, e.hp) / e.maxHp, 5);
+  }
+
+  // Sorteio do que o Paraíba faz agora: r < 0,38 rajada de chinelos · r < 0,7 investida (se você está perto) · senão, só corre mudando de direção
+  motoDecide(e, r, dx) {
+    if (r < 0.38) {
+      e.state = 'burst'; e.volleys = e.hp < 3 ? 3 : 2; e.timer = 0.55;
+      this.speech(e, Phaser.Utils.Array.GetRandom(['PEGA, CHINELO!', 'AGORA VAI!', 'É TUDO PRA VOCÊ!']));
+    } else if (r < 0.7 && Math.abs(dx) < 460) { e.state = 'dash'; e.go = false; e.timer = 0.5; }
+    else { if (r > 0.85) e.dir *= -1; e.timer = Phaser.Math.FloatBetween(0.5, 1.3); }
+  }
+
+  // 8 chinelos em todas as direções (um deles mirado em você)
+  motoVolley(e) {
+    const pb = this.player.body;
+    const aim = Math.atan2(pb.center.y - e.y, pb.center.x - e.x);
+    const off = (e.volleys % 2) ? aim : Math.random() * Math.PI / 4;
+    for (let i = 0; i < 8; i++) {
+      const a = off + (i / 8) * Math.PI * 2;
+      const s = this.shots.create(e.x, e.y - 6, 'chinelo');
+      s.body.setSize(14, 6);
+      s.setVelocity(Math.cos(a) * 210, Math.sin(a) * 210);
+      s.setAngularVelocity(500);
+      this.time.delayedCall(2300, () => s.active && s.destroy());
+    }
+    Sfx.tone(520, 0.12, { type: 'square', to: 260, vol: 0.06 });
+    this.shake(60, 0.003);
+  }
+
+  motoHurt(e) {
+    e.state = 'stun'; e.timer = 0.8; e.go = false;
+    this.speech(e, Phaser.Utils.Array.GetRandom(['AI MEU BONÉ!', 'DE NOVO?!', 'ISSO DÓI!']));
+    this.shake(150, 0.008);
+    Sfx.tone(200, 0.25, { type: 'sawtooth', to: 60, vol: 0.1 });
+  }
+
+  // ---- Inteligência dos inimigos que andam ----
+  // Percebem o jogador (campo de visão sem parede no meio), perseguem mais rápido (mas sempre mais devagar que você), pulam obstáculo baixo,
+  // param na beirada em vez de cair, não pisam em espinho e avisam os vizinhos. Perdem o interesse depois de uns 2 segundos.
+  walkerAi(e, dt) {
+    const b = e.body, pb = this.player.body;
+    const dif = Settings.get('difficulty');
+    const cfg = dif === 'dificil' ? { range: 330, mult: 1.75, cap: 200 } : (dif === 'facil' ? { range: 210, mult: 1.3, cap: 150 } : { range: 270, mult: 1.55, cap: 175 });
+    e.alert = Math.max(0, (e.alert || 0) - dt);
+    const dx = pb.center.x - b.center.x, dy = pb.center.y - b.center.y;
+    const seen = !this.dead && Math.abs(dx) < cfg.range && dy > -150 && dy < 90 && this.clearSight(b.center.x, b.center.y, dx);
+    if (seen) {
+      if (e.alert <= 0) this.alertEnemy(e);
+      e.alert = 2.4;
+    }
+    const chasing = e.alert > 0 && !this.dead;
+    if (chasing) e.dir = dx > 0 ? 1 : -1;
+    const wall = (e.dir > 0 && b.blocked.right) || (e.dir < 0 && b.blocked.left);
+    const near = Math.abs(dx) < cfg.range + 120;
+    const ledge = b.blocked.down && this.atLedge(e);
+    const spike = near && this.spikeAhead(e);
+    let v = chasing ? Math.min(e.speed * cfg.mult, cfg.cap) : e.speed;
+    if (wall) {
+      if (chasing && b.blocked.down && this.canHop(e)) e.setVelocityY(-430);
+      else if (!chasing) e.dir *= -1;
+      else v = 0;
+    } else if (ledge || spike) {
+      if (chasing) v = 0; else e.dir *= -1;
+    }
+    e.setVelocityX(e.dir * v);
+    e.chasing = chasing;
+  }
+
+  // Tem alguma parede sólida entre o inimigo e o jogador?
+  clearSight(x, y, dx) {
+    for (let i = 1; i <= 6; i++) {
+      const t = this.layer.getTileAtWorldXY(x + (dx * i) / 7, y);
+      if (t && t.collides) return false;
+    }
+    return true;
+  }
+
+  spikeAhead(e) {
+    const b = e.body;
+    const ax = e.dir > 0 ? b.right + 8 : b.left - 8;
+    return this.spikes.getChildren().some((s) => Math.abs(s.x - ax) < 18 && Math.abs(s.y - b.bottom) < 24);
+  }
+
+  // Dá pra pular o obstáculo que está na frente (1 ou 2 blocos de altura, com espaço livre em cima)?
+  canHop(e) {
+    const b = e.body;
+    const ax = e.dir > 0 ? b.right + 6 : b.left - 6;
+    const t = (y) => { const k = this.layer.getTileAtWorldXY(ax, y); return !!(k && k.collides); };
+    return t(b.bottom - 4) && !t(b.bottom - 2 * TILE - 4);
+  }
+
+  alertEnemy(e) {
+    this.speech(e, '!');
+    this.enemies.children.iterate((o) => {
+      if (o && !o.dead && o !== e && (o.behavior === 'walker' || o.behavior === 'jumper') && Math.abs(o.x - e.x) < 220 && Math.abs(o.y - e.y) < 90) o.alert = Math.max(o.alert || 0, 1.6);
+    });
+  }
+
   spawnEnemy(key, cx, bottom, cfg) {
     const h = this.textures.getFrame(key).height;
     const e = this.enemies.create(cx, bottom - h / 2, key);
@@ -906,7 +1107,7 @@ class GameScene extends Phaser.Scene {
     const pb = this.player.body;
     this.enemies.children.iterate((e) => {
       if (!e || e.dead) return;
-      if (e.tag) e.tag.setPosition(e.x, e.y - e.displayHeight / 2 - 2);
+      if (e.tag) e.tag.setPosition(e.x, e.y - e.displayHeight / 2 - 2 - (e.tagOffset || 0));
       const b = e.body;
       // Olhar de Mil Jardas: todo mundo parado
       if (this.stareTime > 0) {
@@ -945,6 +1146,7 @@ class GameScene extends Phaser.Scene {
 
       // ---- memes clássicos ----
       const dyAbs = Math.abs(pb.center.y - b.center.y);
+      if (e.behavior === 'moto') { this.updateMoto(e, dt); return; }
       if (e.behavior === 'sprayer') {                    // Skibidi: cospe 3 jatos em arco
         e.setVelocityX(0);
         e.dir = dx > 0 ? 1 : -1;
@@ -1062,28 +1264,46 @@ class GameScene extends Phaser.Scene {
         return;
       }
       if (e.behavior === 'flyer') {
-        // Pombo: vai e volta voando em ondinha
-        if (e.x > e.startX + e.range || b.blocked.right) e.dir = -1;
-        else if (e.x < e.startX - e.range || b.blocked.left) e.dir = 1;
-        e.setVelocityX(e.dir * e.speed);
-        e.setVelocityY(Math.cos(this.time.now * 0.004 + e.phase) * 50);
-        e.setFlipX(e.dir > 0);
+        // Pombo: vai e volta voando em ondinha. Se você passa embaixo, ele mergulha em cima de você e depois volta pro alto.
+        e.cool = (e.cool || 0) - dt;
+        if (e.diving) {
+          e.timer -= dt;
+          e.setVelocity(e.diveVx, 260);
+          if (e.timer <= 0 || b.blocked.down) { e.diving = false; e.cool = 3; }
+        } else {
+          if (e.x > e.startX + e.range || b.blocked.right) e.dir = -1;
+          else if (e.x < e.startX - e.range || b.blocked.left) e.dir = 1;
+          e.setVelocityX(e.dir * e.speed);
+          e.setVelocityY(Math.cos(this.time.now * 0.004 + e.phase) * 50 + (e.baseY - e.y) * 1.2);
+          const below = pb.center.y - b.center.y;
+          if (e.cool <= 0 && !this.dead && Math.abs(dx) < 130 && below > 40 && below < 240) {
+            e.diving = true; e.timer = 0.6; e.diveVx = Phaser.Math.Clamp(dx * 1.8, -200, 200);
+            this.speech(e, 'COOO!');
+          }
+        }
+        e.setFlipX(e.diving ? e.diveVx > 0 : e.dir > 0);
         return;
       }
       if (e.behavior === 'shooter') {
-        // Galvão: fica parado, vira para o jogador e chuta bola
-        e.setVelocityX(0);
+        // Galvão: vira para o jogador, chuta mirando onde você vai estar, e recua se você chegar muito perto (sem cair do chão)
         e.dir = dx > 0 ? 1 : -1;
+        const back = -e.dir;
+        const aheadX = back > 0 ? b.right + 2 : b.left - 2;
+        const groundBehind = !!this.layer.getTileAtWorldXY(aheadX, b.bottom + 4);
+        e.setVelocityX(Math.abs(dx) < 120 && groundBehind && !this.dead && e.speed >= 0 ? back * 70 : 0);
         e.timer -= dt;
         if (near && e.timer <= 0) {
           e.timer = 2.2;
           this.shoot(e);
         }
       } else {
-        if (b.blocked.left) e.dir = 1;
-        else if (b.blocked.right) e.dir = -1;
-        else if (b.blocked.down && this.atLedge(e)) e.dir *= -1;
-        e.setVelocityX(e.dir * e.speed);
+        if (e.behavior === 'walker' || e.behavior === 'jumper') this.walkerAi(e, dt);
+        else {
+          if (b.blocked.left) e.dir = 1;
+          else if (b.blocked.right) e.dir = -1;
+          else if (b.blocked.down && this.atLedge(e)) e.dir *= -1;
+          e.setVelocityX(e.dir * e.speed);
+        }
 
         if (e.behavior === 'jumper' && b.blocked.down) {
           // Cazé: pula do nada
@@ -1135,12 +1355,17 @@ class GameScene extends Phaser.Scene {
 
   // Galvão chuta uma bola em direção ao jogador
   shoot(e) {
-    const ball = this.shots.create(e.x + e.dir * 16, e.y - 4, 'gol_ball');
+    const cfg = e.shot || { tex: 'gol_ball', say: 'GOOOL!' };
+    const pb = this.player.body;
+    const ball = this.shots.create(e.x + e.dir * 16, e.y - 4, cfg.tex);
     ball.body.setCircle(7, 1, 1);
-    ball.setVelocityX(e.dir * 230);
+    const speed = 230;
+    const t = Math.max(0.2, Math.abs(pb.center.x - e.x) / speed);
+    const ty = pb.center.y + pb.velocity.y * t * 0.5;               // mira onde o jogador vai estar
+    ball.setVelocity(e.dir * speed, Phaser.Math.Clamp((ty - ball.y) / t, -150, 150));
     this.tweens.add({ targets: ball, angle: e.dir * 720, duration: 1000, repeat: -1 });
     this.time.delayedCall(2600, () => ball.active && ball.destroy());
-    this.speech(e, 'GOOOL!');
+    this.speech(e, cfg.say);
     Sfx.tone(700, 0.08, { vol: 0.05 });
   }
 
@@ -1180,7 +1405,7 @@ class GameScene extends Phaser.Scene {
       this.defeatEnemy(enemy, true);
     } else if (pb.velocity.y > 0 && pb.bottom <= eb.top + 12) {
       // Caindo e vindo de cima = pisou no inimigo
-      if (enemy.hp > 1 && !this.big) {   // grandão derruba inimigo duro numa pisada só
+      if (enemy.hp > 1 && (!this.big || enemy.moto)) {   // grandão derruba inimigo duro numa pisada só (menos o Paraíba)
         // inimigo duro (Lirilì): perde uma vida, pisca e o Brunucho quica
         if (this.time.now < (enemy.hurtUntil || 0)) return;
         enemy.hp--;
@@ -1189,7 +1414,7 @@ class GameScene extends Phaser.Scene {
         this.time.delayedCall(120, () => enemy.active && enemy.clearTint());
         player.setVelocityY(-PHYS.stomp);
         this.squash = 0.3;
-        this.speech(enemy, 'Ai! Mais uma!');
+        if (enemy.moto) this.motoHurt(enemy); else this.speech(enemy, 'Ai! Mais uma!');
         Sfx.stomp();
         return;
       }
@@ -1209,6 +1434,19 @@ class GameScene extends Phaser.Scene {
   defeatEnemy(enemy, launched) {
     enemy.dead = true;
     if (enemy.friendKey) this.friendStomped(enemy);
+    if (enemy.tag && !enemy.friendKey) { enemy.tag.destroy(); enemy.tag = null; }
+    if (enemy.moto) {
+      if (enemy.bar) enemy.bar.destroy();
+      this.addScore(2000, enemy.x, enemy.y - 44, 'PARAÍBA DERRUBADO!  +2000');
+      this.speech(enemy, 'AAAAAH!');
+      Achievements.unlock('paraiba');
+    }
+    if (enemy.viral) {
+      const seen = new Set(Storage.get('pp_virais', []));
+      seen.add(enemy.viral);
+      Storage.set('pp_virais', [...seen]);
+      if (Object.keys(VIRAIS).every((k) => seen.has(k))) Achievements.unlock('virais');
+    }
     enemy.disableBody(false, false);
     this.tweens.killTweensOf(enemy);
     if (launched) {

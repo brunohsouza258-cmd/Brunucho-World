@@ -66,6 +66,8 @@ const ACHIEVEMENTS = [
   { id: 'roupa',       icon: '👕', name: 'Fashionista',           desc: 'Trocar de roupa no menu' },
   { id: 'amigo_pisado', icon: '🤝', name: 'Só de Brincadeira',    desc: 'Pisar num amigo (ele aguenta)' },
   { id: 'turma_toda',  icon: '🧑‍🤝‍🧑', name: 'A Turma Toda',          desc: 'Pisar em todos os amigos (de brincadeira)' },
+  { id: 'paraiba',     icon: '🏍️', name: 'Moto Derrubada',        desc: 'Derrubar o Paraíba de cima da moto' },
+  { id: 'virais',      icon: '📱', name: 'Por Dentro da Internet', desc: 'Derrotar todos os memes virais de 2026' },
   { id: 'cotia',       icon: '🏙️', name: 'Turista em Cotia',      desc: 'Visitar o Centro de Cotia' },
   { id: 'cliente',     icon: '🛍️', name: 'Cliente Fiel',          desc: 'Fazer a primeira compra no Centro de Cotia' },
   { id: 'esbanjador',  icon: '💸', name: 'Esbanjador',            desc: 'Gastar 1.000 moedas no Centro de Cotia' },

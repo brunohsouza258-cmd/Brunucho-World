@@ -116,6 +116,15 @@ const MEMES = {
   z: { key: 'nazare', group: 'meme', name: 'Nazaré Confusa', behavior: 'confuser', speed: 0, lines: ['Quanto é 2 + 2?', 'Eu não entendo!', 'Mas... como?'] },
 };
 
+// Memes e personagens que viralizaram em 2026 (aparecem no lugar de alguns memes que andam, nas fases 5 a 30)
+const VIRAIS = {
+  rato:       { key: 'rato', name: 'Ratinhos Dançantes', behavior: 'hopper', speed: 105, hp: 1, lines: ['Bichos escrotos!', 'Dança, dança!', 'Bora dançar!'] },
+  troll:      { key: 'troll', name: 'Troll Face Realista', behavior: 'jumper', speed: 55, hp: 1, lines: ['Problema?', 'Trolled!', 'Que isso, meu amigo?'] },
+  pilili:     { key: 'pilili', name: 'Pilili (a urna)', behavior: 'shooter', speed: 0, hp: 1, lines: ['PILILI!', 'Confirma!', 'Seu voto foi computado!'], shot: { tex: 'gol_ball', say: 'PILILI!' } },
+  cappuccino: { key: 'cappuccino', name: 'Cappuccino Assassino', behavior: 'charger', speed: 60, hp: 1, lines: ['Cappuccino Assassino!', 'Slash slash!', 'Café quente!'] },
+  trippi:     { key: 'trippi', name: 'Trippi Troppi', behavior: 'walker', speed: 85, hp: 1, lines: ['Trippi Troppi!', 'Troppa Trippa!', 'Blub blub!'] },
+};
+
 // Ranking dos 5 melhores (salvo no navegador)
 const Ranking = {
   list() { return Storage.get('pp_ranking', []); },
