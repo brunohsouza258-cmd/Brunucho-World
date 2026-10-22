@@ -79,7 +79,7 @@ class WardrobeScene extends Phaser.Scene {
       if (locked) this.cardObjs.push(this.add.text(x, y - 8, '🔒', { fontSize: '26px' }).setOrigin(0.5), this.add.text(x, y - (compact ? 34 : 44), `🪙 ${OUTFITS[key].shop.price}`, textStyle(12, '#ffe9a0')).setOrigin(0.5));
       return { bg, label, check };
     });
-    if (this.tab === 'amigos') {
+    if (this.tab === 'amigos' && keys.length < 10) {
       const x = 500 + keys.length % 5 * 104, y = 188 + Math.floor(keys.length / 5) * 150;
       const more = this.add.text(x + (keys.length % 5 ? 0 : 0), y, 'Mais amigos\nem breve!', { ...textStyle(14, '#8a8aa0'), align: 'center' }).setOrigin(0.5);
       this.cardObjs.push(more);

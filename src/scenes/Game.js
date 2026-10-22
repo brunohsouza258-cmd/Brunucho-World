@@ -58,7 +58,7 @@ class GameScene extends Phaser.Scene {
     this.heroK = heroScale();                          // boneco alto (Arthur): o desenho aumenta, a colisão não
     this.ability = OUTFITS[currentOutfit()].ability || null;   // poder ATIVO do amigo (ex.: a Saia Rodada da Lara), usado com X ou o botão 🌀
     this.ability2 = OUTFITS[currentOutfit()].ability2 || null;   // segundo poder (Ana Júlia: tocha), tecla C / botão 🔥
-    this.abilityCd = 0; this.abilityQueued = false; this.twirlUntil = 0; this.ability2Cd = 0; this.ability2Queued = false; this.wallUntil = 0;
+    this.abilityCd = 0; this.abilityQueued = false; this.twirlUntil = 0; this.ability2Cd = 0; this.ability2Queued = false; this.wallUntil = 0; this.queenUntil = 0; this.kneelers = new Set();
     // Consumíveis comprados valem para esta fase (no reinício da fase eles voltam, sem gastar de novo)
     this.buffs = data.buffs || Shop.takeBuffs();
     if (!data.buffs && this.buffs.includes('coxinha')) this.stats.lives++;
@@ -831,6 +831,18 @@ class GameScene extends Phaser.Scene {
         }
       });
     }
+    if (this.queenUntil) {                                 // Modo Rainha: coroa na cabeça e brilho dourado
+      const alive = this.queenUntil > time;
+      if (alive) {
+        this.queenAura(time);
+        g.setTint(0xffe58a);
+        if (this.crown) this.crown.setPosition(g.x, g.y - 38 * this.bigScale * this.heroK + (Math.sin(time / 120) * 1.5));
+        if (Math.floor(time / 140) % 2 === 0) this.fxParty.explode(1, g.x + Phaser.Math.Between(-14, 14), g.y - Phaser.Math.Between(4, 36));
+      } else {
+        this.queenUntil = 0; g.clearTint();
+        if (this.crown) { const cr = this.crown; this.crown = null; this.tweens.add({ targets: cr, alpha: 0, y: cr.y - 20, duration: 300, onComplete: () => cr.destroy() }); }
+      }
+    }
     if (this.wallFx) {                                     // as luvas ficam na frente do goleiro enquanto o Paredão está ativo
       const alive = this.wallUntil > time, pbx = this.player.body;
       if (!alive) { this.wallFx.destroy(); this.wallFx = null; }
@@ -914,7 +926,7 @@ class GameScene extends Phaser.Scene {
     const es = level.objects.filter((o) => o.ch === 'E');
     if (!others.length || !es.length) return plan;
     plan.set(es[Math.min(1, es.length - 1)], others[n % others.length]);
-    if (n >= 5 && es.length >= 4) plan.set(es[3], others[(n + 1) % others.length]);
+    if (es.length >= 3) plan.set(es[es.length >= 4 ? 3 : 2], others[(n + 8) % others.length]);      // 2º amigo da fase, pra todo mundo aparecer
     return plan;
   }
 
@@ -1178,6 +1190,36 @@ class GameScene extends Phaser.Scene {
   // ---- Poder ativo: Saia Rodada da Lara. Gira e lança uma rajada (a saia) que acerta o inimigo de longe ----
   abIcon() { return this.ability.icon || (this.ability.id === 'tiro' ? '🔫' : '🌀'); }
 
+  // Jamile: Modo Rainha. Ela se transforma (coroa, brilho dourado) e por 5 s todo inimigo por perto se ajoelha: fica parado, roxinho e inofensivo
+  fireRainha() {
+    const cam = this.cameras.main, pb = this.player.body;
+    this.queenUntil = this.time.now + 5000; this.kneelers = new Set();
+    cam.flash(320, 255, 215, 80);
+    this.twirlUntil = this.time.now + 280;
+    if (this.crown) this.crown.destroy();
+    this.crown = this.add.sprite(pb.center.x, pb.top - 10, 'coroa').setOrigin(0.5, 1).setDepth(9).setScale(0);
+    this.tweens.add({ targets: this.crown, scale: 1, duration: 300, ease: 'Back.out' });
+    this.floatText(pb.center.x, pb.top - 40, '👑 MODO RAINHA!', '#ffd23f', 22);
+    this.fxParty.explode(18, pb.center.x, pb.center.y); this.fxAura.explode(14, pb.center.x, pb.center.y);
+    Sfx.tone(392, 0.15, { type: 'triangle', vol: 0.08 }); Sfx.tone(523, 0.15, { type: 'triangle', vol: 0.08, delay: 0.12 }); Sfx.tone(784, 0.3, { type: 'triangle', vol: 0.09, delay: 0.24 });
+    this.time.delayedCall(500, () => {
+      const k = [...this.kneelers].filter((e) => e.active).slice(0, 3);
+      k.forEach((e, i) => this.time.delayedCall(i * 300, () => e.active && this.speech(e, Phaser.Utils.Array.GetRandom(['Sim, majestade!', 'Às suas ordens!', 'Perdão, rainha!']))));
+    });
+  }
+
+  // enquanto o Modo Rainha dura, ajoelha os inimigos num raio de 380 px (chefões não)
+  queenAura(time) {
+    const pb = this.player.body;
+    this.enemies.children.iterate((e) => {
+      if (!e || e.dead || e.moto || e.eva) return;
+      if (Math.abs(e.x - pb.center.x) > 380 || Math.abs(e.y - pb.center.y) > 260) return;
+      e.stunUntil = time + 350; e.setTint(0xc79bff);
+      e.setAngle((e.x < pb.center.x ? 1 : -1) * 16);                               // reverência
+      if (!this.kneelers.has(e)) { this.kneelers.add(e); if (this.kneelers.size >= 3) Achievements.unlock('rainha'); }
+    });
+  }
+
   // Breno: Paredão. Por 1,5 s o goleiro fecha o gol: nada o machuca, inimigo que encosta fica zonzo e tiros inimigos voltam com força
   fireParedao() {
     this.wallUntil = this.time.now + 1500;
@@ -1241,6 +1283,7 @@ class GameScene extends Phaser.Scene {
     if (this.ability.id === 'tiro') return this.fireTiro();
     if (this.ability.id === 'flash') return this.fireFlash();
     if (this.ability.id === 'paredao') return this.fireParedao();
+    if (this.ability.id === 'rainha') return this.fireRainha();
     const dir = this.facing >= 0 ? 1 : -1;
     const pb = this.player.body;
     const s = this.skirtShots.create(pb.center.x + dir * 18, pb.center.y - 2, 'saia_rajada');
@@ -1301,7 +1344,7 @@ class GameScene extends Phaser.Scene {
           if (e.anims && e.anims.isPlaying) e.anims.pause();
           return;
         }
-        e.stunUntil = 0; e.clearTint();
+        e.stunUntil = 0; e.clearTint(); e.setAngle(0);
       }
       if (e.anims && e.anims.isPaused) e.anims.resume();
       const dx = pb.center.x - b.center.x;

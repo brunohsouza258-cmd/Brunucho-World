@@ -281,6 +281,12 @@ const FRIENDS = {
       shirt: 0xf2d12a, shirtDark: 0xc4a31a, shorts: 0x2a5fd0, shortsDark: 0x1d44a0 },
     hairStyle: 'curto', shirtStripes: 0x16161a, gloves: 0x2a5fd0, socks: 0x1a1a20, socksStripe: 0xffffff, shoes: 'chuteira',
   },
+  jamile: {
+    name: 'Jamile', who: 'Jamile', desc: 'Cachos poderosos, blusa fúcsia, argolas e a sacola laranja. Quando vira rainha, ninguém fica de pé.',
+    colors: { hair: 0x1a1210, hairDark: 0x0a0605, hairLight: 0x8a5a2a, skin: 0xa86f4a, skinDark: 0x865434,
+      shirt: 0xe0267f, shirtDark: 0xb01a62, shorts: 0x263f8c, shortsDark: 0x1a2c66 },
+    hairStyle: 'cachos', necklace: 0xffd23f, earring: 0xffd23f, bag: 0xf2a33a, pants: true, shoes: 'tenis',
+  },
 };
 // Frase (dublável na tela Minha voz) e poder de cada amigo. perk: speed (corre mais) · jump (pula mais) · coin (moeda vale mais) · magnet (puxa moedas, em pixels)
 const FRIEND_EXTRA = {
@@ -296,6 +302,8 @@ const FRIEND_EXTRA = {
     ability: { id: 'flash', icon: '📸', name: 'Flash do Story', desc: 'X: flash! Inimigos na tela viram fãs parados', cooldown: 7 } },
   breno:   { phrase: 'Aqui não passa nada!', pitch: 0.9,
     ability: { id: 'paredao', icon: '🧤', name: 'Paredão', desc: 'X: defesa! Protege 1,5 s e devolve os tiros', cooldown: 6 } },
+  jamile:  { phrase: 'De joelhos pra rainha!', pitch: 1.2,
+    ability: { id: 'rainha', icon: '👑', name: 'Modo Rainha', desc: 'X: vira rainha 5 s! Inimigos se ajoelham', cooldown: 10 } },
   arthur:  { phrase: 'Aqui de cima eu vejo tudo!', pitch: 0.85, perk: { name: 'Piadista', desc: '+1 s de proteção ao renascer (todo mundo ri)', respawnInvuln: 1 } },
 };
 Object.keys(FRIENDS).forEach((k) => { OUTFITS[k] = { ...FRIENDS[k], ...(FRIEND_EXTRA[k] || {}), friend: true }; });
@@ -330,6 +338,7 @@ const FRIEND_CHAT = {
   yan:      ['Sorria, você foi moggado!', 'Hoje eu pago o lanche!', 'Esse look ficou sigma, né?'],
   pedro:    ['Cowboy vai te pegar!', 'Vou comprar um chapéu novo.', 'Eita, que calor!'],
   breno:    ['Aqui não passa nada!', 'Pênalti? Pode bater!', 'Hoje eu fecho o gol.'],
+  jamile:   ['De joelhos pra rainha!', 'Respeita as minas!', 'Essa sacola é minha, viu?'],
   arthur:   ['Aqui de cima eu vejo tudo!', 'Quer ouvir uma piada?', 'Essa música tá boa demais.'],
   lara:     ['Gira, gira, saia rodada!', 'Meu irmão Brunucho chegou!', 'Vim comprar fita pra minha saia.'],
   anajulia: ['Cuidado aí, seu boot!', 'Procurando tesouro nessas lojas...', 'Alguém viu minha tocha?'],

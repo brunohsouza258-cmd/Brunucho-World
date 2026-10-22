@@ -618,6 +618,14 @@ function generateTextures(scene) {
     g.fillStyle(0xff7a9a); g.fillRect(8, 16, 2, 2);
     g.lineStyle(1, 0x6b3a1f); g.lineBetween(14, 8, 21, 2); g.lineBetween(0, 17, 5, 17);
   });
+  // Coroa da Jamile (Modo Rainha)
+  make('coroa', 24, 16, (g) => {
+    g.fillStyle(0xb07a10); g.fillRect(2, 11, 20, 4);
+    g.fillStyle(0xffd23f); g.fillRect(2, 9, 20, 4);
+    g.fillTriangle(2, 9, 2, 2, 7, 9); g.fillTriangle(8, 9, 12, 0, 16, 9); g.fillTriangle(17, 9, 22, 2, 22, 9);
+    g.fillStyle(0xff3b6b); g.fillCircle(12, 11, 2); g.fillStyle(0x34d1ff); g.fillCircle(5, 11, 1.4); g.fillCircle(19, 11, 1.4);
+    g.fillStyle(0xfff6c0); g.fillRect(3, 9, 18, 1);
+  });
   // Bala da pistola da Ana Júlia
   make('bala', 14, 6, (g) => {
     g.fillStyle(0xfff3b0, 0.5); g.fillRect(0, 2, 9, 2);
@@ -871,7 +879,7 @@ const OUTLINE_PREFIXES = ['player_', 'neymar', 'galvao', 'caze', 'ednaldo', 'lul
   'capivara', 'tralalero', 'tungtung', 'slime', 'crab', 'pombo', 'bombardiro', 'patapim', 'bananini', 'lirili',
   'ballerina', 'coin', 'coxinha', 'tenis', 'ima', 'heart', 'gol_ball', 'picanha', 'ovo', 'bomba', 'pw_olhar', 'pw_anjo',
   'goal', 'cp_', 'mola', 'chinelo', 'plataforma', 'cacto', 'skibidi', 'doge', 'nyan', 'gigachad', 'nazare', 'gota', 'churros',
-  'rato', 'troll', 'pilili', 'cappuccino', 'trippi', 'paraiba_moto', 'dardo', 'eva', 'giz', 'errado', 'saia_rajada', 'bala', 'tocha_arremesso'];
+  'rato', 'troll', 'pilili', 'cappuccino', 'trippi', 'paraiba_moto', 'dardo', 'eva', 'giz', 'errado', 'saia_rajada', 'bala', 'tocha_arremesso', 'coroa'];
 
 function outlineSprites(scene) {
   for (const key of scene.textures.getTextureKeys()) {
@@ -1081,6 +1089,11 @@ function drawPlayer(g, o, pose = 'idle') {
     else { g.fillRect(15, 20, 3, 3); }
   }
   if (o.bandolier) { g.fillStyle(o.bandolier); for (let i = 0; i < 6; i++) g.fillRect(5 + i * 2, 17 + i, 3, 2); }   // tira de munição em diagonal
+  if (o.bag) {                                         // bolsa de ombro (a sacola laranja da foto) pendurada na frente
+    g.fillStyle(0x6a4a24); g.fillRect(19, 17, 1, 4); g.fillRect(18, 21, 1, 3);
+    g.fillStyle(o.bag); g.fillRoundedRect(15, 24, 9, 8, 2);
+    g.fillStyle(0xc9832a); g.fillRect(15, 24, 9, 2); g.fillRect(15, 31, 9, 1);
+  }
   if (o.belt) { g.fillStyle(o.belt); g.fillRect(4, 24, 18, 2); g.fillStyle(0xfff3b0); g.fillRect(12, 24, 3, 2); }
 
   // braço da frente
@@ -1159,6 +1172,12 @@ function drawPlayer(g, o, pose = 'idle') {
     g.fillRect(2, 3, 6, 19); g.fillRoundedRect(2, 18, 6, 6, 2);
     g.fillStyle(c.hairDark); g.fillRect(3, 8, 2, 12); g.fillRect(9, 5, 9, 1);
     g.fillStyle(c.hairLight); g.fillRect(9, 0, 8, 2);
+  } else if (hs === 'cachos') {                        // cabelo cacheado volumoso até o ombro, com mechas caramelo
+    g.fillStyle(c.hair);
+    g.fillRoundedRect(2, -1, 23, 12, 6); g.fillRoundedRect(0, 4, 8, 22, 4); g.fillRoundedRect(20, 4, 7, 17, 4);
+    [[1, 24], [5, 27], [24, 20], [-1, 14], [26, 8], [4, 0], [12, -1], [21, 0]].forEach(([x, y]) => g.fillCircle(x + 1, y, 3));
+    g.fillStyle(c.hairDark); [[3, 10], [4, 18], [23, 11], [10, -1], [18, -1]].forEach(([x, y]) => g.fillCircle(x, y, 1.6));
+    g.fillStyle(c.hairLight); [[2, 20], [6, 25], [24, 16], [14, 0]].forEach(([x, y]) => g.fillCircle(x, y, 1.5));   // mechas caramelo
   } else if (hs === 'rabo') {                          // cabelo preso num rabo de cavalo alto, balançando atrás (estilo Lara Croft)
     g.fillStyle(c.hair);
     g.fillRoundedRect(4, -1, 19, 8, 4); g.fillRect(4, 4, 4, 8);
@@ -1186,6 +1205,7 @@ function drawPlayer(g, o, pose = 'idle') {
     g.fillStyle(0xffffff, 0.35); g.fillRect(9, 3, 6, 1);
   }
   if (o.necklace) { g.fillStyle(o.necklace); g.fillRect(10, 17, 1, 3); g.fillRect(18, 17, 1, 3); g.fillRect(11, 20, 7, 1); g.fillRect(14, 21, 2, 2); }   // colar com pingente
+  if (o.earring) { g.fillStyle(o.earring); g.fillRect(6, 13, 2, 2); g.fillRect(6, 15, 1, 2); }   // argola dourada
   if (o.choker) { g.fillStyle(o.choker); g.fillRect(9, 16, 10, 1); }   // gargantilha
   if (o.hairFlower) {                                  // flor no cabelo (carimbó)
     g.fillStyle(o.hairFlower); [[12, -1], [10, 1], [14, 1], [12, 3], [11, 0]].forEach(([x, y]) => g.fillCircle(x, y, 2));
