@@ -287,6 +287,13 @@ const FRIENDS = {
       shirt: 0xe0267f, shirtDark: 0xb01a62, shorts: 0x263f8c, shortsDark: 0x1a2c66 },
     hairStyle: 'cachos', necklace: 0xffd23f, earring: 0xffd23f, bag: 0xf2a33a, pants: true, shoes: 'tenis',
   },
+  thais: {
+    name: 'Thaís', who: 'Thaís', desc: 'Cabelão escuro com uma flor, maiô azul e vestidinho estampado de praia. Vive de playlist.',
+    colors: { hair: 0x2a1a14, hairDark: 0x150c08, hairLight: 0x4a3226, skin: 0xe9bb94, skinDark: 0xc99874,
+      shirt: 0x2f7fd8, shirtDark: 0x1f5fae, shorts: 0xe8409a, shortsDark: 0xb82d78 },
+    hairStyle: 'longo', hairFlower: 0xf2825a, shoes: 'chinelo',
+    skirt: { color: 0xe8409a, ribbon1: 0x2f7fd8, ribbon2: 0xffd23f, hem: 0x2b2b30 },
+  },
 };
 // Frase (dublável na tela Minha voz) e poder de cada amigo. perk: speed (corre mais) · jump (pula mais) · coin (moeda vale mais) · magnet (puxa moedas, em pixels)
 const FRIEND_EXTRA = {
@@ -304,6 +311,8 @@ const FRIEND_EXTRA = {
     ability: { id: 'paredao', icon: '🧤', name: 'Paredão', desc: 'X: defesa! Protege 1,5 s e devolve os tiros', cooldown: 6 } },
   jamile:  { phrase: 'De joelhos pra rainha!', pitch: 1.2,
     ability: { id: 'rainha', icon: '👑', name: 'Modo Rainha', desc: 'X: vira rainha 5 s! Inimigos se ajoelham', cooldown: 10 } },
+  thais:   { phrase: 'Aumenta o som, bota na batida!', pitch: 1.3,
+    ability: { id: 'batida', icon: '🎧', name: 'Modo Batida', desc: 'X: playlist! Inimigos lentos, você acelera', cooldown: 12 } },
   arthur:  { phrase: 'Aqui de cima eu vejo tudo!', pitch: 0.85, perk: { name: 'Piadista', desc: '+1 s de proteção ao renascer (todo mundo ri)', respawnInvuln: 1 } },
 };
 Object.keys(FRIENDS).forEach((k) => { OUTFITS[k] = { ...FRIENDS[k], ...(FRIEND_EXTRA[k] || {}), friend: true }; });
@@ -339,6 +348,7 @@ const FRIEND_CHAT = {
   pedro:    ['Cowboy vai te pegar!', 'Vou comprar um chapéu novo.', 'Eita, que calor!'],
   breno:    ['Aqui não passa nada!', 'Pênalti? Pode bater!', 'Hoje eu fecho o gol.'],
   jamile:   ['De joelhos pra rainha!', 'Respeita as minas!', 'Essa sacola é minha, viu?'],
+  thais:    ['Aumenta o som, bota na batida!', 'Essa música é minha cara.', 'Vamos pra praia depois?'],
   arthur:   ['Aqui de cima eu vejo tudo!', 'Quer ouvir uma piada?', 'Essa música tá boa demais.'],
   lara:     ['Gira, gira, saia rodada!', 'Meu irmão Brunucho chegou!', 'Vim comprar fita pra minha saia.'],
   anajulia: ['Cuidado aí, seu boot!', 'Procurando tesouro nessas lojas...', 'Alguém viu minha tocha?'],

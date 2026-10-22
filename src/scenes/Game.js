@@ -58,7 +58,7 @@ class GameScene extends Phaser.Scene {
     this.heroK = heroScale();                          // boneco alto (Arthur): o desenho aumenta, a colisão não
     this.ability = OUTFITS[currentOutfit()].ability || null;   // poder ATIVO do amigo (ex.: a Saia Rodada da Lara), usado com X ou o botão 🌀
     this.ability2 = OUTFITS[currentOutfit()].ability2 || null;   // segundo poder (Ana Júlia: tocha), tecla C / botão 🔥
-    this.abilityCd = 0; this.abilityQueued = false; this.twirlUntil = 0; this.ability2Cd = 0; this.ability2Queued = false; this.wallUntil = 0; this.queenUntil = 0; this.kneelers = new Set();
+    this.abilityCd = 0; this.abilityQueued = false; this.twirlUntil = 0; this.ability2Cd = 0; this.ability2Queued = false; this.wallUntil = 0; this.queenUntil = 0; this.kneelers = new Set(); this.batidaUntil = 0; this.batidaKills = 0; this.batidaBeat = 0;
     // Consumíveis comprados valem para esta fase (no reinício da fase eles voltam, sem gastar de novo)
     this.buffs = data.buffs || Shop.takeBuffs();
     if (!data.buffs && this.buffs.includes('coxinha')) this.stats.lives++;
@@ -831,6 +831,7 @@ class GameScene extends Phaser.Scene {
         }
       });
     }
+    if (this.batidaUntil) { if (this.batidaUntil > time) this.batidaTick(time); else this.batidaEnd(); }
     if (this.queenUntil) {                                 // Modo Rainha: coroa na cabeça e brilho dourado
       const alive = this.queenUntil > time;
       if (alive) {
@@ -926,7 +927,7 @@ class GameScene extends Phaser.Scene {
     const es = level.objects.filter((o) => o.ch === 'E');
     if (!others.length || !es.length) return plan;
     plan.set(es[Math.min(1, es.length - 1)], others[n % others.length]);
-    if (es.length >= 3) plan.set(es[es.length >= 4 ? 3 : 2], others[(n + 8) % others.length]);      // 2º amigo da fase, pra todo mundo aparecer
+    if (es.length >= 2) plan.set(es.length >= 4 ? es[3] : es.length === 3 ? es[2] : es[0], others[(n + 8) % others.length]);   // 2º amigo da fase, pra todo mundo aparecer
     return plan;
   }
 
@@ -1190,6 +1191,49 @@ class GameScene extends Phaser.Scene {
   // ---- Poder ativo: Saia Rodada da Lara. Gira e lança uma rajada (a saia) que acerta o inimigo de longe ----
   abIcon() { return this.ability.icon || (this.ability.id === 'tiro' ? '🔫' : '🌀'); }
 
+  // Thaís: Modo Batida. A playlist começa: por 6 s os inimigos ficam em câmera lenta (dançando no ritmo) e a Thaís corre 25% mais rápido
+  fireBatida() {
+    const pb = this.player.body, now = this.time.now;
+    if (!this.batidaUntil) this.batidaPerk = this.perk;
+    this.batidaUntil = now + 6000; this.batidaKills = 0; this.batidaBeat = now;
+    this.perk = { ...this.batidaPerk, speed: (this.batidaPerk.speed || 1) * 1.25 };
+    this.cameras.main.flash(200, 120, 190, 255);
+    this.floatText(pb.center.x, pb.top - 30, '🎧 MODO BATIDA!', '#9fd8ff', 22);
+    this.fxParty.explode(14, pb.center.x, pb.center.y); this.fxAura.explode(10, pb.center.x, pb.center.y);
+    Sfx.tone(262, 0.12, { type: 'square', vol: 0.06 }); Sfx.tone(330, 0.12, { type: 'square', vol: 0.06, delay: 0.1 }); Sfx.tone(392, 0.2, { type: 'square', vol: 0.07, delay: 0.2 });
+  }
+
+  // o mundo na batida: inimigos devagar e balançando, notas musicais saindo da Thaís e um "bum-tss" a cada meio segundo
+  batidaTick(time) {
+    const pb = this.player.body;
+    this.enemies.children.iterate((e) => {
+      if (!e || e.dead || e.moto || e.eva || e.batida) return;
+      if (Math.abs(e.x - pb.center.x) > 700) return;
+      e.batida = true; e.baseSpeed = e.speed; e.speed = e.speed * 0.4; e.setTint(0x9fd8ff);
+      if (e.anims) e.anims.timeScale = 0.4;
+    });
+    if (time - this.batidaBeat >= 500) {
+      this.batidaBeat = time;
+      const k = Math.round(time / 500) % 2;
+      Sfx.tone(k ? 180 : 110, 0.09, { type: 'sine', to: 55, vol: 0.07 });
+      if (k) Sfx.tone(2400, 0.04, { type: 'square', vol: 0.025, delay: 0.02 });
+      this.floatText(pb.center.x + Phaser.Math.Between(-18, 18), pb.top - 8, Phaser.Utils.Array.GetRandom(['🎵', '🎶', '♪']), '#9fd8ff', 20);
+      this.enemies.children.iterate((e) => { if (e && e.batida && !e.dead) e.setAngle(k ? 7 : -7); });
+      this.squash = 0.25;
+    }
+  }
+
+  batidaEnd() {
+    this.batidaUntil = 0;
+    if (this.batidaPerk) { this.perk = this.batidaPerk; this.batidaPerk = null; }
+    this.enemies.children.iterate((e) => {
+      if (!e || !e.batida) return;
+      e.batida = false; if (e.baseSpeed !== undefined) e.speed = e.baseSpeed;
+      if (e.anims) e.anims.timeScale = 1;
+      if (!e.stunUntil) { e.clearTint(); e.setAngle(0); }
+    });
+  }
+
   // Jamilly: Modo Rainha. Ela se transforma (coroa, brilho dourado) e por 5 s todo inimigo por perto se ajoelha: fica parado, roxinho e inofensivo
   fireRainha() {
     const cam = this.cameras.main, pb = this.player.body;
@@ -1284,6 +1328,7 @@ class GameScene extends Phaser.Scene {
     if (this.ability.id === 'flash') return this.fireFlash();
     if (this.ability.id === 'paredao') return this.fireParedao();
     if (this.ability.id === 'rainha') return this.fireRainha();
+    if (this.ability.id === 'batida') return this.fireBatida();
     const dir = this.facing >= 0 ? 1 : -1;
     const pb = this.player.body;
     const s = this.skirtShots.create(pb.center.x + dir * 18, pb.center.y - 2, 'saia_rajada');
@@ -1686,6 +1731,7 @@ class GameScene extends Phaser.Scene {
 
   defeatEnemy(enemy, launched) {
     enemy.dead = true;
+    if (this.batidaUntil > this.time.now && ++this.batidaKills >= 3) Achievements.unlock('batida');
     if (enemy.friendKey) this.friendStomped(enemy);
     if (enemy.tag && !enemy.friendKey) { enemy.tag.destroy(); enemy.tag = null; }
     if (enemy.eva) this.evaDefeated(enemy);
