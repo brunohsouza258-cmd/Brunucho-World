@@ -276,10 +276,10 @@ const FRIEND_EXTRA = {
   biel:    { phrase: 'Levinho que nem pluma!', pitch: 1.4, perk: { name: 'Levinho', desc: 'pula 12% mais alto', jump: 1.12 } },
   yan:     { phrase: 'Sorria, você foi moggado!', pitch: 0.8, perk: { name: 'Sorrisão', desc: 'moedas valem 50% mais', coin: 1.5 } },
   pedro:   { phrase: 'Cowboy vai te pegar!', pitch: 1.0, perk: { name: 'Galope', desc: 'corre 10% mais rápido', speed: 1.1 } },
-  lara:    { phrase: 'Gira, gira, saia rodada!', pitch: 1.35, ability: { id: 'saia', name: 'Saia Rodada', desc: 'X ou 🌀: rajada da saia que acerta de longe', cooldown: 1.3 } },
+  lara:    { phrase: 'Gira, gira, saia rodada!', pitch: 1.35, ability: { id: 'saia', name: 'Saia Rodada', desc: 'X ou 🌀: rajada da saia que acerta de longe', cooldown: 2.0 } },
   anajulia: { phrase: 'Cuidado aí, seu boot! Vai tomar um putufão!', pitch: 1.25,
-    ability: { id: 'tiro', name: 'Tiro', desc: 'X: tiro reto e rápido', cooldown: 0.45 },
-    ability2: { id: 'tocha', name: 'Tocha', desc: 'C: tocha acesa em arco', cooldown: 1.5 } },
+    ability: { id: 'tiro', name: 'Tiro', desc: 'X: tiro reto e rápido', cooldown: 0.8 },
+    ability2: { id: 'tocha', name: 'Tocha', desc: 'C: tocha acesa em arco', cooldown: 2.3 } },
   arthur:  { phrase: 'Aqui de cima eu vejo tudo!', pitch: 0.85, perk: { name: 'Piadista', desc: '+1 s de proteção ao renascer (todo mundo ri)', respawnInvuln: 1 } },
 };
 Object.keys(FRIENDS).forEach((k) => { OUTFITS[k] = { ...FRIENDS[k], ...(FRIEND_EXTRA[k] || {}), friend: true }; });

@@ -294,12 +294,12 @@ Cada amigo tem um **poder** (aparece no guarda-roupa e no começo da fase) e uma
 
 | Ana Júlia | **Tiro** (X) e **Tocha** (C), poderes ativos | "Cuidado aí, seu boot! Vai tomar um putufão!" |
 
-**Poderes ativos da Ana Júlia:** **X** (botão 🔫 no celular) dá um **tiro** reto e rápido de pistola (recarga 0,45 s); **C** (botão 🔥) arremessa uma **tocha acesa em arco** (recarga 1,5 s).
+**Poderes ativos da Ana Júlia:** **X** (botão 🔫 no celular) dá um **tiro** reto e rápido de pistola (recarga 0,8 s); **C** (botão 🔥) arremessa uma **tocha acesa em arco** (recarga 2,3 s).
 Ambos derrubam o inimigo de longe (os duros perdem 1 de vida; chefões só levam um susto). No controle: Y/△ = tiro, LB/L1 = tocha. Conquista *Tomb Raider de Cotia*.
 
 **Poder ativo da Lara — Saia Rodada:** aperte **X** (ou **Z/K**; no celular o botão **🌀** ao lado do pulo; no controle o botão Y/△ ou R1/RB).
 Ela gira e lança uma **rajada da saia** (vermelha, com fitas amarela e verde) que voa uns 350 px e derruba o inimigo de longe, além de apagar os tiros
-inimigos. Inimigos mais duros perdem 1 de vida; chefões (moto do Paraíba, Eva...) só levam um susto. Recarga de 1,3 s (aparece no painel). Conquista *Gira, Gira!*.
+inimigos. Inimigos mais duros perdem 1 de vida; chefões (moto do Paraíba, Eva...) só levam um susto. Recarga de 2 s (aparece no painel). Conquista *Gira, Gira!*.
 
 A frase aparece num balão e é falada quando você pega um poder jogando com o amigo. **Dublagem:** em *Opções > Gravar minha voz*, a aba
 **Falas dos amigos** deixa gravar a fala de cada um (ou importar um áudio); sem gravação o jogo usa a voz do computador.
