@@ -977,6 +977,7 @@ function drawPlayer(g, o, pose = 'idle') {
   g.fillStyle(upperBack); g.fillRect(2 + sl * 2, 18 - P.arm, 5 - sl, 4);
   g.fillStyle(lowerBack); g.fillRect(2 + sl * 2, 22 - P.arm, 5 - sl, 3);
   g.fillStyle(c.skinDark); g.fillRect(2 + sl * 2, 25 - P.arm, 4 - sl, 3);
+  if (o.gloves) { g.fillStyle(0xdcdcdc); g.fillRoundedRect(1 + sl * 2, 24 - P.arm, 6 - sl, 5, 1); g.fillStyle(o.gloves); g.fillRect(1 + sl * 2, 24 - P.arm, 6 - sl, 1); }   // luva (mão de trás)
 
   // pernas, meiões e sapatos
   g.fillStyle(o.pants ? c.shorts : c.skin); A(7 + sl, 30, 4 - sl, 4); B(15, 30, 4 - sl, 4);
@@ -1094,6 +1095,7 @@ function drawPlayer(g, o, pose = 'idle') {
     g.fillStyle(0xffd23f); g.fillCircle(tx + 1, ty - 4, 2);
     g.fillStyle(0xfff6c0); g.fillCircle(tx + 1, ty - 3.5, 0.9);
   }
+  if (o.gloves) { g.fillStyle(0xffffff); g.fillRoundedRect(19 - sl * 2, 23 + P.arm, 6 - sl, 6, 1); g.fillStyle(o.gloves); g.fillRect(19 - sl * 2, 23 + P.arm, 6 - sl, 1); g.fillStyle(0xc8c8c8); g.fillRect(21 - sl * 2, 26 + P.arm, 1, 2); }   // luva de goleiro
   if (o.bracelet) { g.fillStyle(o.bracelet); g.fillRect(19 - sl * 2, 23 + P.arm, 5 - sl, 2); }     // pulseira no pulso
 
   // cabeça

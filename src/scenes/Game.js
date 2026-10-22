@@ -58,7 +58,7 @@ class GameScene extends Phaser.Scene {
     this.heroK = heroScale();                          // boneco alto (Arthur): o desenho aumenta, a colisão não
     this.ability = OUTFITS[currentOutfit()].ability || null;   // poder ATIVO do amigo (ex.: a Saia Rodada da Lara), usado com X ou o botão 🌀
     this.ability2 = OUTFITS[currentOutfit()].ability2 || null;   // segundo poder (Ana Júlia: tocha), tecla C / botão 🔥
-    this.abilityCd = 0; this.abilityQueued = false; this.twirlUntil = 0; this.ability2Cd = 0; this.ability2Queued = false;
+    this.abilityCd = 0; this.abilityQueued = false; this.twirlUntil = 0; this.ability2Cd = 0; this.ability2Queued = false; this.wallUntil = 0;
     // Consumíveis comprados valem para esta fase (no reinício da fase eles voltam, sem gastar de novo)
     this.buffs = data.buffs || Shop.takeBuffs();
     if (!data.buffs && this.buffs.includes('coxinha')) this.stats.lives++;
@@ -323,7 +323,16 @@ class GameScene extends Phaser.Scene {
     this.physics.add.overlap(this.skirtShots, this.enemies, this.skirtHit, null, this);
     this.physics.add.overlap(this.skirtShots, this.shots, (s, sh) => { this.fxParty.explode(5, sh.x, sh.y); sh.destroy(); });
     this.physics.add.collider(this.skirtShots, this.layer, (s) => { this.fxParty.explode(6, s.x, s.y); s.destroy(); });
+    this.physics.add.overlap(this.shots, this.enemies, this.skirtHit, (sh, e) => !!(sh.reflected && !e.dead), this);   // tiro devolvido pelo goleiro acerta quem atirou
     this.physics.add.overlap(this.player, this.shots, (pl, shot) => {
+      if (shot.reflected) return;
+      if (this.wallUntil > this.time.now) {                // Paredão do Breno: defende e devolve com força
+        shot.reflected = true; shot.kind = 'defesa';
+        const b = shot.body; shot.setVelocity(-b.velocity.x * 1.5 - Math.sign(b.velocity.x) * 60, -b.velocity.y * 1.2);
+        this.time.delayedCall(2200, () => shot.active && shot.destroy());
+        this.floatText(pl.x, pl.y - 50, '🧤 DEFENDEU!', '#ffe27a', 18); this.fxParty.explode(8, shot.x, shot.y); Sfx.tone(240, 0.12, { type: 'square', vol: 0.08 });
+        return;
+      }
       if (this.powerTime > 0) { shot.destroy(); return; }
       shot.destroy();
       this.die('inimigo');
@@ -822,6 +831,16 @@ class GameScene extends Phaser.Scene {
         }
       });
     }
+    if (this.wallFx) {                                     // as luvas ficam na frente do goleiro enquanto o Paredão está ativo
+      const alive = this.wallUntil > time, pbx = this.player.body;
+      if (!alive) { this.wallFx.destroy(); this.wallFx = null; }
+      else {
+        const dir = this.facing >= 0 ? 1 : -1;
+        this.wallFx.setPosition(pbx.center.x + dir * 26, pbx.center.y - 2).setScale(1 + Math.sin(time / 60) * 0.08).setAlpha(this.wallUntil - time < 400 && Math.floor(time / 70) % 2 ? 0.4 : 1);
+        g.setTint(0xfff1a0);
+      }
+      if (!alive) g.clearTint();
+    }
     if (this.invuln > 0) {
       this.invuln -= dt;
       g.setAlpha(this.invuln > 0 && Math.floor(time / 80) % 2 ? 0.3 : 1);
@@ -1159,6 +1178,18 @@ class GameScene extends Phaser.Scene {
   // ---- Poder ativo: Saia Rodada da Lara. Gira e lança uma rajada (a saia) que acerta o inimigo de longe ----
   abIcon() { return this.ability.icon || (this.ability.id === 'tiro' ? '🔫' : '🌀'); }
 
+  // Breno: Paredão. Por 1,5 s o goleiro fecha o gol: nada o machuca, inimigo que encosta fica zonzo e tiros inimigos voltam com força
+  fireParedao() {
+    this.wallUntil = this.time.now + 1500;
+    const pb = this.player.body;
+    if (this.wallFx) this.wallFx.destroy();
+    this.wallFx = this.add.text(pb.center.x, pb.center.y, '🧤', { fontSize: '46px' }).setOrigin(0.5).setDepth(9);
+    this.floatText(pb.center.x, pb.top - 24, '🧤 PAREDÃO!', '#ffe27a', 20);
+    this.fxParty.explode(10, pb.center.x, pb.center.y);
+    Sfx.tone(160, 0.2, { type: 'square', to: 110, vol: 0.09 });
+    Sfx.tone(320, 0.1, { type: 'triangle', vol: 0.06, delay: 0.05 });
+  }
+
   // Bianca: flash de foto. Todo inimigo na tela vira "fã": fica parado, rosado, inofensivo (dá pra pisar) e rende pontos
   fireFlash() {
     const cam = this.cameras.main, view = cam.worldView, now = this.time.now;
@@ -1209,6 +1240,7 @@ class GameScene extends Phaser.Scene {
     this.abilityCd = this.ability.cooldown;
     if (this.ability.id === 'tiro') return this.fireTiro();
     if (this.ability.id === 'flash') return this.fireFlash();
+    if (this.ability.id === 'paredao') return this.fireParedao();
     const dir = this.facing >= 0 ? 1 : -1;
     const pb = this.player.body;
     const s = this.skirtShots.create(pb.center.x + dir * 18, pb.center.y - 2, 'saia_rajada');
@@ -1233,7 +1265,7 @@ class GameScene extends Phaser.Scene {
       e.hp--; e.setTintFill(0xffffff); this.time.delayedCall(120, () => e.active && e.clearTint());
       this.speech(e, 'Ai! Mais uma!');
     } else this.defeatEnemy(e, true);
-    Achievements.unlock(shot.kind ? 'tocha' : 'saia');
+    Achievements.unlock(shot.kind === 'defesa' ? 'paredao' : shot.kind ? 'tocha' : 'saia');
   }
 
   spawnEnemy(key, cx, bottom, cfg) {
@@ -1564,6 +1596,12 @@ class GameScene extends Phaser.Scene {
     const pb = player.body;
     const eb = enemy.body;
     const stomping = pb.velocity.y > 0 && pb.bottom <= eb.top + 12;
+    if (this.wallUntil > this.time.now && !stomping && !enemy.moto && !enemy.eva && !(this.powerTime > 0)) {    // Paredão: quem encosta leva um empurrão e fica zonzo
+      enemy.stunUntil = this.time.now + 2000; enemy.setTint(0xffe27a);
+      enemy.setVelocityX(Math.sign(enemy.x - player.x || 1) * 200);
+      this.fxParty.explode(8, enemy.x, enemy.y); this.speech(enemy, 'Ui!');
+      return;
+    }
     if (enemy.stunUntil > this.time.now && !stomping && !(this.powerTime > 0)) return;       // fã hipnotizado não machuca
     if (this.powerTime > 0 && !enemy.moto && !enemy.eva) {
       // No modo 67 é só encostar (menos nos chefões Paraíba e Eva)
@@ -1981,7 +2019,7 @@ class GameScene extends Phaser.Scene {
   die(cause = 'queda') {
     if (this.dead || this.finished) return;
     if (cause !== 'queda') {
-      if (this.powerTime > 0 || this.invuln > 0) return;
+      if (this.powerTime > 0 || this.invuln > 0 || this.wallUntil > this.time.now) return;
       if (this.hasAura) { this.breakAura(); return; }
       if (this.big) { this.hurtBig(); return; }          // o churros leva o golpe no seu lugar
     }

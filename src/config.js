@@ -275,6 +275,12 @@ const FRIENDS = {
       shirt: 0xf4a6b8, shirtDark: 0xd9809a, shorts: 0xfbf7f0, shortsDark: 0xdcd5c6 },
     hairStyle: 'trancas', necklace: 0xe8c860, bracelet: 0xf0e6c8, shoes: 0xf0e6d0,
   },
+  breno: {
+    name: 'Breno', who: 'Breno', desc: 'O goleiro da turma! Camisa amarela listrada de preto, luvas, meiões pretos e muita reza na hora do pênalti.',
+    colors: { hair: 0x15100c, hairDark: 0x0b0806, hairLight: 0x2e221a, skin: 0xc99a6c, skinDark: 0xa57650,
+      shirt: 0xf2d12a, shirtDark: 0xc4a31a, shorts: 0x2a5fd0, shortsDark: 0x1d44a0 },
+    hairStyle: 'curto', shirtStripes: 0x16161a, gloves: 0x2a5fd0, socks: 0x1a1a20, socksStripe: 0xffffff, shoes: 'chuteira',
+  },
 };
 // Frase (dublável na tela Minha voz) e poder de cada amigo. perk: speed (corre mais) · jump (pula mais) · coin (moeda vale mais) · magnet (puxa moedas, em pixels)
 const FRIEND_EXTRA = {
@@ -288,6 +294,8 @@ const FRIEND_EXTRA = {
     ability2: { id: 'tocha', name: 'Tocha', desc: 'C: tocha acesa em arco', cooldown: 2.3 } },
   bianca:  { phrase: 'Sorria pra foto! Posta no story!', pitch: 1.3,
     ability: { id: 'flash', icon: '📸', name: 'Flash do Story', desc: 'X: flash! Inimigos na tela viram fãs parados', cooldown: 7 } },
+  breno:   { phrase: 'Aqui não passa nada!', pitch: 0.9,
+    ability: { id: 'paredao', icon: '🧤', name: 'Paredão', desc: 'X: defesa! Protege 1,5 s e devolve os tiros', cooldown: 6 } },
   arthur:  { phrase: 'Aqui de cima eu vejo tudo!', pitch: 0.85, perk: { name: 'Piadista', desc: '+1 s de proteção ao renascer (todo mundo ri)', respawnInvuln: 1 } },
 };
 Object.keys(FRIENDS).forEach((k) => { OUTFITS[k] = { ...FRIENDS[k], ...(FRIEND_EXTRA[k] || {}), friend: true }; });
@@ -321,6 +329,7 @@ const FRIEND_CHAT = {
   biel:     ['Levinho que nem pluma!', 'Vou de coxinha hoje.', 'Alguém viu o Brunucho?'],
   yan:      ['Sorria, você foi moggado!', 'Hoje eu pago o lanche!', 'Esse look ficou sigma, né?'],
   pedro:    ['Cowboy vai te pegar!', 'Vou comprar um chapéu novo.', 'Eita, que calor!'],
+  breno:    ['Aqui não passa nada!', 'Pênalti? Pode bater!', 'Hoje eu fecho o gol.'],
   arthur:   ['Aqui de cima eu vejo tudo!', 'Quer ouvir uma piada?', 'Essa música tá boa demais.'],
   lara:     ['Gira, gira, saia rodada!', 'Meu irmão Brunucho chegou!', 'Vim comprar fita pra minha saia.'],
   anajulia: ['Cuidado aí, seu boot!', 'Procurando tesouro nessas lojas...', 'Alguém viu minha tocha?'],

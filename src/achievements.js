@@ -69,6 +69,7 @@ const ACHIEVEMENTS = [
   { id: 'saia',        icon: '🌀', name: 'Gira, Gira!',           desc: 'Derrubar um inimigo de longe com a rajada da saia da Lara' },
   { id: 'tocha',       icon: '🔥', name: 'Tomb Raider de Cotia',  desc: 'Derrubar um inimigo com o tiro ou a tocha da Ana Júlia' },
   { id: 'flash',       icon: '📸', name: 'Digna de Story',        desc: 'Hipnotizar 3 inimigos de uma vez com o flash da Bianca' },
+  { id: 'paredao',     icon: '🧤', name: 'Paredão do Breno',      desc: 'Devolver um tiro inimigo com a defesa do Breno e acertar alguém' },
   { id: 'escola_entrou', icon: '🏫', name: 'Aluno Pontual',        desc: 'Entrar na Escola Zacarias' },
   { id: 'terceiro_d',  icon: '🚪', name: 'Terceiro D',            desc: 'Chegar na sala do 3º D, no fim do corredor' },
   { id: 'eva',         icon: '📝', name: 'Nota Dez',              desc: 'Derrotar a professora Eva na sala de aula' },
