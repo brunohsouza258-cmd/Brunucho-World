@@ -1,0 +1,8 @@
+{
+  "name": "super-brunucho",
+  "private": true,
+  "description": "Super Brunucho: jogo estatico + api/ranking.js (ranking global)",
+  "dependencies": {
+    "redis": "^4.7.0"
+  }
+}

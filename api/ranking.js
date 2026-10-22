@@ -1,6 +1,7 @@
 // RANKING GLOBAL do Super Brunucho — função da Vercel (pasta /api).
 // Guarda tudo num Redis gratuito (Upstash) pela API REST dele. A Vercel cria as variáveis de ambiente quando você conecta o banco ao projeto:
-//   KV_REST_API_URL + KV_REST_API_TOKEN   (ou UPSTASH_REDIS_REST_URL + UPSTASH_REDIS_REST_TOKEN)
+//   KV_REST_API_URL + KV_REST_API_TOKEN   (ou UPSTASH_REDIS_REST_URL + UPSTASH_REDIS_REST_TOKEN)   — Upstash
+//   ou REDIS_URL   — Redis oficial (Redis Cloud)
 //
 //   GET  /api/ranking?sort=score|time&limit=20&me=<id do aparelho>  → { sort, entries: [{ pos, name, score, time, level, deaths, finished, mine }], total, totalTime, me: { posScore, posTime } }
 //   POST /api/ranking   { id, name, score, time, level, deaths, finished }  → { ok, posScore, posTime }
@@ -9,6 +10,24 @@
 // Não é à prova de trapaça (o jogo roda no aparelho de cada um), mas tem validação de nome/valores e limite de envios por IP.
 
 const KEYS = { players: 'bru:players', score: 'bru:score', time: 'bru:time' };
+
+// Banco Redis "de verdade" (Redis Cloud, o "Redis oficial para Vercel"): a Vercel cria a variável REDIS_URL (redis://...).
+// Usa o pacote "redis" (package.json). A conexão fica guardada entre uma chamada e outra enquanto a função está "quente".
+let tcpClient = null;
+function tcpRedis(url) {
+  return async (cmds) => {
+    if (!tcpClient) {
+      const { createClient } = require('redis');
+      const c = createClient({ url, socket: { connectTimeout: 6000 } });
+      c.on('error', () => { tcpClient = null; });          // se a conexão cair, a próxima chamada reconecta
+      tcpClient = c.connect().then(() => c);
+    }
+    const c = await tcpClient;
+    const out = [];
+    for (const cmd of cmds) out.push(await c.sendCommand(cmd.map(String)));
+    return out;
+  };
+}
 
 function envRedis() {
   const env = process.env;
@@ -20,7 +39,10 @@ function envRedis() {
     url = url || (kUrl && env[kUrl]);
     token = token || (kTok && env[kTok]);
   }
-  if (!url || !token) return null;
+  if (!url || !token) {
+    const tcp = env.REDIS_URL || env[Object.keys(env).find((k) => /_REDIS_URL$/.test(k)) || ''];
+    return tcp ? tcpRedis(tcp) : null;
+  }
   return async (cmds) => {                                   // várias ordens de uma vez (pipeline); devolve a lista de resultados
     const r = await fetch(`${url}/pipeline`, { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify(cmds) });
     if (!r.ok) throw new Error(`redis ${r.status}`);
