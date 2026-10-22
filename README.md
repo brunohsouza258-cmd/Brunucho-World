@@ -210,8 +210,8 @@ No celular aparecem botões na tela.
 
 No menu, **CENTRO DE COTIA** abre uma rua com **6 lojas** para gastar moedas. As moedas que você pega numa fase entram na **carteira (🪙)** quando
 você **chega na bandeira** (+10 se pegar todas), então reiniciar a fase não vira "farm". A carteira fica salva no navegador.
-Na rua: **← →** andam, **↑ / ENTER** entram na loja (quando aparece o aviso na porta), **ESC** volta. No celular/mouse: **toque no chão** para andar
-até lá, **toque numa loja** para entrar (e ◀ ▶ na tela seguram a caminhada). A Andreia e os amigos ficam passeando pela calçada.
+Na rua: **← →** andam, **↑ / ENTER** entram na loja (quando aparece o aviso na porta), **ESC** volta. No mouse: **clique no chão** para andar
+até lá e **clique numa loja** para entrar. No celular: **arraste a bolinha** (joystick, igual nas fases) para andar; um toque rápido no chão anda até lá e um toque numa loja entra. A Andreia e os amigos ficam passeando pela calçada.
 
 | Loja | O que vende |
 |---|---|

@@ -1,6 +1,9 @@
+const JOY_R = 62;                                           // raio do joystick de bolinha (o mesmo das fases)
+
 // CENTRO DE COTIA: uma rua com várias lojas para gastar as moedas que você pega nas fases.
 //   ← → andar · ↑ / ENTER entrar na loja · ESC voltar ao menu
-//   (mouse/celular: toque no chão para andar até lá, toque numa loja para entrar; ◀ ▶ na tela seguram a caminhada)
+//   (mouse: clique no chão para andar até lá, clique numa loja para entrar)
+//   (celular: arraste a BOLINHA para andar, igual nas fases; um toque rápido no chão anda até lá e um toque numa loja entra)
 class CentroScene extends Phaser.Scene {
   constructor() { super('Centro'); }
 
@@ -11,7 +14,7 @@ class CentroScene extends Phaser.Scene {
     const W = this.worldW;
     this.target = null;                                      // x aonde o toque mandou ir
     this.pendingShop = null;                                 // loja que abre quando chegar lá
-    this.hold = 0;                                           // botões ◀ ▶ da tela (celular)
+    this.hold = 0;                                           // direção do joystick de bolinha (-1, 0, 1)
     this.near = -1;
 
     this.cameras.main.setBounds(0, 0, W, HEIGHT);
@@ -53,12 +56,23 @@ class CentroScene extends Phaser.Scene {
     const enter = () => { if (this.near >= 0) this.openShop(this.near); };
     ['UP', 'W', 'ENTER', 'SPACE'].forEach((k) => this.input.keyboard.on(`keydown-${k}`, enter));
     this.input.keyboard.on('keydown-ESC', () => this.leave());
-    this.input.on('pointerdown', (ptr, over) => {            // toque no chão: anda até lá
-      if (over.length) return;
-      this.pendingShop = null;
-      this.target = ptr.worldX;
+    this.joy = { id: null, ox: 0, oy: 0, x0: 0, y0: 0, wx: 0, wy: 0, t0: 0, moved: false, stick: false };
+    this.input.addPointer(2);
+    this.input.on('pointerdown', (ptr, over) => {
+      if (over.length || this.joy.id !== null) return;
+      if (!IS_TOUCH) { this.tapAt(ptr.worldX, ptr.worldY); return; }          // mouse: o clique anda/entra na hora
+      // celular: encostar na metade esquerda abre a bolinha (igual nas fases); soltar sem arrastar vale como um toque
+      const j = this.joy;
+      j.id = ptr.id; j.x0 = ptr.x; j.y0 = ptr.y; j.wx = ptr.worldX; j.wy = ptr.worldY; j.t0 = this.time.now; j.moved = false;
+      j.stick = ptr.x < VIEW_W * 0.5 && ptr.y > 120;
+      if (j.stick) {
+        j.ox = Phaser.Math.Clamp(ptr.x, JOY_R + 12, VIEW_W * 0.5 - JOY_R);
+        j.oy = Phaser.Math.Clamp(ptr.y, 160 + JOY_R, HEIGHT - JOY_R - 10);
+        this.joyBase.setPosition(j.ox, j.oy).setFillStyle(0xffffff, 0.26); this.joyArrows.setPosition(j.ox, j.oy).setAlpha(0.2);
+        this.joyKnob.setPosition(j.ox, j.oy);
+      }
     });
-    this.input.on('pointerup', () => { this.hold = 0; });
+    this.input.on('pointerup', (ptr) => this.endJoy(ptr));
     this.events.on('resume', () => this.refreshWallet());
   }
 
@@ -131,12 +145,10 @@ class CentroScene extends Phaser.Scene {
     g.fillStyle(0xd62828); g.fillRoundedRect(cx - 17, GY - 78, 34, 13, 3);
     this.add.text(cx, GY - 72, 'ABERTO', { fontFamily: FONT, fontSize: '9px', color: '#ffffff' }).setOrigin(0.5).setDepth(3);
     // toque na loja = andar até a porta e entrar
-    const zone = this.add.zone(cx, GY - 110, 300, 220).setInteractive({ useHandCursor: true });
-    zone.on('pointerdown', () => { this.target = cx; this.pendingShop = i; });
     const prompt = this.add.text(cx, GY - 250, IS_TOUCH ? '👆 toque para entrar' : '↑  ENTRAR', { ...textStyle(16, '#1b1b2a'), backgroundColor: '#ffd23f', padding: { x: 10, y: 4 }, strokeThickness: 0 })
       .setOrigin(0.5).setDepth(20).setVisible(false);
     this.tweens.add({ targets: prompt, y: GY - 258, duration: 450, yoyo: true, repeat: -1 });
-    return { cx, zone, prompt, shop: s };
+    return { cx, prompt, shop: s };
   }
 
   drawLamp(x) {
@@ -181,15 +193,47 @@ class CentroScene extends Phaser.Scene {
     const back = fixed(this.add.text(VIEW_W - 14, 14, '◀ MENU', { ...textStyle(20), backgroundColor: '#2b2b3a', padding: { x: 12, y: 6 } })).setOrigin(1, 0).setInteractive({ useHandCursor: true });
     back.on('pointerdown', () => this.leave());
     fixed(this.add.text(VIEW_W / 2, 20, 'CENTRO DE COTIA', { ...textStyle(18, '#ffd23f') })).setOrigin(0.5, 0);
-    this.hintText = fixed(this.add.text(VIEW_W / 2, HEIGHT - 14, hint('← → andar  ·  ↑ ou ENTER entra na loja  ·  ESC volta', 'toque no chão para andar  ·  toque numa loja para entrar'), textStyle(14)))
+    this.hintText = fixed(this.add.text(VIEW_W / 2, HEIGHT - 14, hint('← → andar  ·  ↑ ou ENTER entra na loja  ·  ESC volta', 'arraste a bolinha para andar  ·  toque numa loja para entrar'), textStyle(14)))
       .setOrigin(0.5, 1).setAlpha(0.9);
-    if (IS_TOUCH) {                                           // ◀ ▶ seguram a caminhada
-      [['◀', 70, -1], ['▶', 170, 1]].forEach(([label, x, d]) => {
-        const c = fixed(this.add.circle(x, HEIGHT - 70, 38, 0xffffff, 0.2)).setStrokeStyle(3, 0xffffff, 0.45).setInteractive();
-        fixed(this.add.text(x, HEIGHT - 70, label, textStyle(30))).setOrigin(0.5);
-        c.on('pointerdown', () => { this.hold = d; this.target = null; this.pendingShop = null; });
-      });
+    if (IS_TOUCH) {                                           // joystick de bolinha (começa fraquinho no canto, nasce onde o dedo encosta)
+      this.joyBase = fixed(this.add.circle(118, 440, JOY_R, 0xffffff, 0.14)).setStrokeStyle(3, 0xffffff, 0.4);
+      this.joyArrows = fixed(this.add.text(118, 440, '◀      ▶', textStyle(20))).setOrigin(0.5).setAlpha(0.45);
+      this.joyKnob = fixed(this.add.circle(118, 440, 30, 0xffffff, 0.38)).setStrokeStyle(3, 0xffffff, 0.8);
     }
+  }
+
+  // Toque rápido / clique: se pegou numa loja, anda até a porta e entra; senão, anda até lá
+  tapAt(wx, wy) {
+    const i = this.shopViews.findIndex((v) => Math.abs(wx - v.cx) <= 150 && wy >= this.GY - 330 && wy <= this.GY);
+    if (i >= 0) { this.target = this.shopViews[i].cx; this.pendingShop = i; }
+    else { this.target = wx; this.pendingShop = null; }
+  }
+
+  // Acompanha o dedo que está na bolinha (a cada quadro)
+  pollJoy() {
+    const j = this.joy;
+    if (j.id === null) return;
+    const ptr = this.input.manager.pointers.find((q) => q.id === j.id);
+    if (!ptr || !ptr.isDown) { this.endJoy(ptr || { id: j.id }); return; }
+    if (Math.hypot(ptr.x - j.x0, ptr.y - j.y0) > 14) j.moved = true;
+    if (!j.stick) return;
+    const dx = ptr.x - j.ox, dy = ptr.y - j.oy, d = Math.hypot(dx, dy) || 1, k = Math.min(1, JOY_R / d);
+    const kx = j.ox + dx * k, ky = j.oy + dy * k;               // a bolinha segue o dedo, mas não sai do círculo
+    this.joyKnob.setPosition(kx, ky).setFillStyle(0xffffff, 0.6);
+    const nx = (kx - j.ox) / JOY_R;
+    this.hold = nx > 0.3 ? 1 : (nx < -0.3 ? -1 : 0);
+    if (this.hold !== 0) { this.target = null; this.pendingShop = null; }
+  }
+
+  endJoy(ptr) {
+    const j = this.joy;
+    if (j.id === null || ptr.id !== j.id) return;
+    const wasTap = !j.moved && (this.time.now - j.t0) < 450;
+    j.id = null; this.hold = 0;
+    this.joyBase.setPosition(118, 440).setFillStyle(0xffffff, 0.14);
+    this.joyArrows.setPosition(118, 440).setAlpha(0.45);
+    this.joyKnob.setPosition(118, 440).setFillStyle(0xffffff, 0.38);
+    if (wasTap) this.tapAt(j.wx, j.wy);
   }
 
   refreshWallet() { if (this.walletText) this.walletText.setText(`🪙 ${Wallet.get()}`); }
@@ -217,6 +261,7 @@ class CentroScene extends Phaser.Scene {
 
   update(time, delta) {
     const dt = Math.min(delta, 50) / 1000;
+    this.pollJoy();
     const p = this.player, k = this.keys;
     let dir = ((k.RIGHT.isDown || k.D.isDown || this.hold === 1) ? 1 : 0) - ((k.LEFT.isDown || k.A.isDown || this.hold === -1) ? 1 : 0);
     if (dir !== 0 && !this.hold) { this.target = null; this.pendingShop = null; }
