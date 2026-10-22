@@ -36,8 +36,14 @@ class CentroScene extends Phaser.Scene {
     // pessoas na rua: a Andreia e os amigos (menos o que você está jogando)
     this.npcs = [];
     this.addNpc('mae', 520, 'Andreia', ['Compra pão, Brunucho!', 'Gasta com juízo, hein?', 'Leva um casaquinho!']);
-    const spots = [980, 1740, 2500, 3010];
-    FRIEND_KEYS.forEach((k, i) => { if (k !== currentOutfit()) this.addNpc(`player_${k}`, spots[i % spots.length], OUTFITS[k].who, [OUTFITS[k].phrase]); });
+    // os amigos ficam na frente das lojas (um de cada lado da porta), em duplas, e puxam conversa
+    const mates = FRIEND_KEYS.filter((k) => k !== currentOutfit()), S = SHOPS.length;
+    mates.forEach((k, i) => {
+      const shop = i % S, side = i < S ? -1 : 1;
+      const x = 700 + shop * 380 + side * 112;
+      this.addNpc(`player_${k}`, x, OUTFITS[k].who, [OUTFITS[k].phrase, ...(FRIEND_CHAT[k] || [])], { door: 700 + shop * 380, partner: i < S ? i + S : i - S });
+    });
+    this.npcs.forEach((n) => { if (n.partner !== undefined) n.partner = this.npcs[n.partner + 1] || null; });   // [0] é a Andreia
 
     // o jogador
     const tex = playerTexture();
@@ -171,15 +177,17 @@ class CentroScene extends Phaser.Scene {
     g.fillStyle(0x3a3d46); g.fillRect(x - 26, GY - 23, 5, 23); g.fillRect(x + 21, GY - 23, 5, 23); g.fillRect(x - 30, GY - 50, 4, 20); g.fillRect(x + 26, GY - 50, 4, 20);
   }
 
-  addNpc(key, x, name, lines) {
+  addNpc(key, x, name, lines, extra = {}) {
     const spr = this.add.sprite(x, this.GY, key).setOrigin(0.5, 1).setDepth(4);
     const tag = this.add.text(x, this.GY - spr.height - 2, name, textStyle(13, '#9ff0ff')).setOrigin(0.5, 1).setDepth(6);
-    this.npcs.push({ spr, tag, x, lines, said: 0, close: false });
+    this.npcs.push({ spr, tag, x, lines, said: 0, close: false, next: 1500 + Math.random() * 5000, ...extra });
   }
 
   speech(target, text) {
     const t = this.add.text(target.x, target.y - target.height - 22, text, {
-      fontFamily: FONT, fontSize: '14px', color: '#1b1b2a', backgroundColor: '#ffffff', padding: { x: 6, y: 4 } }).setOrigin(0.5, 1).setDepth(110);
+      fontFamily: FONT, fontSize: '14px', color: '#1b1b2a', backgroundColor: '#ffffff', padding: { x: 6, y: 4 },
+      wordWrap: { width: Math.min(240, VIEW_W - 40) }, align: 'center' }).setOrigin(0.5, 1).setDepth(210);
+    fitBubble(this, t);
     this.tweens.add({ targets: t, y: t.y - 14, alpha: 0, delay: 1600, duration: 500, onComplete: () => t.destroy() });
   }
 
@@ -291,10 +299,18 @@ class CentroScene extends Phaser.Scene {
 
     // as pessoas da rua olham pra você e falam quando você chega perto
     this.npcs.forEach((n) => {
-      n.spr.setFlipX(p.x < n.x);
       const close = Math.abs(p.x - n.x) < 130;
-      if (close && !n.close && time - n.said > 4000) { n.said = time; this.speech(n.spr, Phaser.Utils.Array.GetRandom(n.lines)); }
+      n.spr.setFlipX(close ? p.x < n.x : (n.partner ? n.partner.x < n.x : p.x < n.x));      // perto de você olha pra você; senão olha pro amigo da dupla
+      if (close && !n.close && time - n.said > 4000) { n.said = time; n.next = time + 3500; this.speech(n.spr, Phaser.Utils.Array.GetRandom(n.lines)); }
       n.close = close;
+      // papo de rua: quem está na tela fala sozinho de vez em quando e o parceiro responde logo depois
+      const v = this.cameras.main.worldView, onScreen = n.x > v.x - 30 && n.x < v.right + 30;
+      if (n.partner !== undefined && onScreen && time > n.next) {
+        n.next = time + 6000 + Math.random() * 5000; n.said = time;
+        this.speech(n.spr, Phaser.Utils.Array.GetRandom(n.lines));
+        const q = n.partner;
+        if (q && Math.abs(q.x - n.x) < 260) { q.next = time + 4000 + Math.random() * 3000; this.time.delayedCall(1700, () => this.speech(q.spr, Phaser.Utils.Array.GetRandom(q.lines))); }
+      }
     });
 
     this.pet.follow(p.x, this.GY, time);

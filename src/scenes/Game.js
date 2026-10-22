@@ -552,8 +552,9 @@ class GameScene extends Phaser.Scene {
 
   // Texto que sobe e some (ex.: "+100 aura")
   floatText(x, y, text, color = '#ffffff', size = 18) {
-    const t = this.add.text(x, y, text, textStyle(size, color)).setOrigin(0.5).setDepth(120);
-    this.tweens.add({ targets: t, y: y - 50, alpha: 0, duration: 1000, ease: 'Quad.out', onComplete: () => t.destroy() });
+    const t = this.add.text(x, y, text, { ...textStyle(size, color), wordWrap: { width: Math.min(420, VIEW_W - 40) }, align: 'center' }).setOrigin(0.5).setDepth(205);
+    fitBubble(this, t);
+    this.tweens.add({ targets: t, y: t.y - 50, alpha: 0, duration: 1000, ease: 'Quad.out', onComplete: () => t.destroy() });
   }
 
   createTouchControls() {
@@ -1533,7 +1534,9 @@ class GameScene extends Phaser.Scene {
   speech(target, text) {
     const t = this.add.text(target.x, target.y - target.displayHeight / 2 - 8, text, {
       fontFamily: FONT, fontSize: '13px', color: '#1b1b2a', backgroundColor: '#ffffff', padding: { x: 5, y: 3 },
-    }).setOrigin(0.5, 1).setDepth(110);
+      wordWrap: { width: Math.min(230, VIEW_W - 40) }, align: 'center',
+    }).setOrigin(0.5, 1).setDepth(210);              // acima do boneco, dos inimigos e dos botões de toque
+    fitBubble(this, t);
     this.tweens.add({ targets: t, y: t.y - 16, alpha: 0, delay: 900, duration: 500, onComplete: () => t.destroy() });
   }
 

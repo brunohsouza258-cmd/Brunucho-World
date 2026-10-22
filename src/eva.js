@@ -205,10 +205,23 @@ const EvaMixin = {
       .setOrigin(0.5).setScrollFactor(0).setDepth(150).setScale(0.3);
     this.tweens.add({ targets: banner, scale: 1, duration: 400, ease: 'Back.out' });
     this.tweens.add({ targets: banner, alpha: 0, delay: 1700, duration: 400, onComplete: () => banner.destroy() });
-    this.speech(e, 'Hoje tem prova surpresa!');
+    this.time.delayedCall(1100, () => e.active && this.speech(e, 'Hoje tem prova surpresa!'));
+    this.spawnClassmates();
     // barra de vida fixa em cima
     this.evaName = this.add.text(VIEW_W / 2, 14, 'PROFESSORA EVA', textStyle(16, '#ff8a8a')).setOrigin(0.5, 0).setScrollFactor(0).setDepth(140);
     this.evaBar = this.add.graphics().setScrollFactor(0).setDepth(140);
+  },
+
+  // A turma toda do 3º D: todos os amigos (menos o que você está jogando) viram colegas de sala-inimigos, um pouco mais lentos que o normal
+  spawnClassmates() {
+    const mates = FRIEND_KEYS.filter((k) => k !== currentOutfit());
+    if (!mates.length) return;
+    const x0 = 9 * TILE, x1 = this.evaSpawn.x - 4 * TILE;
+    mates.forEach((k, i) => {
+      const x = x0 + (x1 - x0) * (mates.length === 1 ? 0.5 : i / (mates.length - 1));
+      const m = this.spawnFriendEnemy(k, x, 14 * TILE);
+      m.speed *= 0.7; m.dir = i % 2 ? 1 : -1;
+    });
   },
 
   updateEva(e, dt) {

@@ -298,6 +298,35 @@ function currentOutfit() {
   const key = Storage.get('pp_outfit', OUTFIT_KEYS[0]);
   return OUTFITS[key] ? key : OUTFIT_KEYS[0];
 }
+// Legendas responsivas: o balão nunca sai da tela (celular estreito, borda da fase) e não fica em cima de outro balão
+function fitBubble(scene, t) {
+  const v = scene.cameras.main.worldView;
+  if (t.x < v.x - 80 || t.x > v.right + 80) { t.setVisible(false); return t; }          // quem está fora da tela não mostra legenda
+  const hw = t.width * t.scaleX / 2 + 4;
+  t.x = Phaser.Math.Clamp(t.x, v.x + hw, Math.max(v.x + hw, v.right - hw));
+  t.y = Math.max(t.y, v.y + t.height + 6);
+  const list = (scene._bubbles = (scene._bubbles || []).filter((b) => b.active));
+  for (let guard = 0; guard < 6; guard++) {
+    const hit = list.find((b) => Math.abs(b.x - t.x) < (b.width + t.width) / 2 && Math.abs(b.y - t.y) < t.height + 2);
+    if (!hit) break;
+    t.y = hit.y - t.height - 4;
+  }
+  list.push(t);
+  return t;
+}
+
+// Conversa de rua dos amigos no Centro de Cotia (além da frase de cada um)
+const FRIEND_CHAT = {
+  stanley:  ['Tá tranquilo, tá favorável!', 'Essa padaria tá com um cheiro bom...', 'Bora gastar umas moedas?'],
+  biel:     ['Levinho que nem pluma!', 'Vou de coxinha hoje.', 'Alguém viu o Brunucho?'],
+  yan:      ['Sorria, você foi moggado!', 'Hoje eu pago o lanche!', 'Esse look ficou sigma, né?'],
+  pedro:    ['Cowboy vai te pegar!', 'Vou comprar um chapéu novo.', 'Eita, que calor!'],
+  arthur:   ['Aqui de cima eu vejo tudo!', 'Quer ouvir uma piada?', 'Essa música tá boa demais.'],
+  lara:     ['Gira, gira, saia rodada!', 'Meu irmão Brunucho chegou!', 'Vim comprar fita pra minha saia.'],
+  anajulia: ['Cuidado aí, seu boot!', 'Procurando tesouro nessas lojas...', 'Alguém viu minha tocha?'],
+  bianca:   ['Sorria pra foto!', 'Vou postar no story!', 'Esse rosa combina comigo, né?'],
+};
+
 function playerTexture() { return `player_${currentOutfit()}`; }
 // Boneco mais alto (ex.: Arthur): só o desenho aumenta, a caixa de colisão continua a mesma
 function heroScale(key) { return OUTFITS[key || currentOutfit()].tall || 1; }

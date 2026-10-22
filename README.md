@@ -178,6 +178,7 @@ Na **fase 2** a porta da escola, no fim da rua, **leva pra dentro** (aparece o a
 1. **A rua** (como sempre), até a porta da escola.
 2. **O corredor**: longo, com **inimigos normais** até o final (armários, cones de piso molhado, bancos, portas das outras salas, 2 checkpoints), e no fim a porta da **sala do 3º D**.
 3. **A sala de aula do 3º D**: a chefona é a **professora Eva** (uma senhora mais velha, de cabelo grisalho e coque, fofinha e baixinha), com slide, lição e... **tudo está ERRADO**.
+   - **A turma toda está na sala**: todos os amigos (menos o que você está jogando) aparecem como colegas-inimigos, andando um pouco mais devagar, cada um com o nome em cima e a própria frase.
    - Ela **passeia** e **joga giz** em você.
    - Depois **mostra um slide** (matemática, história, tabuada...) e carimba **"ERRADO!"** em cima, **até quando está certo**.
    - Aí cai uma **chuva de "X" de errado** (cada um avisa no chão antes de cair; as carteiras protegem).
@@ -257,6 +258,10 @@ Vercel > seu projeto > **Storage** > **Create Database** > **Upstash for Redis**
 O `servidor.py` tem uma versão de teste da mesma API (`python servidor.py`), pra testar na sua rede.
 
 ### Centro de Cotia (lojas)
+
+**Todo mundo na rua:** os amigos (menos o que você está jogando) ficam na frente das lojas, em duplas, olhando um pro outro, e **puxam conversa sozinhos**: um fala e o parceiro responde. Chegando perto, eles olham pra você e falam.
+
+**Legendas responsivas:** os balões de fala e textos flutuantes ficam sempre **acima do boneco e dos botões**, quebram linha em telas estreitas, nunca saem da tela e não se sobrepõem (um empurra o outro pra cima).
 
 No menu, **CENTRO DE COTIA** abre uma rua com **6 lojas** para gastar moedas. As moedas que você pega numa fase entram na **carteira (🪙)** quando
 você **chega na bandeira** (+10 se pegar todas), então reiniciar a fase não vira "farm". A carteira fica salva no navegador.
