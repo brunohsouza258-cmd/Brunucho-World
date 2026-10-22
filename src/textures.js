@@ -399,15 +399,20 @@ function generateTextures(scene) {
   });
   // CHURROS: ele deixa o Brunucho grandão
   make('churros', 30, 30, (g) => {
-    g.lineStyle(10, 0xb8742a); g.lineBetween(6, 24, 22, 8);
-    g.lineStyle(7, 0xdd9b45); g.lineBetween(6, 24, 22, 8);
-    g.lineStyle(2, 0xf3c47a); g.lineBetween(4, 21, 20, 5);
-    g.lineStyle(2, 0x8f5a1a);
-    for (let t = 0.1; t < 0.95; t += 0.16) { const x = 6 + 16 * t, y = 24 - 16 * t; g.lineBetween(x - 3, y - 3, x + 3, y + 3); }
-    g.lineStyle(10, 0x3a2010); g.lineBetween(18, 12, 23, 7);
-    g.lineStyle(7, 0x5a3318); g.lineBetween(18, 12, 23, 7);
-    g.fillStyle(0xffffff); [[8, 20], [12, 17], [16, 14], [10, 23], [14, 20]].forEach(([x, y]) => g.fillRect(x, y, 2, 2));
-    g.fillStyle(0xfff3b0); g.fillRect(24, 4, 2, 2);
+    // dois churros dourados com sulcos no comprimento, açúcar com canela e um fio de doce de leite
+    const stick = (x0, y0, x1, y1, w) => {
+      g.lineStyle(w + 2, 0x9a5a1c); g.lineBetween(x0, y0, x1, y1);
+      g.lineStyle(w, 0xe0a24a); g.lineBetween(x0, y0, x1, y1);
+      const dx = x1 - x0, dy = y1 - y0, len = Math.hypot(dx, dy), nx = -dy / len, ny = dx / len;
+      [-w * 0.28, 0, w * 0.28].forEach((o, k) => { g.lineStyle(1, k === 1 ? 0xf6d089 : 0xb9742a); g.lineBetween(x0 + nx * o, y0 + ny * o, x1 + nx * o, y1 + ny * o); });   // sulcos
+      g.fillStyle(0xf2c06a); g.fillCircle(x1, y1, w / 2);                         // pontinha frita
+      g.fillStyle(0xb9742a); [[0, 0], [0.3, 0.3], [-0.3, 0.3]].forEach(([a, b]) => g.fillRect(x1 + a * w * 0.4 - 0.5, y1 + b * w * 0.4 - 0.5, 1.5, 1.5));
+    };
+    stick(5, 25, 21, 9, 8);
+    stick(11, 26, 26, 12, 7);
+    g.fillStyle(0xffffff); [[8, 22], [12, 18], [16, 14], [14, 23], [19, 20], [22, 17]].forEach(([x, y]) => g.fillRect(x, y, 1.5, 1.5));     // açúcar
+    g.fillStyle(0xc27a2e); [[10, 20], [14, 16], [17, 22], [20, 18]].forEach(([x, y]) => g.fillRect(x, y, 1.5, 1.5));                        // canela
+    g.fillStyle(0xfff3b0); g.fillRect(24, 5, 2, 2); g.fillRect(4, 5, 2, 2);                                                               // brilhinho
   });
 
   // ================= ELEMENTOS DE FASE =================

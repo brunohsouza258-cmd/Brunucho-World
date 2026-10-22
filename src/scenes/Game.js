@@ -35,14 +35,14 @@ const CAMEO_LEVELS = (() => {
 })();
 
 const POWER_SCENES = {
-  '67':     { icon: '🤙', title: 'SIX SEVEN!', color: '#ffb000', ray: 0xffb000, sub: 'ninguém sabe o que significa. nem a gente.', gag: 'maos', gagIcons: ['✋', '🤚'] },
-  aura:     { icon: '😎', title: 'AURA!', color: '#7ff6ff', ray: 0x29d3ff, sub: '+1000 de aura. sigma detectado.', gag: 'chuva', gagIcons: ['✨', '💠'] },
-  olhar:    { icon: '👁️', title: 'OLHAR DE MIL JARDAS', color: '#e8e8e8', ray: 0x888888, sub: 'desvia até de boleto.', gag: 'suga', gagIcons: ['👀', '💀'] },
-  anjo:     { icon: '😇', title: 'ANJO CAÍDO', color: '#fff3b0', ray: 0xfff3b0, sub: 'caiu do céu... de novo.', gag: 'sobe', gagIcons: ['🪽', '☁️'] },
-  churros:  { icon: '🍫', title: 'CHURROS!', color: '#ffb35c', ray: 0xff9a3c, sub: 'nham nham... ficou GRANDÃO.', gag: 'chuva', gagIcons: ['🍫', '🥖'] },
-  coxinha:  { icon: '🍗', title: 'COXINHA!', color: '#ff9aae', ray: 0xff6b8b, sub: '+1 vida. a mamãe aprova.', gag: 'sobe', gagIcons: ['❤️', '🍗'] },
-  tenis:    { icon: '👟', title: 'TÊNIS DE MOLA', color: '#ff3df2', ray: 0xff3df2, sub: 'a gravidade tirou folga.', gag: 'chuva', gagIcons: ['🦘', '👟'] },
-  ima:      { icon: '🧲', title: 'ÍMÃ DE AURA', color: '#ff6b6b', ray: 0xff4444, sub: 'até a moeda do vizinho vem.', gag: 'suga', gagIcons: ['🪙', '💰'] },
+  '67':     { tex: 'pw67', icon: '🤙', title: 'SIX SEVEN!', color: '#ffb000', ray: 0xffb000, sub: 'ninguém sabe o que significa. nem a gente.', gag: 'maos', gagIcons: ['✋', '🤚'] },
+  aura:     { tex: 'aura', icon: '😎', title: 'AURA!', color: '#7ff6ff', ray: 0x29d3ff, sub: '+1000 de aura. sigma detectado.', gag: 'chuva', gagIcons: ['aura', '✨'] },
+  olhar:    { tex: 'pw_olhar', icon: '👁️', title: 'OLHAR DE MIL JARDAS', color: '#e8e8e8', ray: 0x888888, sub: 'desvia até de boleto.', gag: 'suga', gagIcons: ['pw_olhar', '👀'] },
+  anjo:     { tex: 'pw_anjo', icon: '😇', title: 'ANJO CAÍDO', color: '#fff3b0', ray: 0xfff3b0, sub: 'caiu do céu... de novo.', gag: 'sobe', gagIcons: ['pena', 'aureola', '☁️'] },
+  churros:  { tex: 'churros', icon: '🥖', title: 'CHURROS!', color: '#ffb35c', ray: 0xff9a3c, sub: 'nham nham... ficou GRANDÃO.', gag: 'chuva', gagIcons: ['churros', 'coin'] },
+  coxinha:  { tex: 'coxinha', icon: '🍗', title: 'COXINHA!', color: '#ff9aae', ray: 0xff6b8b, sub: '+1 vida. a mamãe aprova.', gag: 'sobe', gagIcons: ['heart', 'coxinha'] },
+  tenis:    { tex: 'tenis', icon: '👟', title: 'TÊNIS DE MOLA', color: '#ff3df2', ray: 0xff3df2, sub: 'a gravidade tirou folga.', gag: 'chuva', gagIcons: ['tenis', '🦘'] },
+  ima:      { tex: 'ima', icon: '🧲', title: 'ÍMÃ DE AURA', color: '#ff6b6b', ray: 0xff4444, sub: 'até a moeda do vizinho vem.', gag: 'suga', gagIcons: ['coin', 'ima'] },
 };
 
 class GameScene extends Phaser.Scene {
@@ -967,7 +967,7 @@ class GameScene extends Phaser.Scene {
     const say = [];
     if (b.includes('coxinha')) say.push('🍗 +1 vida');
     if (b.includes('paodequeijo')) { this.hasAura = true; say.push('🧀 escudo de aura'); }
-    if (b.includes('churros')) { this.big = true; this.setPlayerSize(1.5); say.push('🍫 grandão'); }
+    if (b.includes('churros')) { this.big = true; this.setPlayerSize(1.5); say.push('🥖 grandão'); }
     if (b.includes('caldo')) { this.magnetTime = 12; say.push('🥤 ímã de moedas'); }
     if (b.includes('energetico')) { this.powerTime = 6.7; this.mogsIn67 = 0; Music.play('poder67'); say.push('⚡ SIX SEVEN'); }
     if (say.length) this.time.delayedCall(900, () => this.floatText(this.player.x, this.player.y - 70, say.join('  ·  '), '#ffe9a0', 16));
@@ -1983,8 +1983,9 @@ class GameScene extends Phaser.Scene {
     out(rays);
 
     // ícone gigante, título e legenda
-    const icon = add(this.add.text(cx, cy, d.icon, { fontSize: '96px' })).setOrigin(0.5).setScale(0.1).setAngle(-25);
-    this.tweens.add({ targets: icon, scale: 1, angle: 0, duration: 300, ease: 'Back.out' });
+    const useTex = d.tex && this.textures.exists(d.tex), S = useTex ? 96 / Math.max(this.textures.getFrame(d.tex).width, this.textures.getFrame(d.tex).height) * 1.35 : 1;
+    const icon = useTex ? add(this.add.image(cx, cy, d.tex)).setScale(0.1).setAngle(-25) : add(this.add.text(cx, cy, d.icon, { fontSize: '96px' })).setOrigin(0.5).setScale(0.1).setAngle(-25);
+    this.tweens.add({ targets: icon, scale: S, angle: 0, duration: 300, ease: 'Back.out' });
     this.tweens.add({ targets: icon, angle: { from: -6, to: 6 }, delay: 320, duration: 120, yoyo: true, repeat: 3 });
     const title = add(this.add.text(cx, cy + 82, d.title, { ...textStyle(44, d.color), strokeThickness: 8 })).setOrigin(0.5).setScale(0.2);
     this.tweens.add({ targets: title, scale: 1, duration: 280, delay: 90, ease: 'Back.out' });
@@ -1996,7 +1997,7 @@ class GameScene extends Phaser.Scene {
     const n = Settings.get('fx') === 'leve' ? 6 : 12;
     for (let i = 0; i < n; i++) {
       const e = d.gagIcons[i % d.gagIcons.length];
-      const t = add(this.add.text(0, 0, e, { fontSize: '30px' })).setOrigin(0.5).setAlpha(0).setDepth(141);
+      const t = (this.textures.exists(e) ? add(this.add.image(0, 0, e).setScale(1.6)) : add(this.add.text(0, 0, e, { fontSize: '30px' }))).setOrigin(0.5).setAlpha(0).setDepth(141);
       const delay = 60 + i * 55, a = (i / n) * Math.PI * 2;
       if (d.gag === 'chuva') {
         t.setPosition(60 + Math.random() * (VIEW_W - 120), 40);

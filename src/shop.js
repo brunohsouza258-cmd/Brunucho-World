@@ -19,7 +19,7 @@ const SHOPS = [
     items: [
       { id: 'coxinha', kind: 'stock', icon: '🍗', name: 'Coxinha', desc: '+1 vida na próxima fase', price: 50 },
       { id: 'paodequeijo', kind: 'stock', icon: '🧀', name: 'Pão de queijo', desc: 'Começa a próxima fase com escudo de aura', price: 40 },
-      { id: 'churros', kind: 'stock', icon: '🍫', name: 'Churros', desc: 'Começa a próxima fase grandão (aguenta 1 golpe)', price: 60 },
+      { id: 'churros', kind: 'stock', icon: '🥖', name: 'Churros', desc: 'Começa a próxima fase grandão (aguenta 1 golpe)', price: 60 },
       { id: 'caldo', kind: 'stock', icon: '🥤', name: 'Caldo de cana', desc: 'Ímã de moedas por 12 s no começo da fase', price: 30 },
     ] },
   { id: 'sapataria', name: 'Sapataria Pé de Ouro', icon: '👟', wall: 0x78a9dc, trim: 0x3f6ea8, awning: [0x1f5fbf, 0xffffff], greet: 'Calçado bom é calçado que não deixa na mão!',

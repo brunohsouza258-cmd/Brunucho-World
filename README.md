@@ -197,7 +197,7 @@ Os inimigos que andam agora **percebem você** (campo de visão, sem parede no m
 
 - **67**: modo *six seven* por **6,7 segundos**: invencível, mais rápido, pula mais alto e derruba inimigo só de encostar.
 - **Aura**: escudo brilhante que aguenta **um golpe**.
-- **Churros** 🍬: o Brunucho fica **grandão (1,5×)** e ganha **1 golpe extra**: se for atingido, ele só encolhe (e fica uns
+- **Churros** 🥖: o Brunucho fica **grandão (1,5×)** e ganha **1 golpe extra**: se for atingido, ele só encolhe (e fica uns
   2 segundos invencível) em vez de perder uma vida. Grandão também **derruba inimigo duro numa pisada só**. Cair no
   buraco continua matando. Tem pelo menos 1 em cada fase (2 nas mais longas).
 - **Coxinha** 🍗: +1 vida.
@@ -343,7 +343,7 @@ letras têm um tamanho mínimo para dar pra ler. A largura é calculada em `VIEW
 ### Cenas dos poderes
 
 Ao pegar um poder o jogo congela por **1 segundo** numa ceninha: faixas de cinema, raios girando, ícone gigante, título e uma
-legenda engraçada, com emojis caindo/subindo/sendo sugados (*Six Seven*, *Aura*, *Olhar de Mil Jardas*, *Anjo Caído*, *Churros*,
+legenda engraçada, com o **desenho do próprio item** (o mesmo sprite que aparece na fase: churros dourado com sulcos e açúcar, coxinha, tênis, ímã, olho, anjo...) caindo/subindo/sendo sugado (*Six Seven*, *Aura*, *Olhar de Mil Jardas*, *Anjo Caído*, *Churros*,
 *Coxinha*, *Tênis de Mola* e *Ímã*). Dá pra desligar em Opções > *Cenas dos poderes*. Os textos ficam em `POWER_SCENES`, no `src/scenes/Game.js`.
 
 ## Estrutura
