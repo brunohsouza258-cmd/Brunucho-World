@@ -1157,6 +1157,14 @@ function drawPlayer(g, o, pose = 'idle') {
     g.fillRect(2, 3, 6, 19); g.fillRoundedRect(2, 18, 6, 6, 2);
     g.fillStyle(c.hairDark); g.fillRect(3, 8, 2, 12); g.fillRect(9, 5, 9, 1);
     g.fillStyle(c.hairLight); g.fillRect(9, 0, 8, 2);
+  } else if (hs === 'trancas') {                       // tranças longas (box braids): caem atrás e uma mecha de lado sobre o ombro, pontas onduladas
+    g.fillStyle(c.hair);
+    g.fillRoundedRect(4, -1, 19, 8, 4); g.fillRect(8, 3, 14, 3);
+    g.fillRect(1, 3, 7, 24); g.fillRect(21, 6, 4, 24);
+    for (let y = 8; y < 28; y += 4) { g.fillStyle(c.hairDark); g.fillRect(2, y, 1, 2); g.fillRect(5, y + 1, 1, 2); g.fillRect(22, y, 1, 2); g.fillRect(24, y + 1, 1, 2); }
+    g.fillStyle(c.hair); [[0, 26], [3, 28], [6, 27], [21, 30], [24, 31], [23, 28]].forEach(([x, y]) => g.fillCircle(x + 1, y, 1.8));
+    g.fillStyle(c.hairLight); g.fillRect(9, 0, 8, 2); g.fillRect(10, 4, 8, 1);
+    g.fillStyle(c.hairDark); g.fillRect(14, 1, 1, 5);                                // risca do cabelo
   } else if (hs === 'coque') {                         // cabelo preso num coque no alto, com cachinhos soltos na frente
     g.fillStyle(c.hair);
     g.fillRoundedRect(4, 0, 19, 7, 3); g.fillRect(4, 4, 4, 8);
@@ -1168,6 +1176,7 @@ function drawPlayer(g, o, pose = 'idle') {
     g.fillStyle(c.skinDark); g.fillRect(5, 3, 18, 1);
     g.fillStyle(0xffffff, 0.35); g.fillRect(9, 3, 6, 1);
   }
+  if (o.necklace) { g.fillStyle(o.necklace); g.fillRect(10, 17, 1, 3); g.fillRect(18, 17, 1, 3); g.fillRect(11, 20, 7, 1); g.fillRect(14, 21, 2, 2); }   // colar com pingente
   if (o.choker) { g.fillStyle(o.choker); g.fillRect(9, 16, 10, 1); }   // gargantilha
   if (o.hairFlower) {                                  // flor no cabelo (carimbó)
     g.fillStyle(o.hairFlower); [[12, -1], [10, 1], [14, 1], [12, 3], [11, 0]].forEach(([x, y]) => g.fillCircle(x, y, 2));

@@ -577,7 +577,7 @@ class GameScene extends Phaser.Scene {
       ab.text = this.add.text(ab.x, ab.y, '🌀', textStyle(34)).setOrigin(0.5).setScrollFactor(0).setDepth(201);
       this.abilityBtn = ab;
       this.touchBtns.push(ab);
-      if (this.ability.id === 'tiro') ab.text.setText('🔫');
+      ab.text.setText(this.abIcon());
     }
     if (this.ability2) {
       const ab2 = { key: 'ability2', x: VIEW_W - 336, y: 466, r: 44 };
@@ -944,7 +944,7 @@ class GameScene extends Phaser.Scene {
     Storage.set('pp_jogou_com', [...used]);
     if (FRIEND_KEYS.every((k) => used.has(k))) Achievements.unlock('jogou_turma');
     const pk = o.perk || o.ability;
-    if (pk) this.time.delayedCall(1500, () => this.floatText(this.player.x, this.player.y - 60, `${o.ability ? '🌀' : '⚡'} ${pk.name}: ${pk.desc}`, '#9ff0ff', 16));
+    if (pk) this.time.delayedCall(1500, () => this.floatText(this.player.x, this.player.y - 60, `${o.ability ? (o.ability.icon || '🌀') : '⚡'} ${pk.name}: ${pk.desc}`, '#9ff0ff', 16));
   }
 
   // Frase do amigo ao pegar um poder (espera a ceninha do poder acabar)
@@ -1156,7 +1156,28 @@ class GameScene extends Phaser.Scene {
   }
 
   // ---- Poder ativo: Saia Rodada da Lara. Gira e lança uma rajada (a saia) que acerta o inimigo de longe ----
-  abIcon() { return this.ability.id === 'tiro' ? '🔫' : '🌀'; }
+  abIcon() { return this.ability.icon || (this.ability.id === 'tiro' ? '🔫' : '🌀'); }
+
+  // Bianca: flash de foto. Todo inimigo na tela vira "fã": fica parado, rosado, inofensivo (dá pra pisar) e rende pontos
+  fireFlash() {
+    const cam = this.cameras.main, view = cam.worldView, now = this.time.now;
+    cam.flash(260, 255, 255, 255);
+    let fans = 0;
+    this.enemies.children.iterate((e) => {
+      if (!e || e.dead || e.moto || e.eva) return;
+      if (e.x < view.x - 40 || e.x > view.right + 40) return;
+      e.stunUntil = now + 4000; e.setTint(0xffa8d0); fans++;
+      this.floatText(e.x, e.y - e.displayHeight / 2 - 12, '❤', '#ff6ea8', 22);
+      this.addScore(50);
+      this.fxParty.explode(6, e.x, e.y);
+    });
+    const pb = this.player.body;
+    this.fxParty.explode(14, pb.center.x, pb.center.y - 10);
+    this.floatText(pb.center.x, pb.top - 24, fans ? `📸 ${fans} fã${fans > 1 ? 's' : ''}!` : '📸 click!', '#ffd0e4', 20);
+    Sfx.tone(1800, 0.05, { type: 'square', vol: 0.06 });
+    Sfx.tone(900, 0.12, { type: 'triangle', to: 1500, vol: 0.05, delay: 0.06 });
+    if (fans >= 3) Achievements.unlock('flash');
+  }
 
   // Ana Júlia: tiro reto da pistola
   fireTiro() {
@@ -1186,6 +1207,7 @@ class GameScene extends Phaser.Scene {
     if (this.dead || this.finished || this.sceneT > 0) return;
     this.abilityCd = this.ability.cooldown;
     if (this.ability.id === 'tiro') return this.fireTiro();
+    if (this.ability.id === 'flash') return this.fireFlash();
     const dir = this.facing >= 0 ? 1 : -1;
     const pb = this.player.body;
     const s = this.skirtShots.create(pb.center.x + dir * 18, pb.center.y - 2, 'saia_rajada');
@@ -1238,6 +1260,15 @@ class GameScene extends Phaser.Scene {
         if (!b.allowGravity) e.setVelocityY(0);
         if (e.anims && e.anims.isPlaying) e.anims.pause();
         return;
+      }
+      if (e.stunUntil) {                                   // fã da Bianca: parado até o tempo acabar
+        if (this.time.now < e.stunUntil) {
+          e.setVelocityX(0);
+          if (!b.allowGravity) e.setVelocityY(0);
+          if (e.anims && e.anims.isPlaying) e.anims.pause();
+          return;
+        }
+        e.stunUntil = 0; e.clearTint();
       }
       if (e.anims && e.anims.isPaused) e.anims.resume();
       const dx = pb.center.x - b.center.x;
@@ -1529,6 +1560,8 @@ class GameScene extends Phaser.Scene {
     if (this.dead || enemy.dead) return;
     const pb = player.body;
     const eb = enemy.body;
+    const stomping = pb.velocity.y > 0 && pb.bottom <= eb.top + 12;
+    if (enemy.stunUntil > this.time.now && !stomping && !(this.powerTime > 0)) return;       // fã hipnotizado não machuca
     if (this.powerTime > 0 && !enemy.moto && !enemy.eva) {
       // No modo 67 é só encostar (menos nos chefões Paraíba e Eva)
       this.defeatEnemy(enemy, true);

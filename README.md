@@ -76,7 +76,7 @@ música da intro, de vitória e de game over. As notas ficam em `SONGS` e dá pr
 
 ### Conquistas
 
-**69 conquistas**, como *Fugiu da Chinelada*, *Mogador Serial*, *Haja Coração!*, *Foi Pênalti?*, *Sigma do Combo*,
+**70 conquistas**, como *Fugiu da Chinelada*, *Mogador Serial*, *Haja Coração!*, *Foi Pênalti?*, *Sigma do Combo*,
 *Atropelamento 67*, *A Andreia Te Achou* e *Modo Andreia* (zerar no Difícil). Aparece um aviso na tela quando desbloqueia
 e dá pra ver todas no menu. A lista fica em `src/achievements.js`.
 
@@ -277,7 +277,7 @@ em `SHOPS` e `Shop`, no `src/shop.js`. Conquistas novas: *Turista em Cotia*, *Cl
 ### Amigos (personagens jogáveis)
 
 No guarda-roupa (**ROUPA** no menu) há duas abas: **ROUPAS** (os 10 looks do Brunucho) e **AMIGOS**, com personagens jogáveis feitos a partir
-de fotos de amigos, com o nome aparecendo em cima deles. O Brunucho continua sendo o protagonista da história. Amigos atuais: **Stanley**, **Biel** (Gabriel Silva, corpo magrinho) , **Yan**, **Pedro** (de cowboy), **Arthur** (alto, de fone no ouvido e pulseira vermelha) **Lara** (a "irmã" do Brunucho: cabelo preso num coque, flor no cabelo e saia rodada de carimbó) e **Ana Júlia** (exploradora estilo Lara Croft, com coldre, tocha e pistola).
+de fotos de amigos, com o nome aparecendo em cima deles. O Brunucho continua sendo o protagonista da história. Amigos atuais: **Stanley**, **Biel** (Gabriel Silva, corpo magrinho) , **Yan**, **Pedro** (de cowboy), **Arthur** (alto, de fone no ouvido e pulseira vermelha) **Lara** (a "irmã" do Brunucho: cabelo preso num coque, flor no cabelo e saia rodada de carimbó) **Ana Júlia** (exploradora estilo Lara Croft, com coldre, tocha e pistola) e **Bianca** (tranças longas, regata rosa e pose de story).
 Pra adicionar um amigo, crie uma entrada em `FRIENDS`, no `src/config.js` (cores, `hairStyle`, `beard`, `glasses`, `cap`, `thickBrows`, `slim`, `pants`, `smile`, `hoodie`, `cowboy`, `plaid`, `earbuds`, `bracelet`, `chestPrint`, `tall` (boneco mais alto)...).
 As fotos **não** vão pro repositório, só o desenho pixelado.
 
@@ -293,6 +293,11 @@ Cada amigo tem um **poder** (aparece no guarda-roupa e no começo da fase) e uma
 | Lara | **Saia Rodada** (poder ativo, veja abaixo) | "Gira, gira, saia rodada!" |
 
 | Ana Júlia | **Tiro** (X) e **Tocha** (C), poderes ativos | "Cuidado aí, seu boot! Vai tomar um putufão!" |
+
+| Bianca | **Flash do Story** (poder ativo) | "Sorria pra foto! Posta no story!" |
+
+**Poder ativo da Bianca — Flash do Story:** aperte **X** (botão 📸 no celular). A tela pisca como flash de câmera e **todo inimigo que está na tela vira "fã"**:
+fica parado, rosado, com um ❤, **não machuca** (e ainda dá para pisar) por 4 segundos, e cada fã rende 50 pontos. Chefões não são afetados. Recarga de 7 s. Conquista *Digna de Story* (3 fãs de uma vez).
 
 **Poderes ativos da Ana Júlia:** **X** (botão 🔫 no celular) dá um **tiro** reto e rápido de pistola (recarga 0,8 s); **C** (botão 🔥) arremessa uma **tocha acesa em arco** (recarga 2,3 s).
 Ambos derrubam o inimigo de longe (os duros perdem 1 de vida; chefões só levam um susto). No controle: Y/△ = tiro, LB/L1 = tocha. Conquista *Tomb Raider de Cotia*.

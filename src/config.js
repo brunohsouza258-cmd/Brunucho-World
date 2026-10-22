@@ -269,6 +269,12 @@ const FRIENDS = {
       shirt: 0x2f9e8a, shirtDark: 0x1f7a69, shorts: 0x7a5230, shortsDark: 0x573a20 },
     hairStyle: 'longo', choker: 0x1b1b20, holster: true, bandolier: 0x5a3a1e, torch: true, shoes: 0x3a2a1a,
   },
+  bianca: {
+    name: 'Bianca', who: 'Bianca', desc: 'Pose de story! Tranças longas, regata rosa, shorts branco, colar e pulseirinhas. Tira foto até do inimigo.',
+    colors: { hair: 0x2b1a12, hairDark: 0x120a06, hairLight: 0x4f3426, skin: 0x7b4a33, skinDark: 0x5c3523,
+      shirt: 0xf4a6b8, shirtDark: 0xd9809a, shorts: 0xfbf7f0, shortsDark: 0xdcd5c6 },
+    hairStyle: 'trancas', necklace: 0xe8c860, bracelet: 0xf0e6c8, shoes: 0xf0e6d0,
+  },
 };
 // Frase (dublável na tela Minha voz) e poder de cada amigo. perk: speed (corre mais) · jump (pula mais) · coin (moeda vale mais) · magnet (puxa moedas, em pixels)
 const FRIEND_EXTRA = {
@@ -280,6 +286,8 @@ const FRIEND_EXTRA = {
   anajulia: { phrase: 'Cuidado aí, seu boot! Vai tomar um putufão!', pitch: 1.25,
     ability: { id: 'tiro', name: 'Tiro', desc: 'X: tiro reto e rápido', cooldown: 0.8 },
     ability2: { id: 'tocha', name: 'Tocha', desc: 'C: tocha acesa em arco', cooldown: 2.3 } },
+  bianca:  { phrase: 'Sorria pra foto! Posta no story!', pitch: 1.3,
+    ability: { id: 'flash', icon: '📸', name: 'Flash do Story', desc: 'X: flash! Inimigos na tela viram fãs parados', cooldown: 7 } },
   arthur:  { phrase: 'Aqui de cima eu vejo tudo!', pitch: 0.85, perk: { name: 'Piadista', desc: '+1 s de proteção ao renascer (todo mundo ri)', respawnInvuln: 1 } },
 };
 Object.keys(FRIENDS).forEach((k) => { OUTFITS[k] = { ...FRIENDS[k], ...(FRIEND_EXTRA[k] || {}), friend: true }; });
