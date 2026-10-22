@@ -1157,6 +1157,13 @@ function drawPlayer(g, o, pose = 'idle') {
     g.fillRect(2, 3, 6, 19); g.fillRoundedRect(2, 18, 6, 6, 2);
     g.fillStyle(c.hairDark); g.fillRect(3, 8, 2, 12); g.fillRect(9, 5, 9, 1);
     g.fillStyle(c.hairLight); g.fillRect(9, 0, 8, 2);
+  } else if (hs === 'rabo') {                          // cabelo preso num rabo de cavalo alto, balançando atrás (estilo Lara Croft)
+    g.fillStyle(c.hair);
+    g.fillRoundedRect(4, -1, 19, 8, 4); g.fillRect(4, 4, 4, 8);
+    g.fillRect(1, 1, 5, 4); g.fillRoundedRect(-2, 3, 5, 18, 2); g.fillCircle(0, 21, 2.4);
+    g.fillStyle(c.hairDark); g.fillRect(0, 6, 1, 12); g.fillRect(14, 1, 1, 5);
+    g.fillStyle(c.hairLight); g.fillRect(9, 0, 8, 2);
+    g.fillStyle(0xd62828); g.fillRect(2, 2, 3, 2);                                     // elástico
   } else if (hs === 'trancas') {                       // tranças longas (box braids): caem atrás e uma mecha de lado sobre o ombro, pontas onduladas
     g.fillStyle(c.hair);
     g.fillRoundedRect(4, -1, 19, 8, 4); g.fillRect(8, 3, 14, 3);

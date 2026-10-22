@@ -264,10 +264,10 @@ const FRIENDS = {
     skirt: { color: 0xe0314b, ribbon1: 0xffd23f, ribbon2: 0x2ecc71, hem: 0xffd23f },
   },
   anajulia: {
-    name: 'Ana Júlia', who: 'Ana Júlia', desc: 'Exploradora estilo Lara Croft: cabelo longo, gargantilha, coldre, tocha acesa e pistola. Cuidado aí, seu boot. Senão você vai tomar um putufão.',
-    colors: { hair: 0xa87a4e, hairDark: 0x7d5632, hairLight: 0xc9a074, skin: 0xf0cbae, skinDark: 0xd3a888,
+    name: 'Ana Júlia', who: 'Ana Júlia', desc: 'Estilo Lara Croft: rabo de cavalo, coldre, tocha e pistola. Cuidado aí, seu boot. Senão você vai tomar um putufão.',
+    colors: { hair: 0x4a3020, hairDark: 0x2e1c12, hairLight: 0x6a4630, skin: 0xf0cbae, skinDark: 0xd3a888,
       shirt: 0x2f9e8a, shirtDark: 0x1f7a69, shorts: 0x7a5230, shortsDark: 0x573a20 },
-    hairStyle: 'longo', choker: 0x1b1b20, holster: true, bandolier: 0x5a3a1e, torch: true, shoes: 0x3a2a1a,
+    hairStyle: 'rabo', choker: 0x1b1b20, holster: true, bandolier: 0x5a3a1e, torch: true, shoes: 0x3a2a1a,
   },
   bianca: {
     name: 'Bianca', who: 'Bianca', desc: 'Pose de story! Tranças longas, regata rosa, shorts branco, colar e pulseirinhas. Tira foto até do inimigo.',
