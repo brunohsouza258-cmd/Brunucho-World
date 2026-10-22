@@ -618,6 +618,21 @@ function generateTextures(scene) {
     g.fillStyle(0xff7a9a); g.fillRect(8, 16, 2, 2);
     g.lineStyle(1, 0x6b3a1f); g.lineBetween(14, 8, 21, 2); g.lineBetween(0, 17, 5, 17);
   });
+  // Bala da pistola da Ana Júlia
+  make('bala', 14, 6, (g) => {
+    g.fillStyle(0xfff3b0, 0.5); g.fillRect(0, 2, 9, 2);
+    g.fillStyle(0xffd23f); g.fillRoundedRect(6, 1, 8, 4, 2);
+    g.fillStyle(0xffffff); g.fillRect(10, 2, 3, 1);
+  });
+  // Tocha arremessada
+  make('tocha_arremesso', 30, 30, (g) => {
+    g.fillStyle(0x6a4524); g.fillRect(13, 14, 4, 15);
+    g.fillStyle(0x4a2f16); g.fillRect(13, 22, 4, 2);
+    g.fillStyle(0xe8541a); g.fillCircle(15, 9, 8);
+    g.fillStyle(0xff9a1a); g.fillCircle(15, 8, 6);
+    g.fillStyle(0xffd23f); g.fillCircle(15, 8, 3.8);
+    g.fillStyle(0xfff6c0); g.fillCircle(15, 8, 1.8);
+  });
   // Rajada da saia (poder da Lara): a saia vista de cima, girando, com babadinhos
   make('saia_rajada', 28, 28, (g) => {
     g.fillStyle(0xe0314b); g.fillCircle(14, 14, 13);
@@ -856,7 +871,7 @@ const OUTLINE_PREFIXES = ['player_', 'neymar', 'galvao', 'caze', 'ednaldo', 'lul
   'capivara', 'tralalero', 'tungtung', 'slime', 'crab', 'pombo', 'bombardiro', 'patapim', 'bananini', 'lirili',
   'ballerina', 'coin', 'coxinha', 'tenis', 'ima', 'heart', 'gol_ball', 'picanha', 'ovo', 'bomba', 'pw_olhar', 'pw_anjo',
   'goal', 'cp_', 'mola', 'chinelo', 'plataforma', 'cacto', 'skibidi', 'doge', 'nyan', 'gigachad', 'nazare', 'gota', 'churros',
-  'rato', 'troll', 'pilili', 'cappuccino', 'trippi', 'paraiba_moto', 'dardo', 'eva', 'giz', 'errado', 'saia_rajada'];
+  'rato', 'troll', 'pilili', 'cappuccino', 'trippi', 'paraiba_moto', 'dardo', 'eva', 'giz', 'errado', 'saia_rajada', 'bala', 'tocha_arremesso'];
 
 function outlineSprites(scene) {
   for (const key of scene.textures.getTextureKeys()) {
@@ -1019,6 +1034,13 @@ function drawPlayer(g, o, pose = 'idle') {
     if (o.sideStripe) { g.fillStyle(o.sideStripe); g.fillRect(5, 26, 1, 5); g.fillRect(20, 26, 1, 5); }
   }
 
+  if (o.holster) {                                     // cinto + coldre na coxa com a pistola
+    g.fillStyle(0x5a3a1e); g.fillRect(4 + sl * 2, 24, 18 - sl * 4, 2);
+    g.fillStyle(0xfff3b0); g.fillRect(12, 24, 3, 2);
+    g.fillStyle(0x6a4524); g.fillRect(17, 25, 4, 7); g.fillStyle(0x2b2b30); g.fillRect(18, 24, 3, 3);       // coldre + cabo da arma
+    g.fillStyle(0x4a2f16); g.fillRect(17, 29, 4, 1);
+  }
+
   // blusa / camisa / paletó
   g.fillStyle(c.shirt); g.fillRoundedRect(4 + sl * 2, 16, 18 - sl * 4, 10, 3);
   g.fillStyle(c.shirtDark); g.fillRect(4 + sl * 2, 24, 18 - sl * 4, 2);
@@ -1057,6 +1079,7 @@ function drawPlayer(g, o, pose = 'idle') {
     if (o.badge.letter) LETTERS[o.badge.letter].forEach((row, r) => [...row].forEach((ch, k) => { if (ch === 'X') g.fillRect(15 + k, 19 + r, 1, 1); }));
     else { g.fillRect(15, 20, 3, 3); }
   }
+  if (o.bandolier) { g.fillStyle(o.bandolier); for (let i = 0; i < 6; i++) g.fillRect(5 + i * 2, 17 + i, 3, 2); }   // tira de munição em diagonal
   if (o.belt) { g.fillStyle(o.belt); g.fillRect(4, 24, 18, 2); g.fillStyle(0xfff3b0); g.fillRect(12, 24, 3, 2); }
 
   // braço da frente
@@ -1064,6 +1087,13 @@ function drawPlayer(g, o, pose = 'idle') {
   g.fillStyle(lower); g.fillRect(19 - sl * 2, 21 + P.arm, 5 - sl, 3);
   if (o.trim) { g.fillStyle(o.trim); g.fillRect(19 - sl * 2, 20 + P.arm, 5 - sl, 1); }       // barrinha na ponta da manga
   g.fillStyle(c.skin); g.fillRect(20 - sl * 2, 24 + P.arm, 4 - sl, 3);
+  if (o.torch) {                                       // tocha acesa na mão da frente
+    const tx = 23 - sl * 2, ty = 20 + P.arm;
+    g.fillStyle(0x6a4524); g.fillRect(tx, ty - 2, 2, 9);
+    g.fillStyle(0xff7a1a); g.fillCircle(tx + 1, ty - 4, 3.5);
+    g.fillStyle(0xffd23f); g.fillCircle(tx + 1, ty - 4, 2);
+    g.fillStyle(0xfff6c0); g.fillCircle(tx + 1, ty - 3.5, 0.9);
+  }
   if (o.bracelet) { g.fillStyle(o.bracelet); g.fillRect(19 - sl * 2, 23 + P.arm, 5 - sl, 2); }     // pulseira no pulso
 
   // cabeça
@@ -1138,6 +1168,7 @@ function drawPlayer(g, o, pose = 'idle') {
     g.fillStyle(c.skinDark); g.fillRect(5, 3, 18, 1);
     g.fillStyle(0xffffff, 0.35); g.fillRect(9, 3, 6, 1);
   }
+  if (o.choker) { g.fillStyle(o.choker); g.fillRect(9, 16, 10, 1); }   // gargantilha
   if (o.hairFlower) {                                  // flor no cabelo (carimbó)
     g.fillStyle(o.hairFlower); [[12, -1], [10, 1], [14, 1], [12, 3], [11, 0]].forEach(([x, y]) => g.fillCircle(x, y, 2));
     g.fillStyle(0xffd23f); g.fillCircle(12, 1, 1.2);

@@ -76,7 +76,7 @@ música da intro, de vitória e de game over. As notas ficam em `SONGS` e dá pr
 
 ### Conquistas
 
-**68 conquistas**, como *Fugiu da Chinelada*, *Mogador Serial*, *Haja Coração!*, *Foi Pênalti?*, *Sigma do Combo*,
+**69 conquistas**, como *Fugiu da Chinelada*, *Mogador Serial*, *Haja Coração!*, *Foi Pênalti?*, *Sigma do Combo*,
 *Atropelamento 67*, *A Andreia Te Achou* e *Modo Andreia* (zerar no Difícil). Aparece um aviso na tela quando desbloqueia
 e dá pra ver todas no menu. A lista fica em `src/achievements.js`.
 
@@ -277,7 +277,7 @@ em `SHOPS` e `Shop`, no `src/shop.js`. Conquistas novas: *Turista em Cotia*, *Cl
 ### Amigos (personagens jogáveis)
 
 No guarda-roupa (**ROUPA** no menu) há duas abas: **ROUPAS** (os 10 looks do Brunucho) e **AMIGOS**, com personagens jogáveis feitos a partir
-de fotos de amigos, com o nome aparecendo em cima deles. O Brunucho continua sendo o protagonista da história. Amigos atuais: **Stanley**, **Biel** (Gabriel Silva, corpo magrinho) , **Yan**, **Pedro** (de cowboy), **Arthur** (alto, de fone no ouvido e pulseira vermelha) e **Lara** (a "irmã" do Brunucho: cabelo preso num coque, flor no cabelo e saia rodada de carimbó).
+de fotos de amigos, com o nome aparecendo em cima deles. O Brunucho continua sendo o protagonista da história. Amigos atuais: **Stanley**, **Biel** (Gabriel Silva, corpo magrinho) , **Yan**, **Pedro** (de cowboy), **Arthur** (alto, de fone no ouvido e pulseira vermelha) **Lara** (a "irmã" do Brunucho: cabelo preso num coque, flor no cabelo e saia rodada de carimbó) e **Ana Júlia** (exploradora estilo Lara Croft, com coldre, tocha e pistola).
 Pra adicionar um amigo, crie uma entrada em `FRIENDS`, no `src/config.js` (cores, `hairStyle`, `beard`, `glasses`, `cap`, `thickBrows`, `slim`, `pants`, `smile`, `hoodie`, `cowboy`, `plaid`, `earbuds`, `bracelet`, `chestPrint`, `tall` (boneco mais alto)...).
 As fotos **não** vão pro repositório, só o desenho pixelado.
 
@@ -291,6 +291,11 @@ Cada amigo tem um **poder** (aparece no guarda-roupa e no começo da fase) e uma
 | Pedro | **Galope**: corre 10% mais rápido | "Cowboy vai te pegar!" |
 | Arthur | **Piadista**: +1 s de proteção ao renascer (todo mundo ri) | "Aqui de cima eu vejo tudo!" |
 | Lara | **Saia Rodada** (poder ativo, veja abaixo) | "Gira, gira, saia rodada!" |
+
+| Ana Júlia | **Tiro** (X) e **Tocha** (C), poderes ativos | "Cuidado aí, seu boot! Vai tomar um putufão!" |
+
+**Poderes ativos da Ana Júlia:** **X** (botão 🔫 no celular) dá um **tiro** reto e rápido de pistola (recarga 0,45 s); **C** (botão 🔥) arremessa uma **tocha acesa em arco** (recarga 1,5 s).
+Ambos derrubam o inimigo de longe (os duros perdem 1 de vida; chefões só levam um susto). No controle: Y/△ = tiro, LB/L1 = tocha. Conquista *Tomb Raider de Cotia*.
 
 **Poder ativo da Lara — Saia Rodada:** aperte **X** (ou **Z/K**; no celular o botão **🌀** ao lado do pulo; no controle o botão Y/△ ou R1/RB).
 Ela gira e lança uma **rajada da saia** (vermelha, com fitas amarela e verde) que voa uns 350 px e derruba o inimigo de longe, além de apagar os tiros

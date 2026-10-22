@@ -263,6 +263,12 @@ const FRIENDS = {
     hairStyle: 'coque', hairFlower: 0xe0314b, shoes: 'chinelo', collar: 0xf0e6c8,
     skirt: { color: 0xe0314b, ribbon1: 0xffd23f, ribbon2: 0x2ecc71, hem: 0xffd23f },
   },
+  anajulia: {
+    name: 'Ana Júlia', who: 'Ana Júlia', desc: 'Exploradora estilo Lara Croft: cabelo longo, gargantilha, coldre, tocha acesa e pistola. Cuidado aí, seu boot. Senão você vai tomar um putufão.',
+    colors: { hair: 0xa87a4e, hairDark: 0x7d5632, hairLight: 0xc9a074, skin: 0xf0cbae, skinDark: 0xd3a888,
+      shirt: 0x2f9e8a, shirtDark: 0x1f7a69, shorts: 0x7a5230, shortsDark: 0x573a20 },
+    hairStyle: 'longo', choker: 0x1b1b20, holster: true, bandolier: 0x5a3a1e, torch: true, shoes: 0x3a2a1a,
+  },
 };
 // Frase (dublável na tela Minha voz) e poder de cada amigo. perk: speed (corre mais) · jump (pula mais) · coin (moeda vale mais) · magnet (puxa moedas, em pixels)
 const FRIEND_EXTRA = {
@@ -271,6 +277,9 @@ const FRIEND_EXTRA = {
   yan:     { phrase: 'Sorria, você foi moggado!', pitch: 0.8, perk: { name: 'Sorrisão', desc: 'moedas valem 50% mais', coin: 1.5 } },
   pedro:   { phrase: 'Cowboy vai te pegar!', pitch: 1.0, perk: { name: 'Galope', desc: 'corre 10% mais rápido', speed: 1.1 } },
   lara:    { phrase: 'Gira, gira, saia rodada!', pitch: 1.35, ability: { id: 'saia', name: 'Saia Rodada', desc: 'X ou 🌀: rajada da saia que acerta de longe', cooldown: 1.3 } },
+  anajulia: { phrase: 'Cuidado aí, seu boot! Vai tomar um putufão!', pitch: 1.25,
+    ability: { id: 'tiro', name: 'Tiro', desc: 'X: tiro reto e rápido', cooldown: 0.45 },
+    ability2: { id: 'tocha', name: 'Tocha', desc: 'C: tocha acesa em arco', cooldown: 1.5 } },
   arthur:  { phrase: 'Aqui de cima eu vejo tudo!', pitch: 0.85, perk: { name: 'Piadista', desc: '+1 s de proteção ao renascer (todo mundo ri)', respawnInvuln: 1 } },
 };
 Object.keys(FRIENDS).forEach((k) => { OUTFITS[k] = { ...FRIENDS[k], ...(FRIEND_EXTRA[k] || {}), friend: true }; });

@@ -18,9 +18,10 @@
     left: ['ArrowLeft', 'ArrowLeft', 37],
     right: ['ArrowRight', 'ArrowRight', 39],
     power: ['x', 'KeyX', 88],
+    power2: ['c', 'KeyC', 67],
   };
   // número do botão no padrão "standard" dos navegadores → tecla
-  const BUTTONS = { 0: 'space', 2: 'space', 1: 'back', 3: 'power', 5: 'power', 9: 'esc', 12: 'up', 13: 'down', 14: 'left', 15: 'right' };
+  const BUTTONS = { 0: 'space', 2: 'space', 1: 'back', 3: 'power', 5: 'power', 4: 'power2', 7: 'power2', 9: 'esc', 12: 'up', 13: 'down', 14: 'left', 15: 'right' };
 
   const down = {};      // fonte (botão/eixo) → apertado?
   const keyCount = {};  // tecla → quantas fontes estão segurando

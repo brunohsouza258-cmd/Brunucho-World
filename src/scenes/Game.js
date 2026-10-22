@@ -57,7 +57,8 @@ class GameScene extends Phaser.Scene {
       magnet: Math.max(fp.magnet || 0, sp.magnet), respawnInvuln: (fp.respawnInvuln || 0) + sp.respawnInvuln };
     this.heroK = heroScale();                          // boneco alto (Arthur): o desenho aumenta, a colisão não
     this.ability = OUTFITS[currentOutfit()].ability || null;   // poder ATIVO do amigo (ex.: a Saia Rodada da Lara), usado com X ou o botão 🌀
-    this.abilityCd = 0; this.abilityQueued = false; this.twirlUntil = 0;
+    this.ability2 = OUTFITS[currentOutfit()].ability2 || null;   // segundo poder (Ana Júlia: tocha), tecla C / botão 🔥
+    this.abilityCd = 0; this.abilityQueued = false; this.twirlUntil = 0; this.ability2Cd = 0; this.ability2Queued = false;
     // Consumíveis comprados valem para esta fase (no reinício da fase eles voltam, sem gastar de novo)
     this.buffs = data.buffs || Shop.takeBuffs();
     if (!data.buffs && this.buffs.includes('coxinha')) this.stats.lives++;
@@ -100,7 +101,7 @@ class GameScene extends Phaser.Scene {
     this.powerTime = 0;   // tempo restante do modo 67
     this.hasAura = false; // escudo de aura ativo
     this.invuln = 0;      // segundos piscando depois de perder a aura
-    this.touch ={ left: false, right: false, jump: false, jumpPressed: false, ability: false, abilityPressed: false };
+    this.touch ={ left: false, right: false, jump: false, jumpPressed: false, ability: false, abilityPressed: false, ability2: false, ability2Pressed: false };
   }
 
   create() {
@@ -377,6 +378,7 @@ class GameScene extends Phaser.Scene {
     this.sceneT = 0;                    // > 0: cena de poder rolando (jogo congelado)
     this.restartQueued = false;         // R: também pelo evento da tecla, pra batida rápida não se perder
     this.input.keyboard.on('keydown-R', (ev) => { if (!ev.repeat) this.restartQueued = true; });
+    this.input.keyboard.on('keydown-C', (ev) => { if (!ev.repeat) this.ability2Queued = true; });
     ['X', 'Z', 'K'].forEach((k) => this.input.keyboard.on(`keydown-${k}`, (ev) => { if (!ev.repeat) this.abilityQueued = true; }));
     this.jumpQueued = false;
     ['SPACE', 'UP', 'W'].forEach((k) => this.input.keyboard.on(`keydown-${k}`, (ev) => { if (!ev.repeat) this.jumpQueued = true; }));    this.createTouchControls();
@@ -517,7 +519,8 @@ class GameScene extends Phaser.Scene {
     if (this.totalText) this.totalText.setText(`TOTAL  ${formatScore(this.shownScore)}`);
     this.livesText.setText(`x${this.stats.lives}`);
     const status = [];
-    if (this.ability) status.push(this.abilityCd > 0 ? `🌀 saia ${this.abilityCd.toFixed(1)}s` : `🌀 saia pronta (${IS_TOUCH ? 'botão 🌀' : 'X'})`);
+    if (this.ability2) status.push(this.ability2Cd > 0 ? `🔥 tocha ${this.ability2Cd.toFixed(1)}s` : `🔥 tocha pronta (${IS_TOUCH ? 'botão 🔥' : 'C'})`);
+    if (this.ability) status.push(this.abilityCd > 0 ? `${this.abIcon()} ${this.ability.name.toLowerCase()} ${this.abilityCd.toFixed(1)}s` : `${this.abIcon()} ${this.ability.name.toLowerCase()} pronto (${IS_TOUCH ? 'botão ' + this.abIcon() : 'X'})`);
     if (this.hasAura) status.push('✦ escudo de aura');
     if (this.hasDoubleJump) status.push('👟 pulo duplo');
     if (this.magnetTime > 0) status.push(`🧲 ímã ${this.magnetTime.toFixed(0)}s`);
@@ -574,6 +577,14 @@ class GameScene extends Phaser.Scene {
       ab.text = this.add.text(ab.x, ab.y, '🌀', textStyle(34)).setOrigin(0.5).setScrollFactor(0).setDepth(201);
       this.abilityBtn = ab;
       this.touchBtns.push(ab);
+      if (this.ability.id === 'tiro') ab.text.setText('🔫');
+    }
+    if (this.ability2) {
+      const ab2 = { key: 'ability2', x: VIEW_W - 336, y: 466, r: 44 };
+      ab2.circle = this.add.circle(ab2.x, ab2.y, ab2.r, 0xffa23a, 0.3).setStrokeStyle(3, 0xffffff, 0.55).setScrollFactor(0).setDepth(200);
+      ab2.text = this.add.text(ab2.x, ab2.y, '🔥', textStyle(34)).setOrigin(0.5).setScrollFactor(0).setDepth(201);
+      this.ability2Btn = ab2;
+      this.touchBtns.push(ab2);
     }
     // o pulo é registrado no instante em que o dedo encosta (toque mais curto que um quadro não seria visto pelo polling)
     // e o joystick nasce onde o dedo encostou
@@ -581,6 +592,7 @@ class GameScene extends Phaser.Scene {
       if (!this.touchBtns) return;
       if (Phaser.Math.Distance.Between(ptr.x, ptr.y, jb.x, jb.y) <= jb.r * 1.3) { this.touch.jumpPressed = true; return; }
       if (this.abilityBtn && Phaser.Math.Distance.Between(ptr.x, ptr.y, this.abilityBtn.x, this.abilityBtn.y) <= this.abilityBtn.r * 1.3) { this.touch.abilityPressed = true; return; }
+      if (this.ability2Btn && Phaser.Math.Distance.Between(ptr.x, ptr.y, this.ability2Btn.x, this.ability2Btn.y) <= this.ability2Btn.r * 1.3) { this.touch.ability2Pressed = true; return; }
       const j = this.joy;
       if (j.id === null && ptr.x < j.zoneX && ptr.y > 140) {
         j.id = ptr.id;
@@ -606,11 +618,12 @@ class GameScene extends Phaser.Scene {
 
   pollTouch() {
     const j = this.joy;
-    let jump = false, left = false, right = false, held = null, ability = false;
+    let jump = false, left = false, right = false, held = null, ability = false, ability2 = false;
     for (const ptr of this.input.manager.pointers) {
       if (!ptr.isDown) continue;
       const b = this.touchBtns[0];
       if (this.abilityBtn && Phaser.Math.Distance.Between(ptr.x, ptr.y, this.abilityBtn.x, this.abilityBtn.y) <= this.abilityBtn.r * 1.3 && ptr.id !== j.id) ability = true;
+      if (this.ability2Btn && Phaser.Math.Distance.Between(ptr.x, ptr.y, this.ability2Btn.x, this.ability2Btn.y) <= this.ability2Btn.r * 1.3 && ptr.id !== j.id) ability2 = true;
       if (Phaser.Math.Distance.Between(ptr.x, ptr.y, b.x, b.y) <= b.r * 1.3 && ptr.id !== j.id) jump = true;
       if (ptr.id === j.id) held = ptr;
     }
@@ -630,6 +643,11 @@ class GameScene extends Phaser.Scene {
     if (jump && !this.touch.jump) this.touch.jumpPressed = true;     // acabou de apertar o pulo
     this.touch.left = left; this.touch.right = right; this.touch.jump = jump;
     this.touchBtns[0].circle.setFillStyle(0xffffff, jump ? 0.42 : 0.2);
+    if (this.ability2Btn) {
+      if (ability2 && !this.touch.ability2) this.touch.ability2Pressed = true;
+      this.touch.ability2 = ability2;
+      this.ability2Btn.circle.setFillStyle(0xffa23a, this.ability2Cd > 0 ? 0.12 : (ability2 ? 0.6 : 0.3));
+    }
     if (this.abilityBtn) {
       if (ability && !this.touch.ability) this.touch.abilityPressed = true;
       this.touch.ability = ability;
@@ -682,6 +700,9 @@ class GameScene extends Phaser.Scene {
     this.abilityCd = Math.max(0, this.abilityCd - dt);
     if (this.ability && (this.abilityQueued || this.touch.abilityPressed) && this.abilityCd <= 0) this.useAbility();
     this.abilityQueued = false; this.touch.abilityPressed = false;
+    this.ability2Cd = Math.max(0, this.ability2Cd - dt);
+    if (this.ability2 && (this.ability2Queued || this.touch.ability2Pressed) && this.ability2Cd <= 0) this.useAbility2();
+    this.ability2Queued = false; this.touch.ability2Pressed = false;
     const jumpPressed = this.jumpQueued || this.touch.jumpPressed;
     this.jumpQueued = false;
     this.touch.jumpPressed = false;
@@ -1135,9 +1156,36 @@ class GameScene extends Phaser.Scene {
   }
 
   // ---- Poder ativo: Saia Rodada da Lara. Gira e lança uma rajada (a saia) que acerta o inimigo de longe ----
+  abIcon() { return this.ability.id === 'tiro' ? '🔫' : '🌀'; }
+
+  // Ana Júlia: tiro reto da pistola
+  fireTiro() {
+    const dir = this.facing >= 0 ? 1 : -1, pb = this.player.body;
+    const s = this.skirtShots.create(pb.center.x + dir * 20, pb.center.y + 2, 'bala');
+    s.kind = 'tiro'; s.setFlipX(dir < 0); s.body.setSize(14, 6); s.setVelocityX(dir * 680); s.setDepth(8);
+    this.time.delayedCall(700, () => s.active && s.destroy());
+    this.fxParty.explode(5, pb.center.x + dir * 22, pb.center.y + 2);
+    Sfx.tone(180, 0.09, { type: 'square', to: 70, vol: 0.09 });
+    Sfx.tone(1200, 0.05, { type: 'sawtooth', to: 300, vol: 0.04 });
+  }
+
+  // Ana Júlia: arremessa a tocha em arco
+  useAbility2() {
+    if (this.dead || this.finished || this.sceneT > 0) return;
+    this.ability2Cd = this.ability2.cooldown;
+    const dir = this.facing >= 0 ? 1 : -1, pb = this.player.body;
+    const s = this.skirtShots.create(pb.center.x + dir * 16, pb.center.y - 14, 'tocha_arremesso');
+    s.kind = 'tocha'; s.body.setCircle(12, 3, 3); s.body.setAllowGravity(true);
+    s.setVelocity(dir * 430 + pb.velocity.x * 0.3, -400); s.setAngularVelocity(dir * 700); s.setDepth(8);
+    this.time.delayedCall(1500, () => s.active && s.destroy());
+    this.fxParty.explode(8, s.x, s.y);
+    Sfx.tone(300, 0.25, { type: 'sawtooth', to: 700, vol: 0.05 });
+  }
+
   useAbility() {
     if (this.dead || this.finished || this.sceneT > 0) return;
     this.abilityCd = this.ability.cooldown;
+    if (this.ability.id === 'tiro') return this.fireTiro();
     const dir = this.facing >= 0 ? 1 : -1;
     const pb = this.player.body;
     const s = this.skirtShots.create(pb.center.x + dir * 18, pb.center.y - 2, 'saia_rajada');
@@ -1162,7 +1210,7 @@ class GameScene extends Phaser.Scene {
       e.hp--; e.setTintFill(0xffffff); this.time.delayedCall(120, () => e.active && e.clearTint());
       this.speech(e, 'Ai! Mais uma!');
     } else this.defeatEnemy(e, true);
-    Achievements.unlock('saia');
+    Achievements.unlock(shot.kind ? 'tocha' : 'saia');
   }
 
   spawnEnemy(key, cx, bottom, cfg) {

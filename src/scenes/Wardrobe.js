@@ -113,7 +113,7 @@ class WardrobeScene extends Phaser.Scene {
     this.nameText.setText(o.name);
     this.descText.setText(o.desc);
     const locked = !Shop.ownsOutfit(key);
-    this.perkText.setText(locked ? `🔒 À venda na Moda Cotia (Centro de Cotia): 🪙 ${o.shop.price}` : ((o.perk || o.ability) ? `${o.ability ? '🌀' : '⚡'} ${(o.perk || o.ability).name}: ${(o.perk || o.ability).desc}` : ''));
+    this.perkText.setText(locked ? `🔒 À venda na Moda Cotia (Centro de Cotia): 🪙 ${o.shop.price}` : (o.ability2 ? `🔫 ${o.ability.desc}\n🔥 ${o.ability2.desc}` : (o.perk || o.ability) ? `${o.ability ? '🌀' : '⚡'} ${(o.perk || o.ability).name}: ${(o.perk || o.ability).desc}` : ''));
     this.wearBtn.setText(locked ? '🔒 BLOQUEADA' : (key === this.worn ? '✔ VESTINDO' : (o.friend ? 'JOGAR COM ELE' : 'VESTIR')));
     this.cards.forEach((c, k) => {
       c.bg.setStrokeStyle(k === i ? 4 : 2, k === i ? 0xffd23f : 0x444455);
