@@ -11,8 +11,15 @@
 const KEYS = { players: 'bru:players', score: 'bru:score', time: 'bru:time' };
 
 function envRedis() {
-  const url = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
-  const token = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN;
+  const env = process.env;
+  let url = env.KV_REST_API_URL || env.UPSTASH_REDIS_REST_URL;
+  let token = env.KV_REST_API_TOKEN || env.UPSTASH_REDIS_REST_TOKEN;
+  if (!url || !token) {                                      // prefixo personalizado na Vercel (ex.: STORAGE_REST_API_URL): procura pelo final do nome
+    const kUrl = Object.keys(env).find((k) => /_(REST_API|REDIS_REST)_URL$/.test(k));
+    const kTok = Object.keys(env).find((k) => /_(REST_API|REDIS_REST)_TOKEN$/.test(k) && !/READ_ONLY/.test(k));   // o token que escreve, não o só-leitura
+    url = url || (kUrl && env[kUrl]);
+    token = token || (kTok && env[kTok]);
+  }
   if (!url || !token) return null;
   return async (cmds) => {                                   // várias ordens de uma vez (pipeline); devolve a lista de resultados
     const r = await fetch(`${url}/pipeline`, { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify(cmds) });
