@@ -43,7 +43,7 @@ class CentroScene extends Phaser.Scene {
     const tex = playerTexture();
     this.tex = tex;
     this.shadow = this.add.ellipse(120, GY, 30, 8, 0x000000, 0.3).setDepth(3);
-    this.player = this.add.sprite(120, GY, tex).setOrigin(0.5, 1).setDepth(5);
+    this.player = this.add.sprite(120, GY, tex).setOrigin(0.5, 1).setDepth(5).setScale(heroScale());
     this.nameTag = this.add.text(120, GY - 46, heroName(), textStyle(14, '#ffd23f')).setOrigin(0.5, 1).setDepth(6);
     this.pet = new PetFollower(this);
     this.cameras.main.startFollow(this.player, true, 0.12, 0.12);

@@ -250,6 +250,12 @@ const FRIENDS = {
     cowboy: 0x17171c, cowboyTop: 0x30303a, cowboyBand: 0xb39a5e, collar: 0xe8e4e0,
     plaid: { v: 0x3a3c46, h1: 0xd9a8a8, h2: 0x9fb7d9 },
   },
+  arthur: {
+    name: 'Arthur', who: 'Arthur', tall: 1.12, desc: 'Alto, engraçado e de fone no ouvido. Cacheado de respeito, camiseta com estampa e pulseira vermelha.',
+    colors: { hair: 0x15100c, hairDark: 0x0b0806, hairLight: 0x2e221a, skin: 0xb98960, skinDark: 0x966a47,
+      shirt: 0xf0ead6, shirtDark: 0xd6cfb6, shorts: 0x2a2a30, shortsDark: 0x1d1d22 },
+    hairStyle: 'cacheado', earbuds: true, bracelet: 0xd62828, chestPrint: 0x2a2a30, pants: true, shoes: 'tenis',
+  },
 };
 // Frase (dublável na tela Minha voz) e poder de cada amigo. perk: speed (corre mais) · jump (pula mais) · coin (moeda vale mais) · magnet (puxa moedas, em pixels)
 const FRIEND_EXTRA = {
@@ -257,6 +263,7 @@ const FRIEND_EXTRA = {
   biel:    { phrase: 'Levinho que nem pluma!', pitch: 1.4, perk: { name: 'Levinho', desc: 'pula 12% mais alto', jump: 1.12 } },
   yan:     { phrase: 'Sorria, você foi moggado!', pitch: 0.8, perk: { name: 'Sorrisão', desc: 'moedas valem 50% mais', coin: 1.5 } },
   pedro:   { phrase: 'Cowboy vai te pegar!', pitch: 1.0, perk: { name: 'Galope', desc: 'corre 10% mais rápido', speed: 1.1 } },
+  arthur:  { phrase: 'Aqui de cima eu vejo tudo!', pitch: 0.85, perk: { name: 'Piadista', desc: '+1 s de proteção ao renascer (todo mundo ri)', respawnInvuln: 1 } },
 };
 Object.keys(FRIENDS).forEach((k) => { OUTFITS[k] = { ...FRIENDS[k], ...(FRIEND_EXTRA[k] || {}), friend: true }; });
 const OUTFIT_KEYS = Object.keys(OUTFITS);                                   // todos (gera as texturas)
@@ -267,6 +274,8 @@ function currentOutfit() {
   return OUTFITS[key] ? key : OUTFIT_KEYS[0];
 }
 function playerTexture() { return `player_${currentOutfit()}`; }
+// Boneco mais alto (ex.: Arthur): só o desenho aumenta, a caixa de colisão continua a mesma
+function heroScale(key) { return OUTFITS[key || currentOutfit()].tall || 1; }
 // Nome de quem está sendo jogado (Brunucho ou um amigo)
 function heroName() { const o = OUTFITS[currentOutfit()]; return o.friend ? o.who : PLAYER_NAME; }
 

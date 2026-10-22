@@ -54,7 +54,8 @@ class GameScene extends Phaser.Scene {
     // Poderes: do amigo que está sendo jogado (FRIEND_EXTRA em config.js) + compras permanentes no Centro de Cotia (shop.js)
     const fp = OUTFITS[currentOutfit()].perk || {}, sp = Shop.perks();
     this.perk = { speed: (fp.speed || 1) * sp.speed, jump: (fp.jump || 1) * sp.jump, coin: (fp.coin || 1) * sp.coin,
-      magnet: Math.max(fp.magnet || 0, sp.magnet), respawnInvuln: sp.respawnInvuln };
+      magnet: Math.max(fp.magnet || 0, sp.magnet), respawnInvuln: (fp.respawnInvuln || 0) + sp.respawnInvuln };
+    this.heroK = heroScale();                          // boneco alto (Arthur): o desenho aumenta, a colisão não
     // Consumíveis comprados valem para esta fase (no reinício da fase eles voltam, sem gastar de novo)
     this.buffs = data.buffs || Shop.takeBuffs();
     if (!data.buffs && this.buffs.includes('coxinha')) this.stats.lives++;
@@ -797,10 +798,10 @@ class GameScene extends Phaser.Scene {
     }
     this.playerGfx
       .setPosition(b.x + b.halfWidth, b.y + b.height)
-      .setScale((1 - s * 0.6) * this.bigScale, (1 + s) * this.bigScale)
+      .setScale((1 - s * 0.6) * this.bigScale * this.heroK, (1 + s) * this.bigScale * this.heroK)
       .setFlipX(this.facing < 0)
       .setAngle(b.blocked.down ? 0 : Phaser.Math.Clamp(b.velocity.x * 0.02, -6, 6));
-    this.nameTag.setPosition(this.playerGfx.x, this.playerGfx.y - 40 * this.bigScale).setVisible(this.playerGfx.visible);
+    this.nameTag.setPosition(this.playerGfx.x, this.playerGfx.y - 40 * this.bigScale * this.heroK).setVisible(this.playerGfx.visible);
     // sombra no chão logo abaixo (fica menor quanto mais alto ele está)
     let groundY = null;
     for (let y = b.bottom; y < b.bottom + 8 * TILE && y < this.mapH; y += 8) {

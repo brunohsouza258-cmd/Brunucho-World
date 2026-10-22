@@ -1018,6 +1018,10 @@ function drawPlayer(g, o, pose = 'idle') {
     g.fillStyle(o.plaid.h2); g.fillRect(x0 + 1, 22, w - 2, 1);
     g.fillStyle(o.plaid.v); g.fillRect(x0 + 1, 24, w - 2, 1);
   }
+  if (o.chestPrint) {                                  // estampa na camiseta (uma carinha escura)
+    g.fillStyle(o.chestPrint); g.fillRoundedRect(9 + sl, 18, 7, 8, 3);
+    g.fillStyle(c.shirt); g.fillRect(11 + sl, 20, 1, 2); g.fillRect(13 + sl, 20, 1, 2); g.fillRect(11 + sl, 24, 3, 1);
+  }
   if (o.hoodie) {                                      // moletom: capuz caído no pescoço, cordões, zíper e estampa no peito
     g.fillStyle(c.shirtDark); g.fillRoundedRect(7 + sl, 15, 14 - sl * 2, 4, 2);
     g.fillRect(13, 18, 1, 8);
@@ -1042,6 +1046,7 @@ function drawPlayer(g, o, pose = 'idle') {
   g.fillStyle(lower); g.fillRect(19 - sl * 2, 21 + P.arm, 5 - sl, 3);
   if (o.trim) { g.fillStyle(o.trim); g.fillRect(19 - sl * 2, 20 + P.arm, 5 - sl, 1); }       // barrinha na ponta da manga
   g.fillStyle(c.skin); g.fillRect(20 - sl * 2, 24 + P.arm, 4 - sl, 3);
+  if (o.bracelet) { g.fillStyle(o.bracelet); g.fillRect(19 - sl * 2, 23 + P.arm, 5 - sl, 2); }     // pulseira no pulso
 
   // cabeça
   g.fillStyle(c.skin); g.fillRoundedRect(5, 3, 18, 14, 4);
@@ -1107,6 +1112,10 @@ function drawPlayer(g, o, pose = 'idle') {
   } else if (hs === 'careca') {                        // sem cabelo: só um brilhinho
     g.fillStyle(c.skinDark); g.fillRect(5, 3, 18, 1);
     g.fillStyle(0xffffff, 0.35); g.fillRect(9, 3, 6, 1);
+  }
+  if (o.earbuds) {                                     // fone de ouvido com fio
+    g.fillStyle(0xffffff); g.fillRect(7, 10, 3, 3);
+    g.lineStyle(1, 0xffffff, 0.95); g.lineBetween(8, 13, 10, 20); g.lineBetween(10, 20, 9, 26);
   }
   if (o.thickBrows) { g.fillStyle(c.hairDark); g.fillRect(14, 6, 5, 2); g.fillRect(19, 6, 4, 2); }   // sobrancelha grossa
 
