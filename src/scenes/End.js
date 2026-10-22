@@ -94,6 +94,14 @@ class EndScene extends Phaser.Scene {
     }
     drawRanking(this, WIDTH / 2, 262, position);
 
+    // ranking GLOBAL (todo mundo): manda pontos e tempo
+    this.globalText = this.add.text(WIDTH / 2, 246, '🌎 enviando para o ranking global...', textStyle(16, '#9ff0ff')).setOrigin(0.5);
+    GlobalRank.submit({ score: Math.round(st.score), time: Math.round(st.time), level: 32, deaths: st.deaths, finished: true }).then((r) => {
+      if (!this.globalText || !this.globalText.active) return;
+      this.globalText.setText(r.ok ? `🌎 Ranking global: #${r.posScore} em pontos · #${r.posTime || '-'} em tempo`
+        : (r.offline ? '🌎 Sem conexão: seu placar vai ser enviado na próxima vez' : '🌎 Ranking global indisponível agora'));
+    });
+
     const again = this.add.text(WIDTH / 2, 500, 'ESPAÇO ou toque para voltar ao menu', textStyle(22)).setOrigin(0.5);
     this.tweens.add({ targets: again, alpha: 0.3, duration: 600, yoyo: true, repeat: -1 });
     const go = () => { Sfx.select(); this.scene.start('Menu'); };

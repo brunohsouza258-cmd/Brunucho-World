@@ -1,2 +1,3 @@
 .certificado/
 __pycache__/
+.ranking-local.json

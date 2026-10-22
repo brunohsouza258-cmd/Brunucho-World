@@ -169,7 +169,7 @@ Derrotar os 5 dá a conquista **Por Dentro da Internet**.
 ### O Paraíba (vilão da fase da Paraíba)
 
 Na fase da **Paraíba** um amigo vira vilão: o **Paraíba**, de boné e blusa térmica, **em cima de uma moto**. Ele é agitado e imprevisível: corre de um lado
-pro outro, **para e solta uma rajada de 8 chinelos em todas as direções** (um mirado em você) ou **ronca e investe** em cima de você. Tem **3 de vida**
+pro outro, **para e dispara a pistola de brinquedo, uma rajada de 8 dardos de espuma em todas as direções** (um mirado em você) ou **ronca e investe** em cima de você. Tem **3 de vida**
 (uma barra aparece em cima dele): cada pisada tira 1 (mesmo grandão), ele fica mais furioso a cada uma e a 3ª derruba (+2000 e a conquista **Moto Derrubada**).
 
 ### Inimigos mais espertos
@@ -231,6 +231,17 @@ As falas ficam em `INTRO_SCRIPT`, no `src/scenes/Intro.js`. (Escolher uma fase d
 
 Pise nos inimigos para derrotá-los, desvie dos espinhos, pegue as moedas e chegue na bandeira verde.
 No celular aparecem botões na tela.
+
+### Ranking global 🌎
+
+No menu, **RANKING** tem duas abas: **🌎 GLOBAL** (todo mundo que joga, em qualquer celular: nome, pontos, tempo e fase) e **📱 AQUI** (só neste aparelho).
+Dá pra ordenar por **pontos** ou por **tempo** (só quem zerou o jogo entra no tempo). Seu lugar fica destacado, e **✏ NOME** muda o nome.
+O placar é enviado quando você **zera o jogo** ou toma **Game Over** (com o seu nome já escolhido); sem internet, ele fica guardado e é enviado depois.
+Cada aparelho tem uma vaga só (o melhor placar). Não é à prova de trapaça: o jogo roda no aparelho de cada um.
+
+**Como o ranking global funciona:** a função `api/ranking.js` (Vercel) guarda tudo num banco Redis gratuito (Upstash). Pra ligar:
+Vercel > seu projeto > **Storage** > **Create Database** > **Upstash for Redis** (plano grátis) > conecte ao projeto > **Redeploy**.
+O `servidor.py` tem uma versão de teste da mesma API (`python servidor.py`), pra testar na sua rede.
 
 ### Centro de Cotia (lojas)
 

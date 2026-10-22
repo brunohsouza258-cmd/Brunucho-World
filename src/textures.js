@@ -618,6 +618,12 @@ function generateTextures(scene) {
     g.fillStyle(0xff7a9a); g.fillRect(8, 16, 2, 2);
     g.lineStyle(1, 0x6b3a1f); g.lineBetween(14, 8, 21, 2); g.lineBetween(0, 17, 5, 17);
   });
+  // Dardo de espuma (projétil da pistola de brinquedo do Paraíba)
+  make('dardo', 16, 6, (g) => {
+    g.fillStyle(0xff7a1a); g.fillRoundedRect(3, 1, 12, 4, 2);
+    g.fillStyle(0xffe14d); g.fillRoundedRect(0, 0, 5, 6, 2);
+    g.fillStyle(0xffffff); g.fillRect(8, 2, 3, 1);
+  });
   // Paraíba na moto (vilão do cenário da Paraíba): boné, blusa térmica grossa, moto vermelha — de frente pra esquerda
   make('paraiba_moto', 62, 44, (g) => {
     const SK = 0xc98f64, SW = 0x4c6b7a, SWD = 0x3d5866;
@@ -638,6 +644,11 @@ function generateTextures(scene) {
     g.fillRect(27, 10, 14, 2);                                                                // gola alta
     g.fillStyle(SW); g.fillRoundedRect(19, 14, 12, 5, 2);                                     // braço no guidão
     g.fillStyle(SK); g.fillRect(17, 15, 3, 4);
+    // pistola de brinquedo (lançador de dardos de espuma): laranja, ponta amarela, cabo azul
+    g.fillStyle(0xff7a1a); g.fillRoundedRect(3, 11, 16, 6, 2);
+    g.fillStyle(0xffe14d); g.fillRect(1, 12, 3, 4); g.fillRect(8, 11, 2, 6);
+    g.fillStyle(0x2a6bd6); g.fillRect(13, 16, 4, 5);
+    g.fillStyle(0xffffff); g.fillRect(11, 12, 5, 1);
     g.fillStyle(SK); g.fillCircle(26, 7, 6);                                                  // cabeça
     g.fillStyle(0x15151a); g.fillRoundedRect(19, 0, 15, 6, 3); g.fillRect(14, 4, 9, 2);       // boné
     g.fillStyle(0xffffff); g.fillRect(24, 1, 4, 2);
@@ -799,7 +810,7 @@ const OUTLINE_PREFIXES = ['player_', 'neymar', 'galvao', 'caze', 'ednaldo', 'lul
   'capivara', 'tralalero', 'tungtung', 'slime', 'crab', 'pombo', 'bombardiro', 'patapim', 'bananini', 'lirili',
   'ballerina', 'coin', 'coxinha', 'tenis', 'ima', 'heart', 'gol_ball', 'picanha', 'ovo', 'bomba', 'pw_olhar', 'pw_anjo',
   'goal', 'cp_', 'mola', 'chinelo', 'plataforma', 'cacto', 'skibidi', 'doge', 'nyan', 'gigachad', 'nazare', 'gota', 'churros',
-  'rato', 'troll', 'pilili', 'cappuccino', 'trippi', 'paraiba_moto'];
+  'rato', 'troll', 'pilili', 'cappuccino', 'trippi', 'paraiba_moto', 'dardo'];
 
 function outlineSprites(scene) {
   for (const key of scene.textures.getTextureKeys()) {

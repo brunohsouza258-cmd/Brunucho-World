@@ -14,7 +14,7 @@ const game = new Phaser.Game({
     arcade: { gravity: { y: PHYS.gravity }, debug: false },
   },
   // A ordem importa: quem vem depois aparece por cima (Toast = avisos de conquista, sempre no topo)
-  scene: [BootScene, MenuScene, IntroScene, EndingScene, CreditsScene, GameScene, PauseScene, EndScene, GameOverScene, OptionsScene, VoiceScene, WardrobeScene, CentroScene, ShopScene, ToastScene],
+  scene: [BootScene, MenuScene, IntroScene, EndingScene, CreditsScene, GameScene, PauseScene, EndScene, GameOverScene, OptionsScene, VoiceScene, WardrobeScene, CentroScene, ShopScene, RankScene, ToastScene],
 });
 
 // Menus e telas por cima: o desenho de 960px fica centralizado (a câmera anda UI_OFF para o lado). Só a fase usa a tela toda.

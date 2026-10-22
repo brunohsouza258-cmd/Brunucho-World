@@ -944,7 +944,7 @@ class GameScene extends Phaser.Scene {
     e.moto = true; e.hp = 3; e.maxHp = 3;
     e.state = 'ride'; e.timer = 1.2; e.go = false; e.volleys = 0;
     e.startX = e.x; e.range = 7 * TILE;
-    e.famous = { key: 'paraiba', lines: ['VRUUUM!', 'SAI DA FRENTE!', 'CADÊ MEU BONÉ?!', 'EU TÔ COM PRESSA!', 'PEGA, CHINELO!'] };
+    e.famous = { key: 'paraiba', lines: ['VRUUUM!', 'SAI DA FRENTE!', 'CADÊ MEU BONÉ?!', 'EU TÔ COM PRESSA!', 'TOMA ESPUMA!'] };
     e.talkTimer = 2;
     e.tag = this.add.text(e.x, e.y - 30, 'PARAÍBA', textStyle(14, '#ff8a8a')).setOrigin(0.5, 1).setDepth(6);
     e.tagOffset = 12;
@@ -999,25 +999,25 @@ class GameScene extends Phaser.Scene {
   motoDecide(e, r, dx) {
     if (r < 0.38) {
       e.state = 'burst'; e.volleys = e.hp < 3 ? 3 : 2; e.timer = 0.55;
-      this.speech(e, Phaser.Utils.Array.GetRandom(['PEGA, CHINELO!', 'AGORA VAI!', 'É TUDO PRA VOCÊ!']));
+      this.speech(e, Phaser.Utils.Array.GetRandom(['PÓ PÓ PÓ!', 'TOMA ESPUMA!', 'É TUDO PRA VOCÊ!']));
     } else if (r < 0.7 && Math.abs(dx) < 460) { e.state = 'dash'; e.go = false; e.timer = 0.5; }
     else { if (r > 0.85) e.dir *= -1; e.timer = Phaser.Math.FloatBetween(0.5, 1.3); }
   }
 
-  // 8 chinelos em todas as direções (um deles mirado em você)
+  // Pistola de brinquedo: 8 dardos de espuma em todas as direções (um deles mirado em você)
   motoVolley(e) {
     const pb = this.player.body;
     const aim = Math.atan2(pb.center.y - e.y, pb.center.x - e.x);
     const off = (e.volleys % 2) ? aim : Math.random() * Math.PI / 4;
     for (let i = 0; i < 8; i++) {
       const a = off + (i / 8) * Math.PI * 2;
-      const s = this.shots.create(e.x, e.y - 6, 'chinelo');
+      const s = this.shots.create(e.x, e.y - 6, 'dardo');
       s.body.setSize(14, 6);
       s.setVelocity(Math.cos(a) * 210, Math.sin(a) * 210);
-      s.setAngularVelocity(500);
+      s.setRotation(a);                                        // o dardo aponta pra onde vai
       this.time.delayedCall(2300, () => s.active && s.destroy());
     }
-    Sfx.tone(520, 0.12, { type: 'square', to: 260, vol: 0.06 });
+    Sfx.tone(760, 0.07, { type: 'triangle', to: 320, vol: 0.07 });          // pof!
     this.shake(60, 0.003);
   }
 
@@ -1266,7 +1266,12 @@ class GameScene extends Phaser.Scene {
       if (e.behavior === 'flyer') {
         // Pombo: vai e volta voando em ondinha. Se você passa embaixo, ele mergulha em cima de você e depois volta pro alto.
         e.cool = (e.cool || 0) - dt;
-        if (e.diving) {
+        if (e.windup > 0) {                                 // avisa antes de mergulhar: para, treme e grita (dá tempo de desviar)
+          e.windup -= dt;
+          e.setVelocity(0, 0);
+          e.setAngle(Math.sin(this.time.now * 0.08) * 12);
+          if (e.windup <= 0) { e.setAngle(0); e.diving = true; e.timer = 0.6; e.diveVx = Phaser.Math.Clamp(dx * 1.8, -200, 200); }
+        } else if (e.diving) {
           e.timer -= dt;
           e.setVelocity(e.diveVx, 260);
           if (e.timer <= 0 || b.blocked.down) { e.diving = false; e.cool = 3; }
@@ -1277,7 +1282,7 @@ class GameScene extends Phaser.Scene {
           e.setVelocityY(Math.cos(this.time.now * 0.004 + e.phase) * 50 + (e.baseY - e.y) * 1.2);
           const below = pb.center.y - b.center.y;
           if (e.cool <= 0 && !this.dead && Math.abs(dx) < 130 && below > 40 && below < 240) {
-            e.diving = true; e.timer = 0.6; e.diveVx = Phaser.Math.Clamp(dx * 1.8, -200, 200);
+            e.windup = 0.4;
             this.speech(e, 'COOO!');
           }
         }

@@ -29,6 +29,7 @@ class MenuScene extends Phaser.Scene {
     this.rankingPanel = this.add.container(0, 0);
     this.achPanel = this.add.container(0, 0).setDepth(50);
     this.showMode('main');
+    GlobalRank.flush();                                       // reenvia ao ranking global algum placar que ficou pendente
 
     // --- Teclado ---
     const kb = this.input.keyboard;
@@ -95,7 +96,7 @@ class MenuScene extends Phaser.Scene {
       { label: () => (save ? 'NOVO JOGO' : 'JOGAR'), action: () => this.startGame(0, true) },
       { label: () => 'ESCOLHER FASE', action: () => this.showMode('levels') },
       { label: () => { const a = Achievements.progress(); return `CONQUISTAS (${a.done}/${a.total})`; }, action: () => this.showMode('achievements') },
-      { label: () => 'RANKING', action: () => this.showMode('ranking') },
+      { label: () => 'RANKING', action: () => this.openRank() },
       { label: () => 'OPÇÕES', action: () => this.openOptions() },
       { label: () => 'CRÉDITOS', action: () => this.openCredits() },
       { label: () => (OUTFITS[currentOutfit()].friend ? `AMIGO: ${OUTFITS[currentOutfit()].name}` : `ROUPA: ${OUTFITS[currentOutfit()].name}`), action: () => this.openWardrobe(), side: () => this.openWardrobe() },
@@ -322,6 +323,14 @@ class MenuScene extends Phaser.Scene {
     Sfx.select();
     this.cameras.main.fadeOut(300);
     this.cameras.main.once('camerafadeoutcomplete', () => this.scene.start('Centro'));
+  }
+
+  // Ranking: 🌎 global (todo mundo) e 📱 deste aparelho
+  openRank() {
+    if (this.starting) return;
+    Sfx.unlock(); Sfx.select();
+    this.scene.pause();
+    this.scene.launch('Rank');
   }
 
   openCredits() {

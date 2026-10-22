@@ -25,6 +25,22 @@ class GameOverScene extends Phaser.Scene {
     const st = data.stats || {};
     this.add.text(WIDTH / 2, 400, `Pontos: ${formatScore(st.score || 0)}   ·   Fase ${data.level + 1}: ${LEVELS[data.level].name}`, textStyle(20)).setOrigin(0.5);
 
+    // ranking GLOBAL: mesmo sem zerar o jogo, o placar (pontos e fase alcançada) entra
+    if ((st.score || 0) > 0) {
+      const run = { score: Math.round(st.score), time: Math.round(st.time || 0), level: data.level + 1, deaths: st.deaths || 0, finished: false };
+      this.globalText = this.add.text(WIDTH / 2, 428, '', textStyle(15, '#9ff0ff')).setOrigin(0.5);
+      if (!GlobalRank.name()) {
+        GlobalRank.remember(run);
+        this.globalText.setText('🌎 Escolha seu nome em RANKING (no menu) para entrar no ranking global');
+      } else {
+        this.globalText.setText('🌎 enviando para o ranking global...');
+        GlobalRank.submit(run).then((r) => {
+          if (!this.globalText || !this.globalText.active) return;
+          this.globalText.setText(r.ok ? `🌎 Ranking global: #${r.posScore} em pontos` : (r.offline ? '🌎 Sem conexão: o placar vai ser enviado depois' : '🌎 Ranking global indisponível agora'));
+        });
+      }
+    }
+
     this.options = [
       { label: 'TENTAR DE NOVO (esta fase)', act: () => this.retry() },
       { label: 'VOLTAR AO MENU', act: () => this.toMenu() },
