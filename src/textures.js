@@ -618,7 +618,7 @@ function generateTextures(scene) {
     g.fillStyle(0xff7a9a); g.fillRect(8, 16, 2, 2);
     g.lineStyle(1, 0x6b3a1f); g.lineBetween(14, 8, 21, 2); g.lineBetween(0, 17, 5, 17);
   });
-  // Coroa da Jamile (Modo Rainha)
+  // Coroa da Jamilly (Modo Rainha)
   make('coroa', 24, 16, (g) => {
     g.fillStyle(0xb07a10); g.fillRect(2, 11, 20, 4);
     g.fillStyle(0xffd23f); g.fillRect(2, 9, 20, 4);

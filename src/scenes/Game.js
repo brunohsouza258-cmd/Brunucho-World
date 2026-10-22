@@ -1190,7 +1190,7 @@ class GameScene extends Phaser.Scene {
   // ---- Poder ativo: Saia Rodada da Lara. Gira e lança uma rajada (a saia) que acerta o inimigo de longe ----
   abIcon() { return this.ability.icon || (this.ability.id === 'tiro' ? '🔫' : '🌀'); }
 
-  // Jamile: Modo Rainha. Ela se transforma (coroa, brilho dourado) e por 5 s todo inimigo por perto se ajoelha: fica parado, roxinho e inofensivo
+  // Jamilly: Modo Rainha. Ela se transforma (coroa, brilho dourado) e por 5 s todo inimigo por perto se ajoelha: fica parado, roxinho e inofensivo
   fireRainha() {
     const cam = this.cameras.main, pb = this.player.body;
     this.queenUntil = this.time.now + 5000; this.kneelers = new Set();

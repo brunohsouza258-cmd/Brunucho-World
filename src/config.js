@@ -282,7 +282,7 @@ const FRIENDS = {
     hairStyle: 'curto', shirtStripes: 0x16161a, gloves: 0x2a5fd0, socks: 0x1a1a20, socksStripe: 0xffffff, shoes: 'chuteira',
   },
   jamile: {
-    name: 'Jamile', who: 'Jamile', desc: 'Cachos poderosos, blusa fúcsia, argolas e a sacola laranja. Quando vira rainha, ninguém fica de pé.',
+    name: 'Jamilly', who: 'Jamilly', desc: 'Cachos poderosos, blusa fúcsia, argolas e a sacola laranja. Quando vira rainha, ninguém fica de pé.',
     colors: { hair: 0x1a1210, hairDark: 0x0a0605, hairLight: 0x8a5a2a, skin: 0xa86f4a, skinDark: 0x865434,
       shirt: 0xe0267f, shirtDark: 0xb01a62, shorts: 0x263f8c, shortsDark: 0x1a2c66 },
     hairStyle: 'cachos', necklace: 0xffd23f, earring: 0xffd23f, bag: 0xf2a33a, pants: true, shoes: 'tenis',

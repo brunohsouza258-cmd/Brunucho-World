@@ -282,7 +282,7 @@ em `SHOPS` e `Shop`, no `src/shop.js`. Conquistas novas: *Turista em Cotia*, *Cl
 ### Amigos (personagens jogáveis)
 
 No guarda-roupa (**ROUPA** no menu) há duas abas: **ROUPAS** (os 10 looks do Brunucho) e **AMIGOS**, com personagens jogáveis feitos a partir
-de fotos de amigos, com o nome aparecendo em cima deles. O Brunucho continua sendo o protagonista da história. Amigos atuais: **Stanley**, **Biel** (Gabriel Silva, corpo magrinho) , **Yan**, **Pedro** (de cowboy), **Arthur** (alto, de fone no ouvido e pulseira vermelha) **Lara** (a "irmã" do Brunucho: cabelo preso num coque, flor no cabelo e saia rodada de carimbó) **Ana Júlia** (exploradora estilo Lara Croft, com coldre, tocha e pistola) **Bianca** (tranças longas, regata rosa e pose de story) **Breno** (o goleiro: camisa amarela listrada, luvas e meiões pretos) e **Jamile** (cachos poderosos, blusa fúcsia, argolas e a sacola laranja).
+de fotos de amigos, com o nome aparecendo em cima deles. O Brunucho continua sendo o protagonista da história. Amigos atuais: **Stanley**, **Biel** (Gabriel Silva, corpo magrinho) , **Yan**, **Pedro** (de cowboy), **Arthur** (alto, de fone no ouvido e pulseira vermelha) **Lara** (a "irmã" do Brunucho: cabelo preso num coque, flor no cabelo e saia rodada de carimbó) **Ana Júlia** (exploradora estilo Lara Croft, com coldre, tocha e pistola) **Bianca** (tranças longas, regata rosa e pose de story) **Breno** (o goleiro: camisa amarela listrada, luvas e meiões pretos) e **Jamilly** (cachos poderosos, blusa fúcsia, argolas e a sacola laranja).
 Pra adicionar um amigo, crie uma entrada em `FRIENDS`, no `src/config.js` (cores, `hairStyle`, `beard`, `glasses`, `cap`, `thickBrows`, `slim`, `pants`, `smile`, `hoodie`, `cowboy`, `plaid`, `earbuds`, `bracelet`, `chestPrint`, `tall` (boneco mais alto)...).
 As fotos **não** vão pro repositório, só o desenho pixelado.
 
@@ -303,9 +303,9 @@ Cada amigo tem um **poder** (aparece no guarda-roupa e no começo da fase) e uma
 
 | Breno | **Paredão** (poder ativo) | "Aqui não passa nada!" |
 
-| Jamile | **Modo Rainha** (poder ativo) | "De joelhos pra rainha!" |
+| Jamilly | **Modo Rainha** (poder ativo) | "De joelhos pra rainha!" |
 
-**Poder ativo da Jamile — Modo Rainha:** aperte **X** (botão 👑 no celular). Ela **se transforma**: a tela brilha dourada, uma **coroa** aparece na cabeça e, por **5 s**,
+**Poder ativo da Jamilly — Modo Rainha:** aperte **X** (botão 👑 no celular). Ela **se transforma**: a tela brilha dourada, uma **coroa** aparece na cabeça e, por **5 s**,
 todo inimigo num raio de uns 380 px **se ajoelha** (fica parado, roxinho, de cabeça baixa e inofensivo, dizendo "Sim, majestade!"). Chefões não se ajoelham. Recarga de 10 s.
 Conquista *De Joelhos!* (ajoelhar 3 de uma vez).
 
