@@ -76,7 +76,7 @@ música da intro, de vitória e de game over. As notas ficam em `SONGS` e dá pr
 
 ### Conquistas
 
-**64 conquistas**, como *Fugiu da Chinelada*, *Mogador Serial*, *Haja Coração!*, *Foi Pênalti?*, *Sigma do Combo*,
+**67 conquistas**, como *Fugiu da Chinelada*, *Mogador Serial*, *Haja Coração!*, *Foi Pênalti?*, *Sigma do Combo*,
 *Atropelamento 67*, *A Andreia Te Achou* e *Modo Andreia* (zerar no Difícil). Aparece um aviso na tela quando desbloqueia
 e dá pra ver todas no menu. A lista fica em `src/achievements.js`.
 
@@ -172,6 +172,19 @@ Na fase da **Paraíba** um amigo vira vilão: o **Paraíba**, de boné e blusa t
 pro outro, **para e dispara a pistola de brinquedo, uma rajada de 8 dardos de espuma em todas as direções** (um mirado em você) ou **ronca e investe** em cima de você. Tem **3 de vida**
 (uma barra aparece em cima dele): cada pisada tira 1 (mesmo grandão), ele fica mais furioso a cada uma e a 3ª derruba (+2000 e a conquista **Moto Derrubada**).
 
+### Dentro da Escola Zacarias (fase 2) e a professora Eva
+
+Na **fase 2** a porta da escola, no fim da rua, **leva pra dentro** (aparece o aviso "ENTRAR NA ESCOLA"). A fase agora tem 3 partes, sem perder as moedas, as mortes e o tempo:
+1. **A rua** (como sempre), até a porta da escola.
+2. **O corredor**: longo, com **inimigos normais** até o final (armários, cones de piso molhado, bancos, portas das outras salas, 2 checkpoints), e no fim a porta da **sala do 3º D**.
+3. **A sala de aula do 3º D**: a chefona é a **professora Eva** (uma senhora mais velha, de cabelo grisalho e coque, fofinha e baixinha), com slide, lição e... **tudo está ERRADO**.
+   - Ela **passeia** e **joga giz** em você.
+   - Depois **mostra um slide** (matemática, história, tabuada...) e carimba **"ERRADO!"** em cima, **até quando está certo**.
+   - Aí cai uma **chuva de "X" de errado** (cada um avisa no chão antes de cair; as carteiras protegem).
+   - Cansada de corrigir, ela fica **cansada** por uns segundos (aparece "PISA AGORA!"): é a hora de **pisar nela**. Antes disso, pisar só quica ("ERRADO!").
+   - Tem **vida** (4 / 5 / 6 conforme a dificuldade), fica mais rápida a cada pisada, e modo 67 / churros não a derrubam de uma vez.
+   - Derrotada: **NOTA 10**, conta como a fase 2 concluída e as moedas viram dinheiro. A fala "Tá errado!" dá pra **dublar** em *Minha voz*.
+O código fica em `src/eva.js`. Conquistas: *Aluno Pontual*, *Terceiro D* e *Nota Dez*.
 ### Inimigos mais espertos
 
 Os inimigos que andam agora **percebem você** (campo de visão, sem parede no meio), mostram um **"!"**, **avisam os vizinhos** e **perseguem mais rápido**

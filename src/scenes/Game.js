@@ -81,6 +81,10 @@ class GameScene extends Phaser.Scene {
     this.levelTime = 0;
     this.levelCoins = 0;
     this.totalCoins = 0;
+    this.room = data.room || null;                      // 'corredor' ou 'sala': dentro da Escola Zacarias (fase 2)
+    this.carry = data.carry || null;                    // moedas, mortes e tempo da parte de fora, que continuam dentro da escola
+    if (this.carry) { this.levelCoins = this.carry.coins; this.totalCoins = this.carry.total; this.levelDeaths = this.carry.deaths; this.levelTime = this.carry.time; }
+    this.entering = false; this.eva = null; this.evaSpawn = null;
     this.dead = false;
     this.finished = false;
     this.checkpoint = null;
@@ -97,17 +101,18 @@ class GameScene extends Phaser.Scene {
   }
 
   create() {
-    const def = LEVELS[this.levelIndex];
+    const def = this.room === 'sala' ? classroomDef(Math.ceil(VIEW_W / TILE)) : (this.room === 'corredor' ? corridorDef() : LEVELS[this.levelIndex]);
     const theme = THEMES[def.theme] || THEMES.dia;
     const level = parseLevel(def.map, theme);
     this.mapW = level.width * TILE;
     this.mapH = level.height * TILE;
 
-    this.backdrop = createBackdrop(this, theme, true);
-    this.themeKey = def.theme;
+    this.backdrop = this.room === 'sala' ? this.drawClassroom() : (this.room === 'corredor' ? this.drawCorridor(level) : createBackdrop(this, theme, true));
+    if (this.room === 'sala') this.drawDesks(level);
+    this.themeKey = this.room ? 'escola' : def.theme;
     this.levelSong = theme.music || (SONGS[def.theme] ? def.theme : 'dia');
     Music.play(this.levelSong);
-    Progress.saveRun(this.levelIndex, this.startStats); // para o "Continuar" do menu
+    if (!this.room) Progress.saveRun(this.levelIndex, this.startStats); // para o "Continuar" do menu
 
     // --- Tilemap ---
     const map = this.make.tilemap({ data: level.tiles, tileWidth: TILE, tileHeight: TILE });
@@ -165,6 +170,9 @@ class GameScene extends Phaser.Scene {
           e.play('pombo_fly');
           break;
         }
+        case 'e': // onde fica a professora Eva (sala do 3º D)
+          this.evaSpawn = { x: cx, y: bottom };
+          break;
         case 'B': // meio da arena do chefão final
           this.bossSpawn = { x: cx, y: bottom };
           break;
@@ -249,6 +257,11 @@ class GameScene extends Phaser.Scene {
           break;
         case 'G':
           this.goal = this.physics.add.staticImage(cx, bottom, 'goal').setOrigin(0.5, 1).refreshBody();
+          if (this.room === 'corredor') { this.goal.setVisible(false); this.drawDoor3D(cx, bottom); }          // no corredor a "bandeira" é a porta do 3º D
+          else if (this.levelIndex === 1 && !this.room) {                                                      // na rua: a porta da escola leva pra dentro
+            const tag = this.add.text(cx - 30, bottom - 150, IS_TOUCH ? '🚪 entre na escola' : '🚪 ENTRAR NA ESCOLA', { ...textStyle(16, '#1b1b2a'), backgroundColor: '#ffd23f', padding: { x: 8, y: 3 }, strokeThickness: 0 }).setOrigin(0.5).setDepth(20);
+            this.tweens.add({ targets: tag, y: tag.y - 8, duration: 450, yoyo: true, repeat: -1 });
+          }
           break;
       }
     }
@@ -299,6 +312,7 @@ class GameScene extends Phaser.Scene {
     this.physics.add.collider(this.player, this.crumbles, this.stepCrumble,
       (pl, c) => c.state !== 'gone' && pl.body.velocity.y >= 0 && pl.body.bottom <= c.body.top + 10, this);
     this.spawnMoto(def);                                  // vilão da moto (fase da Paraíba)
+    if (this.room === 'sala') this.setupEva();            // a professora Eva (sala do 3º D)
     this.physics.add.overlap(this.player, this.enemies, this.hitEnemy, null, this);
     this.physics.add.overlap(this.player, this.shots, (pl, shot) => {
       if (this.powerTime > 0) { shot.destroy(); return; }
@@ -1147,6 +1161,7 @@ class GameScene extends Phaser.Scene {
       // ---- memes clássicos ----
       const dyAbs = Math.abs(pb.center.y - b.center.y);
       if (e.behavior === 'moto') { this.updateMoto(e, dt); return; }
+      if (e.behavior === 'eva') { this.updateEva(e, dt); return; }
       if (e.behavior === 'sprayer') {                    // Skibidi: cospe 3 jatos em arco
         e.setVelocityX(0);
         e.dir = dx > 0 ? 1 : -1;
@@ -1405,12 +1420,19 @@ class GameScene extends Phaser.Scene {
     if (this.dead || enemy.dead) return;
     const pb = player.body;
     const eb = enemy.body;
-    if (this.powerTime > 0) {
-      // No modo 67 é só encostar
+    if (this.powerTime > 0 && !enemy.moto && !enemy.eva) {
+      // No modo 67 é só encostar (menos nos chefões Paraíba e Eva)
       this.defeatEnemy(enemy, true);
     } else if (pb.velocity.y > 0 && pb.bottom <= eb.top + 12) {
       // Caindo e vindo de cima = pisou no inimigo
-      if (enemy.hp > 1 && (!this.big || enemy.moto)) {   // grandão derruba inimigo duro numa pisada só (menos o Paraíba)
+      if (enemy.eva && !enemy.vulnerable) {                    // a Eva só leva dano quando está cansada: antes disso, a pisada só quica
+        if (this.time.now < (enemy.bounceUntil || 0)) return;
+        enemy.bounceUntil = this.time.now + 300;
+        player.setVelocityY(-PHYS.stomp); this.squash = 0.3;
+        this.speech(enemy, 'ERRADO!'); Sfx.stomp();
+        return;
+      }
+      if (enemy.hp > 1 && (!this.big || enemy.moto || enemy.eva)) {   // grandão derruba inimigo duro numa pisada só (menos o Paraíba)
         // inimigo duro (Lirilì): perde uma vida, pisca e o Brunucho quica
         if (this.time.now < (enemy.hurtUntil || 0)) return;
         enemy.hp--;
@@ -1419,7 +1441,7 @@ class GameScene extends Phaser.Scene {
         this.time.delayedCall(120, () => enemy.active && enemy.clearTint());
         player.setVelocityY(-PHYS.stomp);
         this.squash = 0.3;
-        if (enemy.moto) this.motoHurt(enemy); else this.speech(enemy, 'Ai! Mais uma!');
+        if (enemy.moto) this.motoHurt(enemy); else if (enemy.eva) this.evaHurt(enemy); else this.speech(enemy, 'Ai! Mais uma!');
         Sfx.stomp();
         return;
       }
@@ -1440,6 +1462,7 @@ class GameScene extends Phaser.Scene {
     enemy.dead = true;
     if (enemy.friendKey) this.friendStomped(enemy);
     if (enemy.tag && !enemy.friendKey) { enemy.tag.destroy(); enemy.tag = null; }
+    if (enemy.eva) this.evaDefeated(enemy);
     if (enemy.moto) {
       if (enemy.bar) enemy.bar.destroy();
       this.addScore(2000, enemy.x, enemy.y - 44, 'PARAÍBA DERRUBADO!  +2000');
@@ -1858,6 +1881,7 @@ class GameScene extends Phaser.Scene {
   }
 
   respawn() {
+    if (this.room === 'sala') this.shots.clear(true, true);
     const sp = this.bossRespawnPoint() || this.checkpoint || this.spawn;
     this.player.enableBody(true, sp.x, sp.y - 16, true, false);
     this.player.setVelocity(0, 0);
@@ -1895,10 +1919,11 @@ class GameScene extends Phaser.Scene {
 
   reachGoal() {
     if (this.finished || this.dead) return;
+    if (this.levelIndex === 1 && this.room !== 'sala') { this.enterSchool(this.room ? 'sala' : 'corredor'); return; }   // fase 2: a porta da escola, depois a do 3º D
     this.finished = true;
     this.stats.time += this.levelTime;
     this.player.setVelocityX(0);
-    this.fxParty.explode(60, this.goal.x, this.goal.y - 60);
+    this.fxParty.explode(60, this.goal ? this.goal.x : this.player.x, this.goal ? this.goal.y - 60 : this.player.y - 60);
     Sfx.win();
 
     // Bônus de fim de fase
@@ -1965,7 +1990,7 @@ class GameScene extends Phaser.Scene {
 
   restartLevel() {
     // Moedas, tempo e VIDAS voltam ao que eram no início da fase; só o contador de mortes continua.
-    this.scene.restart({ level: this.levelIndex, stats: { ...this.startStats, deaths: this.stats.deaths }, buffs: this.buffs });
+    this.scene.restart({ level: this.levelIndex, stats: { ...this.startStats, deaths: this.stats.deaths }, buffs: this.buffs, room: this.room, carry: this.carry });
   }
 
   pauseGame() {

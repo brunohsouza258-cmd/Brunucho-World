@@ -131,6 +131,7 @@ const VOICE_LINES = [
   { id: 'churros', label: 'Churros!', when: 'ao pegar o churros', tts: ['churros!', { rate: 1.1, pitch: 1.1 }] },
   { id: 'aura', label: 'Aura!', when: 'ao pegar o escudo de aura', tts: null },
   { id: 'gameover', label: 'Ai, mãe!', when: 'quando acabam as vidas', tts: null },
+  { id: 'eva', label: 'Tá errado!', when: 'quando a professora Eva corrige o slide', tts: ['tá errado! refaz!', { rate: 1.05, pitch: 1.3 }] },
 ];
 
 // Uma fala por amigo (aba "Falas dos amigos"): toca ao pegar um poder jogando com ele e quando ele leva uma pisada de brincadeira.

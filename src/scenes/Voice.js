@@ -27,7 +27,7 @@ class VoiceScene extends Phaser.Scene {
     });
     this.rows = VOICE_LINES.map((ln, i) => {
       const c = this.add.container(0, 0);
-      const bg = this.add.rectangle(WIDTH / 2, 0, 900, 34, 0x1b1b2a, 0.9).setStrokeStyle(2, 0x444455).setInteractive({ useHandCursor: true });
+      const bg = this.add.rectangle(WIDTH / 2, 0, 900, 32, 0x1b1b2a, 0.9).setStrokeStyle(2, 0x444455).setInteractive({ useHandCursor: true });
       bg.on('pointerdown', () => { this.sel = i; this.refresh(); });
       const parts = [bg, this.add.text(50, 0, ln.label, textStyle(22)).setOrigin(0, 0.5), this.add.text(290, 0, ln.when, textStyle(13, '#b5b5c8')).setOrigin(0, 0.5)];
       const status = this.add.text(560, 0, '', textStyle(15)).setOrigin(0, 0.5);
@@ -81,7 +81,7 @@ class VoiceScene extends Phaser.Scene {
       const show = r.friend === (this.tab === 'amigos');
       r.c.setVisible(show);
       r.c.list.forEach((o) => { if (o.input) o.input.enabled = show; });
-      if (show) r.c.y = 146 + n++ * 40;
+      if (show) r.c.y = 146 + n++ * 36;
     });
     this.tabs.forEach((t) => { const on = t.id === this.tab; t.t.setColor(on ? '#1b1b2a' : '#ffffff').setBackgroundColor(on ? '#ffd23f' : '#2b2b3a'); });
   }

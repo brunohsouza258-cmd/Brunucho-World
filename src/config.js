@@ -301,6 +301,8 @@ const GROUNDS = {
   areia:    [TILES.SAND_TOP, TILES.SAND],
   calcadao: [TILES.CALCADAO, TILES.SAND],    // calçadão de Copacabana
   calcada:  [TILES.SIDEWALK, TILES.CONCRETE], // calçada de cidade
+  corredor: [TILES.SIDEWALK, TILES.CONCRETE], // piso do corredor da escola
+  sala:     [TILES.WOOD, TILES.WOOD],          // piso de madeira da sala de aula
   pedra:    [TILES.COBBLE, TILES.DIRT],       // paralelepípedo do Pelourinho
   cerrado:  [TILES.CLAY_TOP, TILES.CLAY],     // terra vermelha com capim (cerrado, Norte, sertão)
 };
@@ -329,6 +331,9 @@ const THEMES = {
       { key: 'rio_mountains', y: HEIGHT - 330, factor: 0.12 },
       { key: 'sea', y: HEIGHT - 200, factor: 0.4, wave: true },
     ] },
+  // Dentro da Escola Zacarias (fase 2): o corredor (inimigos normais) e a sala do 3º D (chefona: a professora Eva)
+  corredor: { sky: 'sun', skyTop: 0xf0e6c8, skyBottom: 0xf0e6c8, clouds: 0, ground: 'corredor', enemy: 'tungtung', spike: 'cone', music: 'escola' },
+  sala:     { sky: 'sun', skyTop: 0xf3e9cd, skyBottom: 0xf3e9cd, clouds: 0, ground: 'sala', enemy: 'tungtung', spike: 'cone', music: 'chefao' },
   // Brasília: chefão final (Lula & Flávio)
   brasilia: { sky: 'sunset', skyTop: 0x2b1a4a, skyBottom: 0xff9a5a, clouds: 0.5, ground: 'calcada', enemy: 'tungtung', spike: 'cone', music: 'noite',
     layers: [

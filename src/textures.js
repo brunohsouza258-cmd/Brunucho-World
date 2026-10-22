@@ -656,6 +656,43 @@ function generateTextures(scene) {
     g.fillStyle(0x7a1f2a); g.fillRect(23, 11, 5, 2);                                          // gritando
   });
 
+  // ================= PROFESSORA EVA (chefona da fase 2) =================
+  // Professora Eva: mais velha, cabelo grisalho em coque, fofinha e baixinha (de frente pra esquerda)
+  make('eva', 42, 46, (g) => {
+    const SK = 0xe3b894, SKD = 0xc99a78, GR = 0xb9b9c4, GRL = 0xdcdce6, GRD = 0x8e8e9a;
+    g.fillStyle(0x3a2a2a); g.fillRect(11, 42, 9, 4); g.fillRect(23, 42, 9, 4);                        // sapatos baixinhos
+    g.fillStyle(SKD); g.fillRect(13, 38, 6, 5); g.fillRect(24, 38, 6, 5);                             // canelas
+    g.fillStyle(0x5a3d6e); g.fillRoundedRect(6, 25, 31, 15, 6);                                       // saia rodada
+    g.fillStyle(0x45304f); g.fillRect(6, 36, 31, 4);
+    g.fillStyle(0x7a62a8); g.fillRoundedRect(7, 14, 29, 20, 10);                                      // casaquinho de tricô redondinho
+    g.fillStyle(0x6a5298); g.fillRect(9, 28, 25, 2);
+    g.fillStyle(0x5a4288); [[21, 19], [21, 24], [21, 29]].forEach(([x, y]) => g.fillRect(x, y, 2, 2));  // botões
+    g.fillStyle(0xfdfdf5); g.fillTriangle(16, 14, 27, 14, 21.5, 22);                                  // gola da blusa
+    g.fillStyle(0x7a62a8); g.fillRoundedRect(31, 18, 9, 8, 4); g.fillStyle(SK); g.fillCircle(38, 26, 3);   // braço de trás
+    g.fillStyle(0xfff6dd); g.fillRect(33, 24, 9, 12); g.fillStyle(0xe02020); g.fillRect(35, 29, 5, 2); g.fillRect(37, 27, 1, 6);   // pasta de provas com X
+    g.fillStyle(0x7a62a8); g.fillRoundedRect(1, 16, 12, 9, 4); g.fillStyle(SK); g.fillCircle(2, 19, 3);   // braço da frente apontando
+    g.lineStyle(2, 0xc9d1d9); g.lineBetween(1, 17, 0, 11);                                            // ponteiro
+    g.fillStyle(SK); g.fillCircle(22, 10, 9.5);                                                       // cabeça
+    g.fillStyle(0xf0a8a0, 0.55); g.fillCircle(15, 14, 2.6); g.fillCircle(29, 14, 2.6);                // bochechas
+    g.fillStyle(GR); g.fillRoundedRect(12, 0, 20, 9, 6); g.fillRect(12, 4, 4, 11);                    // cabelo grisalho
+    g.fillCircle(33, 3, 5);                                                                           // coque
+    g.fillStyle(GRL); g.fillRect(16, 1, 8, 2); g.fillCircle(32, 2, 2);
+    g.fillStyle(GRD); g.fillRect(12, 12, 3, 3);
+    g.lineStyle(1, 0x1b1b2a); g.strokeCircle(18, 11, 3.4); g.strokeCircle(27, 11, 3.4); g.lineBetween(21.4, 11, 23.6, 11);   // óculos redondos
+    g.fillStyle(0x1b1b2a); g.fillRect(17, 10, 2, 2); g.fillRect(26, 10, 2, 2);
+    g.fillStyle(GRD); g.fillRect(15, 6, 6, 1); g.fillRect(25, 6, 5, 1);                               // sobrancelhas grisalhas bravas
+    g.lineStyle(1, SKD); g.lineBetween(12, 10, 14, 11); g.lineBetween(31, 10, 33, 11); g.lineBetween(17, 16, 19, 17);   // ruguinhas
+    g.fillStyle(0x8c2a2a); g.fillRoundedRect(18, 16, 8, 4, 2); g.fillStyle(0xffffff); g.fillRect(19, 16, 6, 1);          // gritando "ERRADO!"
+  });
+  make('giz', 12, 5, (g) => {
+    g.fillStyle(0xffffff); g.fillRoundedRect(0, 0, 12, 5, 2);
+    g.fillStyle(0xd0d0d0); g.fillRect(8, 0, 4, 5);
+  });
+  make('errado', 30, 30, (g) => {
+    g.lineStyle(9, 0xffffff); g.lineBetween(5, 5, 25, 25); g.lineBetween(25, 5, 5, 25);
+    g.lineStyle(5, 0xe02020); g.lineBetween(5, 5, 25, 25); g.lineBetween(25, 5, 5, 25);
+  });
+
   // ================= PODERES =================
 
   // --- 67: modo six seven ---
@@ -810,7 +847,7 @@ const OUTLINE_PREFIXES = ['player_', 'neymar', 'galvao', 'caze', 'ednaldo', 'lul
   'capivara', 'tralalero', 'tungtung', 'slime', 'crab', 'pombo', 'bombardiro', 'patapim', 'bananini', 'lirili',
   'ballerina', 'coin', 'coxinha', 'tenis', 'ima', 'heart', 'gol_ball', 'picanha', 'ovo', 'bomba', 'pw_olhar', 'pw_anjo',
   'goal', 'cp_', 'mola', 'chinelo', 'plataforma', 'cacto', 'skibidi', 'doge', 'nyan', 'gigachad', 'nazare', 'gota', 'churros',
-  'rato', 'troll', 'pilili', 'cappuccino', 'trippi', 'paraiba_moto', 'dardo'];
+  'rato', 'troll', 'pilili', 'cappuccino', 'trippi', 'paraiba_moto', 'dardo', 'eva', 'giz', 'errado'];
 
 function outlineSprites(scene) {
   for (const key of scene.textures.getTextureKeys()) {
