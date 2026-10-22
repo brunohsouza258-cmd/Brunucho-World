@@ -921,6 +921,11 @@ class GameScene extends Phaser.Scene {
   // Escolhe quais inimigos 'E' desta fase viram amigos (um amigo diferente a cada fase marcada; nunca o que você está jogando).
   planCameos(level) {
     const plan = new Map();
+    if (this.room === 'corredor') {                       // corredor da escola: a turma toda também é vilã (de dois em dois inimigos vira um amigo)
+      const mates = FRIEND_KEYS.filter((k) => k !== currentOutfit());
+      level.objects.filter((o) => o.ch === 'E').forEach((o, i) => { if (i % 2 === 1 && mates.length) plan.set(o, mates[(i >> 1) % mates.length]); });
+      return plan;
+    }
     const n = CAMEO_LEVELS.indexOf(this.levelIndex);
     if (n < 0) return plan;
     const others = FRIEND_KEYS.filter((k) => k !== currentOutfit());

@@ -179,6 +179,7 @@ Na **fase 2** a porta da escola, no fim da rua, **leva pra dentro** (aparece o a
 2. **O corredor**: longo, com **inimigos normais** até o final (armários, cones de piso molhado, bancos, portas das outras salas, 2 checkpoints), e no fim a porta da **sala do 3º D**.
 3. **A sala de aula do 3º D**: a chefona é a **professora Eva** (uma senhora mais velha, de cabelo grisalho e coque, fofinha e baixinha), com slide, lição e... **tudo está ERRADO**.
    - **A turma toda está na sala**: todos os amigos (menos o que você está jogando) aparecem como colegas-inimigos, andando um pouco mais devagar, cada um com o nome em cima e a própria frase.
+   - No **corredor**, de dois em dois inimigos vira um amigo vilão (com nome e frase), no meio dos inimigos normais.
    - Ela **passeia** e **joga giz** em você.
    - Depois **mostra um slide** (matemática, história, tabuada...) e carimba **"ERRADO!"** em cima, **até quando está certo**.
    - Aí cai uma **chuva de "X" de errado** (cada um avisa no chão antes de cair; as carteiras protegem).

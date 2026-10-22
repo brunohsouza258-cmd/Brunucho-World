@@ -212,7 +212,7 @@ const EvaMixin = {
     this.evaBar = this.add.graphics().setScrollFactor(0).setDepth(140);
   },
 
-  // A turma toda do 3º D: todos os amigos (menos o que você está jogando) viram colegas de sala-inimigos, um pouco mais lentos que o normal
+  // A turma toda do 3º D: todos os amigos (menos o que você está jogando) viram colegas de sala-inimigos, quase na velocidade normal
   spawnClassmates() {
     const mates = FRIEND_KEYS.filter((k) => k !== currentOutfit());
     if (!mates.length) return;
@@ -220,7 +220,7 @@ const EvaMixin = {
     mates.forEach((k, i) => {
       const x = x0 + (x1 - x0) * (mates.length === 1 ? 0.5 : i / (mates.length - 1));
       const m = this.spawnFriendEnemy(k, x, 14 * TILE);
-      m.speed *= 0.7; m.dir = i % 2 ? 1 : -1;
+      m.speed *= 0.9; m.dir = i % 2 ? 1 : -1;
     });
   },
 
